@@ -4,14 +4,12 @@ using Rentify.Backend.Core.Application.Interfaces.Services;
 using Rentify.Backend.Infraestructure.Identity.Interfaces;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net.Mime;
-using RegisterRequest = Rentify.Backend.Core.Application.Dtos.Accounts.RegisterRequest;
+
 
 namespace Rentify.Backend.Presentation.WebApi.Controllers
 {
     [ApiController]
-    [SwaggerTag("Controlador para el login y registro de la API")]
-    [Route("api/[controller]")]
-    public class UserController : ControllerBase
+    public class UserController : BaseApiController
     {
         private readonly IAccountService _accountService;
         private readonly IJwtServices _jwtServices;
@@ -22,13 +20,9 @@ namespace Rentify.Backend.Presentation.WebApi.Controllers
             _jwtServices = jwtServices;
         }
 
-        [HttpPost("Register")]
+        [HttpPost("register")]
         [Consumes(MediaTypeNames.Application.Json)]
-        [SwaggerOperation(
-            Summary = "Registro de un nuevo usuario",
-            Description = "Se envia los parametros necesarios para crear un usuario"
-        )]
-        public async Task<IActionResult> RegisterDeveloper([FromBody] RegisterRequest register)
+        public async Task<IActionResult> Register([FromBody] RegisterRequest register)
         {
             try
             {
@@ -41,13 +35,9 @@ namespace Rentify.Backend.Presentation.WebApi.Controllers
             }
         }
 
-        [HttpPost("Authentication")]
+        [HttpPost("login")]
         [Consumes(MediaTypeNames.Application.Json)]
-        [SwaggerOperation(
-            Summary = "Login de usuario",
-            Description = "Incio de sesion para los usuarios del sistema"
-        )]
-        public async Task<IActionResult> Authentication([FromBody] AuthenticationRequest request)
+        public async Task<IActionResult> LoginAsync([FromBody] AuthenticationRequest request)
         {
             try
             {
