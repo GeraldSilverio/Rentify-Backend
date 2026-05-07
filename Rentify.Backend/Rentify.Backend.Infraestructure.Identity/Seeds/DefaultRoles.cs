@@ -15,7 +15,7 @@ namespace Rentify.Backend.Infraestructure.Identity.Seeds
         /// <returns>A task representing the asynchronous operation.</returns>
         public static async Task CreateRoles(RoleManager<IdentityRole> roleManager)
         {
-            await roleManager.CreateAsync(new IdentityRole(Roles.User.ToString()));
+            await roleManager.CreateAsync(new IdentityRole("USER"));
         }
     }
 }

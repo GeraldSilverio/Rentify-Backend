@@ -44,8 +44,8 @@ using (var scope = app.Services.CreateScope())
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
         var rolesManager = services.GetRequiredService<RoleManager<IdentityRole>>();
 
-        await DefaultRoles.CreateRoles(rolesManager);
-        await DefaultUser.CreateUser(userManager);
+       await DefaultRoles.CreateRoles(rolesManager);
+       await DefaultUser.CreateUser(userManager);
     }
     catch (Exception ex)
     {

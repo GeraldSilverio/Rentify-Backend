@@ -1,10 +1,10 @@
+using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Identity;
 using Rentify.Backend.Core.Application;
 using Rentify.Backend.Core.Application.Dtos.Accounts;
 using Rentify.Backend.Core.Application.Interfaces.Services;
 using Rentify.Backend.Infraestructure.Identity.Context;
 using Rentify.Backend.Infraestructure.Identity.Interfaces;
-using System.IdentityModel.Tokens.Jwt;
 
 namespace Rentify.Backend.Infraestructure.Identity.Services
 {
@@ -71,7 +71,7 @@ namespace Rentify.Backend.Infraestructure.Identity.Services
                 if (result.Succeeded)
                 {
                     response.IdUser = user.Id;
-                    await _userManager.AddToRoleAsync(user, Roles.User.ToString());
+                    await _userManager.AddToRoleAsync(user, "CLIENT");
                     return response;
                 }
 

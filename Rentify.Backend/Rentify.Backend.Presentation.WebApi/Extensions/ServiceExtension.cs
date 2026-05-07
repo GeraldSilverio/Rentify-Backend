@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi;
+using Microsoft.OpenApi.Models;
 
 namespace Rentify.Backend.Presentation.WebApi.Extensions
 {
@@ -14,12 +15,12 @@ namespace Rentify.Backend.Presentation.WebApi.Extensions
                 options.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Version = "v1",
-                    Title = "TITLE OF FOR WEB API",
-                    Description = " Here you can write a description for your WEB API",
+                    Title = "Rentify API",
+                    Description = "Web API for Rentify Rent Car Software.",
                     Contact = new OpenApiContact
                     {
-                        Name = "YourName",
-                        Email = "YournEmail@gmail.com"
+                        Name = "Gerald Antonio Silverio Serrata",
+                        Email = "ing.geraldsilverioserrata@gmail.com"
                     }
                 });
                 options.EnableAnnotations();

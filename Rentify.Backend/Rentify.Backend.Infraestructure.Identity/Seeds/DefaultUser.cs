@@ -38,7 +38,7 @@ namespace Rentify.Backend.Infraestructure.Identity.Seeds
                         await userManager.CreateAsync(user, "123UserC#@");
 
                         // Assign the 'User' role to the new user
-                        await userManager.AddToRoleAsync(user, Roles.User.ToString());
+                        await userManager.AddToRoleAsync(user, "USER");
                     }
                 }
             }

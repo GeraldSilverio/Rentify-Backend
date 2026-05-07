@@ -1,18 +1,23 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using Npgsql;
+using Rentify.Backend.Core.Application.Helpers;
 using Rentify.Backend.Core.Application.Interfaces.Services;
 using Rentify.Backend.Core.Application.Wrappers;
 using Rentify.Backend.Core.Domain.Settings;
 using Rentify.Backend.Infraestructure.Identity.Context;
 using Rentify.Backend.Infraestructure.Identity.Interfaces;
+using Rentify.Backend.Infraestructure.Identity.Repositories.Implementations;
+using Rentify.Backend.Infraestructure.Identity.Repositories.Interfaces;
 using Rentify.Backend.Infraestructure.Identity.Services;
-using System.Text;
 
 namespace Rentify.Backend.Infraestructure.Identity
 {
@@ -75,7 +80,7 @@ namespace Rentify.Backend.Infraestructure.Identity
                         c.HandleResponse();
                         c.Response.StatusCode = 401;
                         c.Response.ContentType = "application/json";
-                        var result = JsonConvert.SerializeObject(new Response<string>("You are not Authorize"));
+                        var result = JsonConvert.SerializeObject(Result<string>.Failure(Error.Unauthorized("You are not authorized")));
                         return c.Response.WriteAsync(result);
                     },
                     OnForbidden = c =>
@@ -84,7 +89,7 @@ namespace Rentify.Backend.Infraestructure.Identity
                         c.Response.ContentType = "application/json";
                         var result =
                             JsonConvert.SerializeObject(
-                                new Response<string>("You are not Authorize to access this resource"));
+                                 Result<string>.Failure(Error.ForBidden("You are not Authorize to access this resource")));
                         return c.Response.WriteAsync(result);
                     },
                 };
@@ -101,12 +106,25 @@ namespace Rentify.Backend.Infraestructure.Identity
         {
             #region IdentityContext
 
-            services.AddDbContext<IdentityContext>(options =>
+            string hostAddress = ReadFromConfiguration.GetValueFromConfig(configuration, "DB_HOST");
+            string dataBase = ReadFromConfiguration.GetValueFromConfig(configuration, "DB_DATABASE_NAME");
+            string userDb = ReadFromConfiguration.GetValueFromConfig(configuration, "DB_USER");
+            string passwordDb = ReadFromConfiguration.GetValueFromConfig(configuration, "DB_PASSWORD");
+            string portNumber = ReadFromConfiguration.GetValueFromConfig(configuration, "DB_PORT");
+
+            var builder = new NpgsqlConnectionStringBuilder
             {
-                options.EnableSensitiveDataLogging();
-                options.UseSqlServer(configuration.GetConnectionString("IdentityConnection"),
-                    m => m.MigrationsAssembly(typeof(IdentityContext).Assembly.FullName));
-            });
+                Host = hostAddress,
+                Port = int.Parse(portNumber),
+                Database = dataBase,
+                Username = userDb,
+                Password = passwordDb
+            };
+
+            services.AddDbContext<IdentityContext>(options =>
+                    options.UseNpgsql(builder.ConnectionString,
+                        m => m.MigrationsAssembly(typeof(IdentityContext).Assembly.FullName)),
+                ServiceLifetime.Scoped);
 
             #endregion
         }
@@ -117,6 +135,8 @@ namespace Rentify.Backend.Infraestructure.Identity
 
             services.AddTransient<IAccountService, AccountService>();
             services.AddTransient<IJwtServices, JwtServices>();
+            services.AddTransient<IRolRepository, RolRepository>();
+            services.AddTransient<IRolService, RolService>();
 
             #endregion
         }
