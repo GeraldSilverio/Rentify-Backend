@@ -1,0 +1,6 @@
+@src.Presentation.WebApi_HostAddress = http://localhost:5111
+
+GET {{Rentify.Backend.Presentation.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
