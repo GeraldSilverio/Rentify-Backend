@@ -3,8 +3,9 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Npgsql;
+using Rentify.Backend.Core.Application.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Helpers;
-using Rentify.Backend.Core.Application.Interfaces.Repositories;
 using Rentify.Backend.Infraestructure.Persistence.Context;
 using Rentify.Backend.Infraestructure.Persistence.Repositories;
 
@@ -14,25 +15,24 @@ namespace Rentify.Backend.Infraestructure.Persistence
     {
         public static void AddPersistence(this IServiceCollection services, IConfiguration configuration)
         {
-            string hostAddress = ReadFromConfiguration.GetValueFromConfig(configuration, "DB_HOST");
+            string  hostAddress = ReadFromConfiguration.GetValueFromConfig(configuration, "DB_HOST");
             string dataBase = ReadFromConfiguration.GetValueFromConfig(configuration, "DB_DATABASE_NAME");
             string userDb = ReadFromConfiguration.GetValueFromConfig(configuration, "DB_USER");
             string passwordDb = ReadFromConfiguration.GetValueFromConfig(configuration, "DB_PASSWORD");
             string portNumber = ReadFromConfiguration.GetValueFromConfig(configuration, "DB_PORT");
 
-            SqlConnectionStringBuilder builder = new()
+            var builder = new NpgsqlConnectionStringBuilder
             {
-                DataSource = $"{hostAddress},{portNumber}",
-                InitialCatalog = dataBase,
-                UserID = userDb,
-                Password = passwordDb,
-                TrustServerCertificate = true,
-                ConnectTimeout = 30
+                Host = hostAddress,
+                Port = int.Parse(portNumber),
+                Database = dataBase,
+                Username = userDb,
+                Password = passwordDb
             };
 
-            services.AddDbContext<ApplicationContext>(options =>
+            services.AddDbContext<RentifyContext>(options =>
                     options.UseNpgsql(builder.ConnectionString,
-                        m => m.MigrationsAssembly(typeof(ApplicationContext).Assembly.FullName)),
+                        m => m.MigrationsAssembly(typeof(RentifyContext).Assembly.FullName)),
                 ServiceLifetime.Scoped);
 
             //Inyecciones de dependencias.

@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Rentify.Backend.Core.Application.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Exceptions;
-using Rentify.Backend.Core.Application.Interfaces.Repositories;
 using Rentify.Backend.Core.Domain.Commons;
 using Rentify.Backend.Infraestructure.Persistence.Context;
 
@@ -9,11 +9,11 @@ namespace Rentify.Backend.Infraestructure.Persistence.Repositories
 {
     public class BaseRepository<T> : IBaseRepository<T> where T : class
     {
-        private readonly ApplicationContext _dbContext;
+        private readonly RentifyContext _dbContext;
         protected DbSet<T> Entities;
         protected readonly IConfiguration Configuration;
 
-        public BaseRepository(ApplicationContext dbContext, IConfiguration configuration)
+        public BaseRepository(RentifyContext dbContext, IConfiguration configuration)
         {
             _dbContext = dbContext;
             Entities = _dbContext.Set<T>();
@@ -44,7 +44,7 @@ namespace Rentify.Backend.Infraestructure.Persistence.Repositories
         {
             try
             {
-                if (entity is AuditoryProperties entityModel)
+                if (entity is BaseEntity entityModel)
                 {
                     entityModel.IsDeleted = true; // Soft delete logic (mark as deleted)
                     Entities.Update(entity);

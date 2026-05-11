@@ -1,4 +1,4 @@
-﻿namespace Rentify.Backend.Core.Application.Interfaces.Repositories
+﻿namespace Rentify.Backend.Core.Application.Contracts.Repositories
 {
     /// <summary>
     /// Generic repository interface for basic CRUD operations on entities of type T.

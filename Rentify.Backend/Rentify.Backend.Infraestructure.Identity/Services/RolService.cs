@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Identity;
 using Rentify.Backend.Core.Application.Dtos.Roles;
-using Rentify.Backend.Core.Application.Interfaces.Repositories;
 using Rentify.Backend.Core.Application.Interfaces.Services;
 using Rentify.Backend.Core.Application.Wrappers;
 using Rentify.Backend.Infraestructure.Identity.Repositories.Interfaces;
