@@ -23,30 +23,36 @@ public class RentCarEntityConfiguration : IEntityTypeConfiguration<RentCar>
 
         builder.Property(x => x.IsActive)
             .IsRequired();
-        
+
         builder.OwnsOne(x => x.Email, email =>
         {
             email.Property(x => x.Value)
                 .HasColumnName("Email")
                 .IsRequired()
                 .HasMaxLength(255);
+
+            email.HasIndex(p => p.Value).IsUnique(true);
         });
-        
+
         builder.OwnsOne(x => x.Phone, phone =>
         {
             phone.Property(x => x.Value)
                 .HasColumnName("Phone")
                 .IsRequired()
                 .HasMaxLength(20);
+
+            phone.HasIndex(p => p.Value).IsUnique(true);
         });
-        
+
         builder.OwnsOne(x => x.WhatsApp, whatsapp =>
         {
             whatsapp.Property(x => x.Value)
                 .HasColumnName("WhatsApp")
                 .HasMaxLength(20);
+
+            whatsapp.HasIndex(p => p.Value).IsUnique(true);
         });
-        
+
         builder.OwnsOne(x => x.Address, address =>
         {
             address.Property(x => x.Street)
@@ -64,5 +70,7 @@ public class RentCarEntityConfiguration : IEntityTypeConfiguration<RentCar>
                 .IsRequired()
                 .HasMaxLength(100);
         });
+
+        
     }
 }

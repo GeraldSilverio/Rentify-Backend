@@ -24,7 +24,7 @@ namespace Rentify.Backend.Presentation.WebApi.Middlewares
             {
                 var response = context.Response;
                 response.ContentType = "application/json";
-                var responseModel = Result<string>.Failure(Error.InternalServer("An unexpected error occurred"));
+                var responseModel = Result<string>.Failure(Error.InternalServer(error.Message));
 
                 switch (error)
                 {
@@ -60,7 +60,7 @@ namespace Rentify.Backend.Presentation.WebApi.Middlewares
                         response.StatusCode = (int)HttpStatusCode.InternalServerError;
                         break;
                 }
-                var result = JsonSerializer.Serialize(responseModel);
+                var result = JsonSerializer.Serialize(responseModel.Error);
 
                 await response.WriteAsync(result);
             }

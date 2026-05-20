@@ -30,7 +30,7 @@ namespace Rentify.Backend.Core.Domain.ValueObjects
             return $"{Street}, {City}, {Country}";
         }
 
-        protected bool Equals(Address other)
+        private bool Equals(Address other)
         {
             return Street == other.Street &&
                    City == other.City &&

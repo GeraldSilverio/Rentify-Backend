@@ -4,9 +4,9 @@ namespace Rentify.Backend.Core.Domain.Commons
     public abstract class BaseEntity
     {
      
-        public string? CreatedBy { get; set; }
+        public string CreatedBy { get; set; } = null!;
       
-        public string? ModifiedBy { get; set; }
+        public string ModifiedBy { get; set; } = null!;
         
         public DateTime CreatedDate { get; set; }
         

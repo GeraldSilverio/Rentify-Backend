@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Connections;
+using Microsoft.AspNetCore.Connections;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -37,6 +37,7 @@ namespace Rentify.Backend.Infraestructure.Persistence
 
             //Inyecciones de dependencias.
             services.AddTransient(typeof(IBaseRepository<>), typeof(BaseRepository<>));
+            services.AddScoped<IRentCarRepository, RentCarRepository>();
         }
     }
 }

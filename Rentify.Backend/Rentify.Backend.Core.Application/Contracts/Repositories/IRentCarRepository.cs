@@ -4,11 +4,9 @@ namespace Rentify.Backend.Core.Application.Contracts.Repositories;
 
 public interface IRentCarRepository
 {
-    Task<List<RentCar>> GetRentCarsAsync(int page, int pageSize);
-    Task<RentCar> GetRentCarByIdAsync(int id);
-    Task<RentCar> AddRentCarAsync(RentCar rentCar);
-    Task<RentCar> UpdateRentCarAsync(RentCar rentCar);
-    Task DeleteRentCarAsync(int id);
-    Task DisableRentCarAsync(int id);
-    Task EnableRentCarAsync(int id);
+    Task<RentCar?> GetByIdAsync(Guid id);
+    Task<List<RentCar>> GetPagedAsync(int pageNumber, int pageSize);
+    Task<int> GetTotalCountAsync();
+    Task<RentCar> AddAsync(RentCar rentCar);
+    Task UpdateAsync(RentCar rentCar);
 }
