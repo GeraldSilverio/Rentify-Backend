@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Rentify.Backend.Core.Application;
+using Rentify.Backend.Infraestructure.Identity.Entities;
 
 namespace Rentify.Backend.Infraestructure.Identity.Seeds
 {
@@ -21,8 +22,7 @@ namespace Rentify.Backend.Infraestructure.Identity.Seeds
                 {
                     UserName = "User123",
                     Email = "User123@gmail.com",
-                    FirstName = "User",
-                    LastName = "User12",
+                    FullName = "User Default",
                     EmailConfirmed = true,
                     PhoneNumberConfirmed = true,
                     IsActive = true

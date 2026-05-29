@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Rentify.Backend.Core.Application;
+using Rentify.Backend.Core.Application.Modules.Tenants.Commands.RegisterTenant;
 using Rentify.Backend.Infraestructure.Identity;
+using Rentify.Backend.Infraestructure.Identity.Entities;
 using Rentify.Backend.Infraestructure.Identity.Seeds;
 using Rentify.Backend.Infraestructure.Persistence;
 using Rentify.Backend.Presentation.WebApi.Extensions;
@@ -22,7 +24,6 @@ builder.Services.AddControllers(options =>
 builder.Services.AddIdentityInfrastructure(builder.Configuration);
 builder.Services.AddPersistence(builder.Configuration);
 builder.Services.AddApplicationLayer();
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddEndpointsApiExplorer();
@@ -34,6 +35,8 @@ builder.Services.AddSwaggerExtension();
 builder.Services.AddApiVersioningExtension();
 
 var app = builder.Build();
+
+app.MapRegisterTenant();
 
 using (var scope = app.Services.CreateScope())
 {

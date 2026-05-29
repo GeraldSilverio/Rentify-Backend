@@ -1,8 +1,14 @@
 using FluentValidation;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using Rentify.Backend.Core.Application.Contracts.Services;
-using Rentify.Backend.Core.Application.Services;
+using Rentify.Backend.Core.Application.Common.Behaviors;
+using Rentify.Backend.Core.Application.Modules.Tenants.Contracts.Services;
+using Rentify.Backend.Core.Application.Modules.Tenants.Implementations.Services;
 using System.Reflection;
+using Rentify.Backend.Core.Application.Modules.RentCars.Contracts.Services;
+using Rentify.Backend.Core.Application.Modules.RentCars.Implementations.Services;
+using Rentify.Backend.Core.Application.Modules.Subscriptions.Contracts.Services;
+using Rentify.Backend.Core.Application.Modules.Subscriptions.Implementations;
 
 namespace Rentify.Backend.Core.Application;
 
@@ -18,6 +24,26 @@ public static class ServiceRegistration
     public static void AddApplicationLayer(this IServiceCollection services)
     {
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+
+        var assembly = Assembly.GetExecutingAssembly();
+
+        // MediatR
+        services.AddMediatR(cfg =>
+        {
+            cfg.RegisterServicesFromAssembly(assembly);
+        });
+
+        // FluentValidation
+        services.AddValidatorsFromAssembly(assembly);
+
+        // Pipeline Behaviors
+        services.AddScoped(
+            typeof(IPipelineBehavior<,>),
+            typeof(ValidationBehavior<,>));
+
         services.AddScoped<IRentCarService, RentCarService>();
+        services.AddScoped<ISubscriptionService,SubscriptionService>();
+        services.AddScoped<ITenantService,TenantService>();
+
     }
 }

@@ -1,13 +1,14 @@
-using Microsoft.AspNetCore.Connections;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
-using Rentify.Backend.Core.Application.Contracts.Repositories;
-using Rentify.Backend.Core.Application.Helpers;
+using Rentify.Backend.Core.Application.Modules.RentCars.Contracts.Repositories;
+using Rentify.Backend.Core.Application.Modules.Subscriptions.Contracts.Repositories;
+using Rentify.Backend.Core.Application.Modules.Tenants.Contracts.Repositories;
+using Rentify.Backend.Core.Application.Shared.Helpers;
+using Rentify.Backend.Core.Application.Shared.UnitOfWork;
 using Rentify.Backend.Infraestructure.Persistence.Context;
-using Rentify.Backend.Infraestructure.Persistence.Repositories;
+using Rentify.Backend.Infrastructure.Persistence.Repositories;
 
 namespace Rentify.Backend.Infraestructure.Persistence
 {
@@ -15,7 +16,7 @@ namespace Rentify.Backend.Infraestructure.Persistence
     {
         public static void AddPersistence(this IServiceCollection services, IConfiguration configuration)
         {
-            string  hostAddress = ReadFromConfiguration.GetValueFromConfig(configuration, "DB_HOST");
+            string hostAddress = ReadFromConfiguration.GetValueFromConfig(configuration, "DB_HOST");
             string dataBase = ReadFromConfiguration.GetValueFromConfig(configuration, "DB_DATABASE_NAME");
             string userDb = ReadFromConfiguration.GetValueFromConfig(configuration, "DB_USER");
             string passwordDb = ReadFromConfiguration.GetValueFromConfig(configuration, "DB_PASSWORD");
@@ -36,8 +37,10 @@ namespace Rentify.Backend.Infraestructure.Persistence
                 ServiceLifetime.Scoped);
 
             //Inyecciones de dependencias.
-            services.AddTransient(typeof(IBaseRepository<>), typeof(BaseRepository<>));
+            services.AddScoped<ITenantRepository, TenantRepository>();
+            services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
             services.AddScoped<IRentCarRepository, RentCarRepository>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
         }
     }
 }

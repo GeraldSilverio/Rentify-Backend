@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Rentify.Backend.Infraestructure.Identity.Entities;
 
 namespace Rentify.Backend.Infraestructure.Identity.Context
 {

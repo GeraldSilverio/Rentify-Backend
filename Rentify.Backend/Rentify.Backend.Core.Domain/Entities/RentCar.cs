@@ -8,7 +8,9 @@ public class RentCar : BaseEntity
     public Guid Id { get; private set; }
 
     public string Name { get; private set; }
-    public string Description { get; private set; }                                                      
+    public string Description { get; private set; }    
+    
+    public Guid TenantId { get; private set; } = Guid.NewGuid();
 
     // Contacts
     public PhoneNumber Phone { get; private set; }
@@ -83,6 +85,7 @@ public class RentCar : BaseEntity
         IsActive = true;
     }
 
+
     public void Update(
         string name,
         string description,
@@ -104,6 +107,15 @@ public class RentCar : BaseEntity
         Address = new Address(street, city, country);
         ModifiedBy = updatedBy;
 
+    }
+
+    public void SetTenantId(Guid tenantId)
+    {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException(
+                "TenantId cannot be empty.");
+
+        TenantId = tenantId;
     }
 
     private static void Validate(string name)
