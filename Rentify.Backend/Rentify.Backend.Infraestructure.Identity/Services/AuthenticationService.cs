@@ -44,11 +44,11 @@ namespace Rentify.Backend.Infraestructure.Identity.Services
         {
             var user = await _userManager.FindByNameAsync(loginCommand.UserName);
 
-            if (user == null) throw new ApiException("User not found");
+            if (user == null) throw new ApiException("User not found",StatusCodes.Status404NotFound);
 
             var signInResult = await _signInManager.PasswordSignInAsync(loginCommand.UserName, loginCommand.Password, false, lockoutOnFailure: false);
 
-            if (!signInResult.Succeeded) throw new ApiException("Invalid credentials");
+            if (!signInResult.Succeeded) throw new ApiException("Invalid credentials",StatusCodes.Status400BadRequest);
 
             var roles = await _userManager.GetRolesAsync(user);
             var tokenResponse = await GenerateTokenResponseAsync(user);
@@ -104,6 +104,7 @@ namespace Rentify.Backend.Infraestructure.Identity.Services
             refreshToken.ReplacedByToken = newRefreshToken.Token;
 
             await _identityContext.RefreshTokens.AddAsync(newRefreshToken);
+
             await _identityContext.SaveChangesAsync();
 
             return await GenerateTokenResponseAsync(user, newRefreshToken);
