@@ -22,15 +22,16 @@ namespace Rentify.Backend.Infraestructure.Identity.Services
         public async Task<string> GenerateSecurityTokenAsync(ApplicationUser user)
         {
             var userClaims = await _userManager.GetClaimsAsync(user);
+
             var roles = await _userManager.GetRolesAsync(user);
 
             var roleClaims = roles.Select(r => new Claim("roles", r));
 
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
+                new Claim(JwtRegisteredClaimNames.Sub, user.UserName ?? string.Empty),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
                 new Claim("uid", user.Id.ToString())
     }
             .Union(userClaims)

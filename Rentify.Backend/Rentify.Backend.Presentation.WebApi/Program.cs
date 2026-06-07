@@ -1,11 +1,11 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Rentify.Backend.Core.Application;
+using Rentify.Backend.Core.Application.Modules.RentCars.Commands.CreateRentCar;
+using Rentify.Backend.Core.Application.Modules.Secutiry;
 using Rentify.Backend.Core.Application.Modules.Tenants.Commands.RegisterTenant;
 using Rentify.Backend.Infraestructure.Identity;
-using Rentify.Backend.Infraestructure.Identity.Entities;
-using Rentify.Backend.Infraestructure.Identity.Seeds;
 using Rentify.Backend.Infraestructure.Persistence;
+using Rentify.Backend.Presentation.Endpoints;
 using Rentify.Backend.Presentation.WebApi.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,25 +37,11 @@ builder.Services.AddApiVersioningExtension();
 var app = builder.Build();
 
 app.MapRegisterTenant();
+app.MapCreateRentCarEndpoints();
+app.MapUserEndpoints();
+app.MapAuthEndpoints();
 
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-
-    try
-    {
-        var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
-        var rolesManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-
-       await DefaultRoles.CreateRoles(rolesManager);
-       await DefaultUser.CreateUser(userManager);
-    }
-    catch (Exception ex)
-    {
-        throw new Exception(ex.Message);
-    }
-}
-
+app.UseCors(a => a.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod());
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -69,6 +55,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseSwaggerExtension();
 app.UseErrorHandlingMiddleware();
+
 app.UseHealthChecks("/health");
 app.UseSession();
 

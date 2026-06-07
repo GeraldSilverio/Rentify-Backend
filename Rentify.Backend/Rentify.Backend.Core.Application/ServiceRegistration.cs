@@ -8,7 +8,6 @@ using System.Reflection;
 using Rentify.Backend.Core.Application.Modules.RentCars.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.RentCars.Implementations.Services;
 using Rentify.Backend.Core.Application.Modules.Subscriptions.Contracts.Services;
-using Rentify.Backend.Core.Application.Modules.Subscriptions.Implementations;
 
 namespace Rentify.Backend.Core.Application;
 
@@ -42,7 +41,7 @@ public static class ServiceRegistration
             typeof(ValidationBehavior<,>));
 
         services.AddScoped<IRentCarService, RentCarService>();
-        services.AddScoped<ISubscriptionService,SubscriptionService>();
+        // services.AddScoped<ISubscriptionService,SubscriptionService>();
         services.AddScoped<ITenantService,TenantService>();
 
     }

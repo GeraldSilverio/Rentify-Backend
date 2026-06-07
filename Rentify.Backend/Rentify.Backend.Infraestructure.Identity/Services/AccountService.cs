@@ -1,23 +1,23 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Rentify.Backend.Core.Application.Modules.Secutiry.Commands.Login;
 using Rentify.Backend.Core.Application.Modules.Secutiry.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Secutiry.Dtos.Response;
-using Rentify.Backend.Core.Application.Modules.Tenants.Commands.RegisterTenant;
+using Rentify.Backend.Core.Application.Modules.Users.Commands.CreateUser;
 using Rentify.Backend.Core.Application.Shared.Exceptions;
-using Rentify.Backend.Core.Application.Shared.Response;
 using Rentify.Backend.Infraestructure.Identity.Contracts.Services;
 using Rentify.Backend.Infraestructure.Identity.Entities;
 
-namespace Rentify.Backend.Infrastructure.Identity.Services;
+namespace Rentify.Backend.Infraestructure.Identity.Services;
 
-public sealed class IdentityService : IIdentityService
+public sealed class AccountService : IAccountService
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IJwtServices _jwtProvider;
     private readonly RoleManager<IdentityRole> _roleManager;
 
-    public IdentityService(
+    public AccountService(
         UserManager<ApplicationUser> userManager,
         IJwtServices jwtProvider, RoleManager<IdentityRole> roleManager)
     {
@@ -33,37 +33,43 @@ public sealed class IdentityService : IIdentityService
             .AnyAsync(x => x.Email == email);
     }
 
-    public async Task<ResultReponse<Guid>> CreateUserAsync(
-        RegisterTenantCommand request,Guid tenantId)
+    public async Task<Guid> CreateUserAsync(CreateUserCommand createUserCommand)
     {
-        if (await ExistsByEmailAsync(request.Email)) throw new ApiException("Email already exists", StatusCodes.Status400BadRequest);
+        if (await ExistsByEmailAsync(createUserCommand.Email)) throw new ApiException("Email already exists", StatusCodes.Status400BadRequest);
+
+        if (await ExistByUserNameAsync(createUserCommand.UserName)) throw new ApiException("UserName already exists", StatusCodes.Status400BadRequest);
         
-        if(await _roleManager.FindByNameAsync(request.Role) == null ) throw new ApiException($"Role{request.Role} does not exist", StatusCodes.Status400BadRequest);
+        if (await _roleManager.FindByNameAsync(createUserCommand.Role) == null ) throw new ApiException($"Role {createUserCommand.Role} does not exist", StatusCodes.Status400BadRequest);
         
         var user = new ApplicationUser  
         {
             Id = Guid.NewGuid().ToString(),
-            FullName = request.FullName,
-            Email = request.Email,
-            UserName = request.Email,
-            TenantId = tenantId,
+            FullName = createUserCommand.FullName,
+            Email = createUserCommand.Email,
+            UserName = createUserCommand.UserName,
+            TenantId = createUserCommand.TenantId,
             EmailConfirmed = true
         };
 
         var result = await _userManager.CreateAsync(
             user,
-            request.Password);
+            createUserCommand.Password);
 
         if (!result.Succeeded)
         {
             throw new ApiException(string.Join(", ", result.Errors.Select(x => x.Description)), StatusCodes.Status400BadRequest);
         }
         
-        await _userManager.AddToRoleAsync(user,request.Role);
-        
-        
+        await _userManager.AddToRoleAsync(user,createUserCommand.Role);
 
-        return ResultReponse<Guid>.Success(Guid.Parse(user.Id));
+        return Guid.Parse(user.Id);
+    }
+
+    private async Task<bool> ExistByUserNameAsync(string userName)
+    {
+        ApplicationUser? user = await _userManager.FindByNameAsync(userName);
+
+        return user != null;
     }
 
     public async Task AddToRoleAsync(
@@ -91,4 +97,6 @@ public sealed class IdentityService : IIdentityService
 
         return new TokenResponse(token,DateTime.UtcNow.AddMinutes(60));
     }
+
+  
 }

@@ -1,6 +1,9 @@
+using Microsoft.AspNetCore.Http;
+using Rentify.Backend.Core.Application.Modules.RentCars.Commands.CreateRentCar;
 using Rentify.Backend.Core.Application.Modules.RentCars.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.RentCars.Contracts.Services;
-using Rentify.Backend.Core.Application.Modules.Tenants.Commands.RegisterTenant;
+using Rentify.Backend.Core.Application.Shared.Exceptions;
+using Rentify.Backend.Core.Application.Shared.UnitOfWork;
 using Rentify.Backend.Core.Domain.Entities;
 
 namespace Rentify.Backend.Core.Application.Modules.RentCars.Implementations.Services;
@@ -8,29 +11,44 @@ namespace Rentify.Backend.Core.Application.Modules.RentCars.Implementations.Serv
 public sealed class RentCarService : IRentCarService
 {
     private readonly IRentCarRepository _rentCarRepository;
+    private readonly IUnitOfWork _unitOfWork;
     
-    public RentCarService(IRentCarRepository rentCarRepository)
+    public RentCarService(IRentCarRepository rentCarRepository, IUnitOfWork unitOfWork)
     {
         _rentCarRepository = rentCarRepository;
+        _unitOfWork = unitOfWork;
     }
     
-    public async Task CreateRentCarAsync(RegisterTenantCommand command, Guid tenantId, CancellationToken cancellationToken = default)
+    public async Task<Guid> CreateRentCarAsync(CreateRentCarCommand rentCarCommand,CancellationToken cancellationToken = default)
     {
-        RentCar rentCar = RentCar.Create(
-            command.RentCarName,
-            command.Description,
-            command.Phone,
-            command.Email,
-            command.WhatsApp,
-            command.Street,
-            command.City,
-            command.Country,
-            command.Email);
-        
-        rentCar.SetTenantId(tenantId);
+        if(await _rentCarRepository.ValidateEmailExistAsync(rentCarCommand.ContactInformation.Email))
+            throw new ApiException($"Rent car with Email '{rentCarCommand.ContactInformation.Email}' already exists.",StatusCodes.Status400BadRequest);
 
+        if(await _rentCarRepository.ValidatePhoneNumberExistAsync(rentCarCommand.ContactInformation.PhoneNumber))
+            throw new ApiException($"Rent car with Phone Number '{rentCarCommand.ContactInformation.PhoneNumber}' already exists.",StatusCodes.Status400BadRequest);
+
+        if(await _rentCarRepository.ValidateWhatsAppExistAsync(rentCarCommand.ContactInformation.WhatsApp))
+            throw new ApiException($"Rent car with WhatsApp '{rentCarCommand.ContactInformation.WhatsApp}' already exists.",StatusCodes.Status400BadRequest);
+
+        RentCar rentCar = RentCar.Create
+        (rentCarCommand.Name,
+            rentCarCommand.Description,
+            rentCarCommand.ContactInformation.PhoneNumber,
+            rentCarCommand.ContactInformation.Email,
+            rentCarCommand.ContactInformation.WhatsApp,
+            rentCarCommand.AddressInformation.Street,
+            rentCarCommand.AddressInformation.City,
+            rentCarCommand.AddressInformation.Country,
+            rentCarCommand.CreatedBy,
+            rentCarCommand.TenantId
+            );
+        
         await _rentCarRepository.AddAsync(
             rentCar,
             cancellationToken);
+        
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        
+        return rentCar.Id;
     }
 }

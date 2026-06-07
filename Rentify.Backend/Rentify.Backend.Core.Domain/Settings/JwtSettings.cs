@@ -24,5 +24,10 @@ namespace Rentify.Backend.Core.Domain.Settings
         /// Gets or sets the duration in minutes for which JWT tokens are valid.
         /// </summary>
         public int DurationInMinutes { get; set; }
+
+        /// <summary>
+        /// Gets or sets the duration in days for which refresh tokens are valid.
+        /// </summary>
+        public int RefreshTokenDurationInDays { get; set; } = 7;
     }
 }

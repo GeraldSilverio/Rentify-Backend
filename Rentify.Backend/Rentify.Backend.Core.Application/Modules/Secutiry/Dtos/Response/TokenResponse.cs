@@ -8,5 +8,7 @@ namespace Rentify.Backend.Core.Application.Modules.Secutiry.Dtos.Response
 {
     public sealed record TokenResponse(
     string Token,
-    DateTime ExpiresAt);
+    DateTime ExpiresAt,
+    string? RefreshToken = null,
+    DateTime? RefreshTokenExpiresAt = null);
 }

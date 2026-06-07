@@ -18,4 +18,9 @@
       <ProjectReference Include="..\Rentify.Backend.Core.Domain\Rentify.Backend.Core.Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Modules\RentCars\Queries\" />
+      <Folder Include="Modules\Secutiry\Dtos\Request\" />
+    </ItemGroup>
+
 </Project>

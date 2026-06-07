@@ -17,7 +17,6 @@ using Rentify.Backend.Infraestructure.Identity.Context;
 using Rentify.Backend.Infraestructure.Identity.Contracts.Services;
 using Rentify.Backend.Infraestructure.Identity.Entities;
 using Rentify.Backend.Infraestructure.Identity.Services;
-using Rentify.Backend.Infrastructure.Identity.Services;
 
 namespace Rentify.Backend.Infraestructure.Identity
 {
@@ -63,7 +62,7 @@ namespace Rentify.Backend.Infraestructure.Identity
                     ClockSkew = TimeSpan.Zero,
                     ValidIssuer = configuration["JWTSettings:Issuer"],
                     ValidAudience = configuration["JWTSettings:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWTSettings:Key"]))
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWTSettings:Key"]!))
                 };
 
                 options.Events = new JwtBearerEvents()
@@ -135,7 +134,9 @@ namespace Rentify.Backend.Infraestructure.Identity
 
             //services.AddTransient<IAccountService, AccountService>();
             services.AddTransient<IJwtServices, JwtServices>();
-            services.AddScoped<IIdentityService, IdentityService>();
+            services.AddScoped<IAccountService, AccountService>();
+
+            services.AddScoped<IAuthenticationService, AuthenticationService>();
 
             #endregion
         }

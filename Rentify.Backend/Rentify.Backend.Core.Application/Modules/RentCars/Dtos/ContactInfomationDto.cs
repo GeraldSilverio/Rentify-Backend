@@ -1,6 +1,3 @@
 namespace Rentify.Backend.Core.Application.Modules.RentCars.Dtos;
 
-public class ContactInfomationDto
-{
-    
-}
+public sealed record ContactInfomationDto(string Email, string PhoneNumber, string WhatsApp);

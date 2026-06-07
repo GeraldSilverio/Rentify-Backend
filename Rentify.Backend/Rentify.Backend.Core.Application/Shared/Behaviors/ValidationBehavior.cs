@@ -1,5 +1,7 @@
 ﻿using FluentValidation;
 using MediatR;
+using Microsoft.AspNetCore.Http;
+using Rentify.Backend.Core.Application.Shared.Exceptions;
 
 namespace Rentify.Backend.Core.Application.Common.Behaviors;
 
@@ -32,7 +34,7 @@ public sealed class ValidationBehavior<TRequest, TResponse>
             .ToList();
 
         if (failures.Count != 0)
-            throw new ValidationException(failures);
+            throw new ApiException(failures.FirstOrDefault().ErrorMessage,StatusCodes.Status400BadRequest);
 
         return await next();
     }

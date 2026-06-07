@@ -20,7 +20,7 @@ public static class RegisterTenantEndpoint
                     await sender.Send(command);
 
                 return Results.Created("", response);
-            });
+            }).WithTags("Tenant");
         return app;
     }
 }

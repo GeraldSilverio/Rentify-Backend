@@ -33,7 +33,8 @@ public class RentCar : BaseEntity
         Email email,
         PhoneNumber whatsApp,
         Address address,
-        string createdBy)
+        string createdBy,
+        Guid tenantId)
     {
         Id = id;
         Name = name;
@@ -47,6 +48,7 @@ public class RentCar : BaseEntity
         CreatedBy = createdBy;
         ModifiedBy = createdBy;
         ModifiedDate = CreatedDate;
+        TenantId = tenantId;
     }
 
     public static RentCar Create(
@@ -58,7 +60,8 @@ public class RentCar : BaseEntity
         string street,
         string city,
         string country,
-        string createdBy)
+        string createdBy,
+        Guid tenantId)
     {
         Validate(name);
 
@@ -70,9 +73,8 @@ public class RentCar : BaseEntity
             new Email(email),
             new PhoneNumber(whatsApp),
             new Address(street, city, country),
-            createdBy
-            
-        );
+            createdBy,
+            tenantId);
     }
 
     public void Disable()

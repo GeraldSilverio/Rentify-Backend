@@ -29,7 +29,7 @@ namespace Rentify.Backend.Core.Application.Modules.Tenants.Implementations.Servi
                    .ToString()[..6];
                 }
                 
-                var tenant = Tenant.Create(registerTenantCommand.RentCarName, slug, registerTenantCommand.Email);
+                var tenant = Tenant.Create(registerTenantCommand.RentCarName, slug, registerTenantCommand.CreatedBy);
 
                 await _tenantRepository.AddAsync(
                     tenant,
