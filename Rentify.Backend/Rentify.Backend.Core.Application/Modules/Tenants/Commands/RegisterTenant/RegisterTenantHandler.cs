@@ -24,6 +24,6 @@ public sealed class RegisterTenantHandler : IRequestHandler<RegisterTenantComman
         
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ResultReponse<RegisterTenantResponse>.Success(new RegisterTenantResponse(tenantId));
+        return ResultReponse<RegisterTenantResponse>.Success(new RegisterTenantResponse(tenantId, "Successfully registered tenant."));
     }
 }

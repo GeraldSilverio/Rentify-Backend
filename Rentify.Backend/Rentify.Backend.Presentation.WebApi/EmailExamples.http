@@ -1,0 +1,81 @@
+@baseUrl = https://localhost:7001
+@tenantId = 00000000-0000-0000-0000-000000000000
+@templateId = 00000000-0000-0000-0000-000000000000
+
+### Create a global email template
+POST {{baseUrl}}/api/v1/emails/templates
+Content-Type: application/json
+
+{
+  "tenantId": null,
+  "code": "PASSWORD_RESET",
+  "name": "Password reset",
+  "subject": "Reset your Rentify password",
+  "htmlBody": "<h1>Password reset</h1><p>Hello {{FullName}},</p><p>Use this link to reset your password: <a href=\"{{ResetUrl}}\">Reset password</a></p>",
+  "textBody": "Hello {{FullName}}, use this link to reset your password: {{ResetUrl}}",
+  "createdBy": "system"
+}
+
+### Create a tenant-specific email template
+POST {{baseUrl}}/api/v1/emails/templates
+Content-Type: application/json
+
+{
+  "tenantId": "{{tenantId}}",
+  "code": "WELCOME_USER",
+  "name": "Welcome user",
+  "subject": "Welcome to {{TenantName}}",
+  "htmlBody": "<h1>Welcome, {{FullName}}</h1><p>Your account for {{TenantName}} is ready.</p>",
+  "textBody": "Welcome, {{FullName}}. Your account for {{TenantName}} is ready.",
+  "createdBy": "system"
+}
+
+### List global and tenant templates
+GET {{baseUrl}}/api/v1/emails/templates?tenantId={{tenantId}}
+
+### Get template by id
+GET {{baseUrl}}/api/v1/emails/templates/{{templateId}}
+
+### Update template
+PUT {{baseUrl}}/api/v1/emails/templates/{{templateId}}
+Content-Type: application/json
+
+{
+  "name": "Welcome user updated",
+  "subject": "Welcome to {{TenantName}}, {{FullName}}",
+  "htmlBody": "<h1>Welcome, {{FullName}}</h1><p>Your account for {{TenantName}} is ready.</p><p>Login here: {{LoginUrl}}</p>",
+  "textBody": "Welcome, {{FullName}}. Login here: {{LoginUrl}}",
+  "modifiedBy": "system"
+}
+
+### Configure Resend for a tenant
+POST {{baseUrl}}/api/v1/emails/tenant-configurations
+Content-Type: application/json
+
+{
+  "tenantId": "{{tenantId}}",
+  "provider": 1,
+  "apiKey": "re_xxxxxxxxxxxxxxxxxxxxxxxxx",
+  "fromEmail": "onboarding@your-verified-domain.com",
+  "fromName": "Rentify",
+  "isDefault": true,
+  "createdBy": "system"
+}
+
+### List tenant email configurations
+GET {{baseUrl}}/api/v1/emails/tenant-configurations/{{tenantId}}
+
+### Send an email using a template code
+POST {{baseUrl}}/api/v1/emails/send-template
+Content-Type: application/json
+
+{
+  "tenantId": "{{tenantId}}",
+  "templateCode": "WELCOME_USER",
+  "to": "customer@example.com",
+  "variables": {
+    "FullName": "Gerald Silverio",
+    "TenantName": "Rentify Demo",
+    "LoginUrl": "https://app.rentify.dev/login"
+  }
+}

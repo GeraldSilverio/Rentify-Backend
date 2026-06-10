@@ -5,6 +5,8 @@ using Rentify.Backend.Core.Application.Common.Behaviors;
 using Rentify.Backend.Core.Application.Modules.Tenants.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Tenants.Implementations.Services;
 using System.Reflection;
+using Rentify.Backend.Core.Application.Modules.Emails.Contracts.Services;
+using Rentify.Backend.Core.Application.Modules.Emails.Implementations.Services;
 using Rentify.Backend.Core.Application.Modules.RentCars.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.RentCars.Implementations.Services;
 using Rentify.Backend.Core.Application.Modules.Subscriptions.Contracts.Services;
@@ -41,6 +43,7 @@ public static class ServiceRegistration
             typeof(ValidationBehavior<,>));
 
         services.AddScoped<IRentCarService, RentCarService>();
+        services.AddScoped<IEmailService, EmailService>();
         // services.AddScoped<ISubscriptionService,SubscriptionService>();
         services.AddScoped<ITenantService,TenantService>();
 
