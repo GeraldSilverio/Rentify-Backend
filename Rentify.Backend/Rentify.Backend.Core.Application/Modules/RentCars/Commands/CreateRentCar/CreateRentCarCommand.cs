@@ -10,4 +10,5 @@ public sealed record CreateRentCarCommand(
     Guid TenantId,
     AddressInformationDto  AddressInformation,
     ContactInfomationDto  ContactInformation,
+    string? LogoUrl,
     string CreatedBy) : IRequest<ResultReponse<Guid>>;

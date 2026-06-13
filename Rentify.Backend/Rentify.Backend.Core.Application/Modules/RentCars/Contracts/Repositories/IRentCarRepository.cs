@@ -8,11 +8,18 @@ public interface IRentCarRepository
         RentCar rentCar,
         CancellationToken cancellationToken = default);
 
-    Task<bool> ValidateEmailExistAsync(string email,
+    Task<RentCar?> GetByIdAsync(
+        Guid id,
         CancellationToken cancellationToken = default);
 
+    Task<bool> ValidateEmailExistAsync(string email,
+        CancellationToken cancellationToken = default,
+        Guid? excludedRentCarId = null);
+
     Task<bool> ValidatePhoneNumberExistAsync(string phoneNumber,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default,
+        Guid? excludedRentCarId = null);
     Task<bool> ValidateWhatsAppExistAsync(string whatsApp,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default,
+        Guid? excludedRentCarId = null);
 }

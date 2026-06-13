@@ -25,18 +25,38 @@ public sealed class RentCarRepository
             cancellationToken);
     }
 
-    public async Task<bool> ValidateEmailExistAsync(string email, CancellationToken cancellationToken = default)
+    public async Task<RentCar?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await _context.RentCars.AnyAsync(x => x.Email.Value == email, cancellationToken);
+        return await _context.RentCars.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
-    public async Task<bool> ValidatePhoneNumberExistAsync(string phoneNumber, CancellationToken cancellationToken = default)
+    public async Task<bool> ValidateEmailExistAsync(
+        string email,
+        CancellationToken cancellationToken = default,
+        Guid? excludedRentCarId = null)
     {
-        return await _context.RentCars.AnyAsync(x => x.Phone.Value == phoneNumber, cancellationToken);
+        return await _context.RentCars.AnyAsync(
+            x => x.Email.Value == email && (!excludedRentCarId.HasValue || x.Id != excludedRentCarId.Value),
+            cancellationToken);
     }
 
-    public async Task<bool> ValidateWhatsAppExistAsync(string whatsApp, CancellationToken cancellationToken = default)
+    public async Task<bool> ValidatePhoneNumberExistAsync(
+        string phoneNumber,
+        CancellationToken cancellationToken = default,
+        Guid? excludedRentCarId = null)
     {
-        return await _context.RentCars.AnyAsync(x => x.WhatsApp.Value == whatsApp, cancellationToken);
+        return await _context.RentCars.AnyAsync(
+            x => x.Phone.Value == phoneNumber && (!excludedRentCarId.HasValue || x.Id != excludedRentCarId.Value),
+            cancellationToken);
+    }
+
+    public async Task<bool> ValidateWhatsAppExistAsync(
+        string whatsApp,
+        CancellationToken cancellationToken = default,
+        Guid? excludedRentCarId = null)
+    {
+        return await _context.RentCars.AnyAsync(
+            x => x.WhatsApp.Value == whatsApp && (!excludedRentCarId.HasValue || x.Id != excludedRentCarId.Value),
+            cancellationToken);
     }
 }

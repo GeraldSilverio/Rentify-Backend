@@ -1,0 +1,46 @@
+@baseUrl = https://localhost:7181
+@rentCarId = 00000000-0000-0000-0000-000000000000
+@tenantId = 00000000-0000-0000-0000-000000000000
+
+### Create rent car profile
+POST {{baseUrl}}/api/v1/rent-car/create
+Content-Type: application/json
+
+{
+  "name": "Rentify Cars",
+  "description": "Premium rental car service in Santo Domingo.",
+  "tenantId": "{{tenantId}}",
+  "addressInformation": {
+    "street": "Av. Winston Churchill 100",
+    "city": "Santo Domingo",
+    "country": "Republica Dominicana"
+  },
+  "contactInformation": {
+    "email": "operations@rentify.dev",
+    "phoneNumber": "+18095550101",
+    "whatsApp": "+18095550102"
+  },
+  "logoUrl": "https://cdn.rentify.dev/logos/rentify-cars.png",
+  "createdBy": "system"
+}
+
+### Update company information
+PUT {{baseUrl}}/api/v1/rent-car/{{rentCarId}}
+Content-Type: application/json
+
+{
+  "name": "Rentify Cars SRL",
+  "description": "Updated company profile and contact information.",
+  "addressInformation": {
+    "street": "Av. Abraham Lincoln 200",
+    "city": "Santo Domingo",
+    "country": "Republica Dominicana"
+  },
+  "contactInformation": {
+    "email": "hello@rentify.dev",
+    "phoneNumber": "+18095550103",
+    "whatsApp": "+18095550104"
+  },
+  "logoUrl": "https://cdn.rentify.dev/logos/rentify-cars-srl.png",
+  "modifiedBy": "system"
+}

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Rentify.Backend.Core.Application;
 using Rentify.Backend.Core.Application.Modules.Emails;
 using Rentify.Backend.Core.Application.Modules.RentCars.Commands.CreateRentCar;
+using Rentify.Backend.Core.Application.Modules.RentCars.Commands.UpdateRentCar;
 using Rentify.Backend.Core.Application.Modules.Secutiry;
 using Rentify.Backend.Core.Application.Modules.Subscriptions;
 using Rentify.Backend.Core.Application.Modules.Tenants.Commands.RegisterTenant;
@@ -52,6 +53,7 @@ using (var scope = app.Services.CreateScope())
 
 app.MapRegisterTenant();
 app.MapCreateRentCarEndpoints();
+app.MapUpdateRentCarEndpoints();
 app.MapUserEndpoints();
 app.MapAuthEndpoints();
 app.MapEmailEndpoints();
