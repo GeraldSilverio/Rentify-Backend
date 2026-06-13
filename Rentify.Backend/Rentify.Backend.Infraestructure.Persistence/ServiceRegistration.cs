@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using CloudinaryDotNet;
 using Npgsql;
 using Rentify.Backend.Core.Application.Modules.Emails.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Emails.Contracts.Services;
@@ -49,11 +50,17 @@ namespace Rentify.Backend.Infraestructure.Persistence
             services.AddScoped<IRentCarRepository, RentCarRepository>();
             services.AddScoped<IEmailTemplateRepository, EmailTemplateRepository>();
             services.AddScoped<ITenantEmailConfigurationRepository, TenantEmailConfigurationRepository>();
+            CloudinarySettings cloudinarySettings = CloudinarySettings.FromEnvironment();
+            services.AddSingleton(new Cloudinary(new Account(
+                cloudinarySettings.CloudName,
+                cloudinarySettings.ApiKey,
+                cloudinarySettings.ApiSecret)));
+
             services.AddScoped<IEmailProviderSender, ResendEmailProviderSender>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ISubscriptionPlanRepository, SubscriptionPlanRepository>();
             services.AddScoped<IVehicleRepository, VehicleRepository>();
-            services.AddScoped<IImageStorageService, LocalImageStorageService>();
+            services.AddScoped<IImageStorageService, CloudinaryImageStorageService>();
 
         }
     }

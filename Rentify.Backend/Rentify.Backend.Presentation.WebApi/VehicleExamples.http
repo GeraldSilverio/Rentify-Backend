@@ -1,26 +1,10 @@
 @baseUrl = https://localhost:7181
 @rentCarId = 00000000-0000-0000-0000-000000000000
+@modelId = 00000000-0000-0000-0000-000000000000
 @vehicleId = 00000000-0000-0000-0000-000000000000
-@imageId = 00000000-0000-0000-0000-000000000000
 
 ### Register vehicle
-POST {{baseUrl}}/api/v1/vehicles
-Content-Type: application/json
-
-{
-  "rentCarId": "{{rentCarId}}",
-  "make": "Toyota",
-  "model": "Corolla",
-  "year": 2024,
-  "plateNumber": "A123456",
-  "vin": "1HGCM82633A004352",
-  "color": "White",
-  "dailyRate": 55.00,
-  "createdBy": "system"
-}
-
-### Upload vehicle image
-POST {{baseUrl}}/api/v1/vehicles/{{vehicleId}}/images?isPrimary=true&createdBy=system
+POST {{baseUrl}}/api/v1/vehicles?rentCarId={{rentCarId}}&modelId={{modelId}}&year=2024&plateNumber=A123456&vin=1HGCM82633A004352&color=White&dailyRate=55.00&createdBy=system
 Content-Type: multipart/form-data; boundary=VehicleImageBoundary
 
 --VehicleImageBoundary
@@ -29,9 +13,6 @@ Content-Type: image/png
 
 < ./samples/vehicle.png
 --VehicleImageBoundary--
-
-### Delete vehicle image
-DELETE {{baseUrl}}/api/v1/vehicles/{{vehicleId}}/images/{{imageId}}?modifiedBy=system
 
 ### Set vehicle as available
 PATCH {{baseUrl}}/api/v1/vehicles/{{vehicleId}}/status

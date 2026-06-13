@@ -10,6 +10,7 @@ public class RentCar : BaseEntity
     public string Name { get; private set; }
     public string Description { get; private set; }
     public string? LogoUrl { get; private set; }
+    public string? LogoPublicId { get; private set; }
     
     public Guid TenantId { get; private set; } = Guid.NewGuid();
 
@@ -118,9 +119,10 @@ public class RentCar : BaseEntity
         ModifiedDate = DateTime.UtcNow;
     }
 
-    public void UpdateLogo(string? logoUrl, string modifiedBy)
+    public void UpdateLogo(string? logoUrl, string? logoPublicId, string modifiedBy)
     {
         LogoUrl = NormalizeLogoUrl(logoUrl);
+        LogoPublicId = string.IsNullOrWhiteSpace(logoPublicId) ? null : logoPublicId.Trim();
         ModifiedBy = modifiedBy;
         ModifiedDate = DateTime.UtcNow;
     }

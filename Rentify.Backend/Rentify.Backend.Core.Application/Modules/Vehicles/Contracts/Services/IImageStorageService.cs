@@ -4,15 +4,13 @@ namespace Rentify.Backend.Core.Application.Modules.Vehicles.Contracts.Services;
 
 public interface IImageStorageService
 {
-    Task<StoredImageResult> SaveVehicleImageAsync(
-        Guid vehicleId,
+    Task<StoredImageResult> UploadVehicleImageAsync(
         IFormFile image,
         CancellationToken cancellationToken = default);
 
-    Task<StoredImageResult> SaveRentCarLogoAsync(
-        Guid rentCarId,
+    Task<StoredImageResult> UploadRentCarLogoAsync(
         IFormFile logo,
         CancellationToken cancellationToken = default);
 
-    Task DeleteAsync(string url, CancellationToken cancellationToken = default);
+    Task DeleteAsync(string publicId, CancellationToken cancellationToken = default);
 }

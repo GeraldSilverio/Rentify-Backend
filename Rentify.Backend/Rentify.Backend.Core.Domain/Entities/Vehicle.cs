@@ -5,22 +5,22 @@ namespace Rentify.Backend.Core.Domain.Entities;
 
 public class Vehicle : BaseEntity
 {
-    private readonly List<VehicleImage> _images = [];
     private readonly List<VehicleUnavailableDate> _unavailableDates = [];
 
     public Guid Id { get; private set; }
     public Guid RentCarId { get; private set; }
-    public string Make { get; private set; } = null!;
-    public string Model { get; private set; } = null!;
+    public Guid ModelId { get; private set; }
     public int Year { get; private set; }
     public string PlateNumber { get; private set; } = null!;
     public string Vin { get; private set; } = null!;
     public string Color { get; private set; } = null!;
     public decimal DailyRate { get; private set; }
     public VehicleStatus Status { get; private set; }
+    public string ImageUrl { get; private set; } = null!;
+    public string ImagePublicId { get; private set; } = null!;
 
     public RentCar RentCar { get; private set; } = null!;
-    public IReadOnlyCollection<VehicleImage> Images => _images.AsReadOnly();
+    public Model Model { get; private set; } = null!;
     public IReadOnlyCollection<VehicleUnavailableDate> UnavailableDates => _unavailableDates.AsReadOnly();
 
     private Vehicle()
@@ -30,24 +30,26 @@ public class Vehicle : BaseEntity
     private Vehicle(
         Guid id,
         Guid rentCarId,
-        string make,
-        string model,
+        Guid modelId,
         int year,
         string plateNumber,
         string vin,
         string color,
         decimal dailyRate,
+        string imageUrl,
+        string imagePublicId,
         string createdBy)
     {
         Id = id;
         RentCarId = rentCarId;
-        Make = make;
-        Model = model;
+        ModelId = modelId;
         Year = year;
         PlateNumber = plateNumber;
         Vin = vin;
         Color = color;
         DailyRate = dailyRate;
+        ImageUrl = imageUrl;
+        ImagePublicId = imagePublicId;
         Status = VehicleStatus.Available;
         CreatedBy = createdBy;
         ModifiedBy = createdBy;
@@ -58,62 +60,41 @@ public class Vehicle : BaseEntity
 
     public static Vehicle Create(
         Guid rentCarId,
-        string make,
-        string model,
+        Guid modelId,
         int year,
         string plateNumber,
         string vin,
         string color,
         decimal dailyRate,
+        string imageUrl,
+        string imagePublicId,
         string createdBy)
     {
         if (rentCarId == Guid.Empty)
             throw new ArgumentException("Rent car Id is required.");
 
-        Validate(make, model, year, plateNumber, vin, dailyRate);
+        if (modelId == Guid.Empty)
+            throw new ArgumentException("Model Id is required.");
+
+        Validate(year, plateNumber, vin, dailyRate, imageUrl, imagePublicId);
 
         return new Vehicle(
             Guid.NewGuid(),
             rentCarId,
-            make.Trim(),
-            model.Trim(),
+            modelId,
             year,
             NormalizePlateNumber(plateNumber),
             vin.Trim().ToUpperInvariant(),
             color?.Trim() ?? string.Empty,
             dailyRate,
+            imageUrl.Trim(),
+            imagePublicId.Trim(),
             createdBy);
     }
 
     public void ChangeStatus(VehicleStatus status, string modifiedBy)
     {
         Status = status;
-        ModifiedBy = modifiedBy;
-        ModifiedDate = DateTime.UtcNow;
-    }
-
-    public void AddImage(VehicleImage image, string modifiedBy)
-    {
-        if (image.VehicleId != Id)
-            throw new ArgumentException("Image does not belong to this vehicle.");
-
-        if (image.IsPrimary)
-        {
-            foreach (VehicleImage currentImage in _images.Where(x => !x.IsDeleted))
-                currentImage.UnmarkAsPrimary(modifiedBy);
-        }
-
-        _images.Add(image);
-        ModifiedBy = modifiedBy;
-        ModifiedDate = DateTime.UtcNow;
-    }
-
-    public void DeleteImage(Guid imageId, string modifiedBy)
-    {
-        VehicleImage image = _images.FirstOrDefault(x => x.Id == imageId && !x.IsDeleted)
-                             ?? throw new ArgumentException("Vehicle image not found.");
-
-        image.Delete(modifiedBy);
         ModifiedBy = modifiedBy;
         ModifiedDate = DateTime.UtcNow;
     }
@@ -136,19 +117,13 @@ public class Vehicle : BaseEntity
     }
 
     private static void Validate(
-        string make,
-        string model,
         int year,
         string plateNumber,
         string vin,
-        decimal dailyRate)
+        decimal dailyRate,
+        string imageUrl,
+        string imagePublicId)
     {
-        if (string.IsNullOrWhiteSpace(make))
-            throw new ArgumentException("Make is required.");
-
-        if (string.IsNullOrWhiteSpace(model))
-            throw new ArgumentException("Model is required.");
-
         if (year < 1980 || year > DateTime.UtcNow.Year + 1)
             throw new ArgumentException("Vehicle year is invalid.");
 
@@ -163,6 +138,12 @@ public class Vehicle : BaseEntity
 
         if (dailyRate <= 0)
             throw new ArgumentException("Daily rate must be greater than zero.");
+
+        if (string.IsNullOrWhiteSpace(imageUrl))
+            throw new ArgumentException("Image URL is required.");
+
+        if (string.IsNullOrWhiteSpace(imagePublicId))
+            throw new ArgumentException("Image public Id is required.");
     }
 
     private static string NormalizePlateNumber(string plateNumber)

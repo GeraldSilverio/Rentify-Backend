@@ -24,6 +24,9 @@ public class RentCarEntityConfiguration : IEntityTypeConfiguration<RentCar>
         builder.Property(x => x.LogoUrl)
             .HasMaxLength(500);
 
+        builder.Property(x => x.LogoPublicId)
+            .HasMaxLength(255);
+
         builder.Property(x => x.IsActive)
             .IsRequired();
 

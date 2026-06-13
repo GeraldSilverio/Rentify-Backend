@@ -12,16 +12,16 @@ using Rentify.Backend.Core.Application.Modules.Tenants.Commands.RegisterTenant;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.BlockVehicleAvailability;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.ChangeVehicleStatus;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.CreateVehicle;
-using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.DeleteVehicleImage;
-using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.UploadVehicleImage;
 using Rentify.Backend.Infraestructure.Identity;
 using Rentify.Backend.Infraestructure.Identity.Entities;
 using Rentify.Backend.Infraestructure.Identity.Seeds;
 using Rentify.Backend.Infraestructure.Persistence;
 using Rentify.Backend.Presentation.Endpoints;
+using Rentify.Backend.Presentation.WebApi.Configuration;
 using Rentify.Backend.Presentation.WebApi.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
+EnvFileLoader.LoadFromNearest(builder.Environment.ContentRootPath);
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -72,8 +72,6 @@ app.MapCreateRentCarEndpoints();
 app.MapUpdateRentCarEndpoints();
 app.MapUploadRentCarLogoEndpoints();
 app.MapCreateVehicleEndpoints();
-app.MapUploadVehicleImageEndpoints();
-app.MapDeleteVehicleImageEndpoints();
 app.MapChangeVehicleStatusEndpoints();
 app.MapBlockVehicleAvailabilityEndpoints();
 app.MapUserEndpoints();
@@ -90,7 +88,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();

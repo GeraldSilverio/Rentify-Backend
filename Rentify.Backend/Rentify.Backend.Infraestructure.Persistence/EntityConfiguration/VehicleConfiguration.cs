@@ -12,14 +12,6 @@ public sealed class VehicleConfiguration : IEntityTypeConfiguration<Vehicle>
 
         builder.HasKey(x => x.Id);
 
-        builder.Property(x => x.Make)
-            .IsRequired()
-            .HasMaxLength(100);
-
-        builder.Property(x => x.Model)
-            .IsRequired()
-            .HasMaxLength(100);
-
         builder.Property(x => x.PlateNumber)
             .IsRequired()
             .HasMaxLength(20);
@@ -44,23 +36,28 @@ public sealed class VehicleConfiguration : IEntityTypeConfiguration<Vehicle>
             .HasConversion<string>()
             .HasMaxLength(30);
 
+        builder.Property(x => x.ImageUrl)
+            .IsRequired()
+            .HasMaxLength(500);
+
+        builder.Property(x => x.ImagePublicId)
+            .IsRequired()
+            .HasMaxLength(255);
+
         builder.HasOne(x => x.RentCar)
             .WithMany()
             .HasForeignKey(x => x.RentCarId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasMany(x => x.Images)
-            .WithOne(x => x.Vehicle)
-            .HasForeignKey(x => x.VehicleId)
-            .OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(x => x.Model)
+            .WithMany()
+            .HasForeignKey(x => x.ModelId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasMany(x => x.UnavailableDates)
             .WithOne(x => x.Vehicle)
             .HasForeignKey(x => x.VehicleId)
             .OnDelete(DeleteBehavior.Cascade);
-
-        builder.Navigation(x => x.Images)
-            .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Navigation(x => x.UnavailableDates)
             .UsePropertyAccessMode(PropertyAccessMode.Field);

@@ -23,9 +23,10 @@ namespace Rentify.Backend.Infraestructure.Persistence.Context
             modelBuilder.ApplyConfiguration(new TenantEmailConfigurationConfiguration());
             #endregion
 
+            modelBuilder.ApplyConfiguration(new BrandConfiguration());
+            modelBuilder.ApplyConfiguration(new ModelConfiguration());
             modelBuilder.ApplyConfiguration(new RentCarEntityConfiguration());
             modelBuilder.ApplyConfiguration(new VehicleConfiguration());
-            modelBuilder.ApplyConfiguration(new VehicleImageConfiguration());
             modelBuilder.ApplyConfiguration(new VehicleUnavailableDateConfiguration());
         }
 
@@ -40,9 +41,10 @@ namespace Rentify.Backend.Infraestructure.Persistence.Context
 
         #endregion
 
+        public DbSet<Brand> Brands { get; set; }
+        public DbSet<Model> Models { get; set; }
         public DbSet<RentCar> RentCars { get; set; }
         public DbSet<Vehicle> Vehicles { get; set; }
-        public DbSet<VehicleImage> VehicleImages { get; set; }
         public DbSet<VehicleUnavailableDate> VehicleUnavailableDates { get; set; }
     }
 }

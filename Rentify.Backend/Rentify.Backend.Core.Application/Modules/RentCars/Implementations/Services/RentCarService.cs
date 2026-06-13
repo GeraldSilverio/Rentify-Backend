@@ -106,16 +106,15 @@ public sealed class RentCarService : IRentCarService
         RentCar rentCar = await _rentCarRepository.GetByIdAsync(command.RentCarId, cancellationToken)
                           ?? throw new ApiException("Rent car profile not found.", StatusCodes.Status404NotFound);
 
-        string? previousLogoUrl = rentCar.LogoUrl;
-        StoredImageResult storedLogo = await _imageStorageService.SaveRentCarLogoAsync(
-            rentCar.Id,
+        string? previousLogoPublicId = rentCar.LogoPublicId;
+        StoredImageResult storedLogo = await _imageStorageService.UploadRentCarLogoAsync(
             command.Logo,
             cancellationToken);
 
-        rentCar.UpdateLogo(storedLogo.Url, command.ModifiedBy);
+        rentCar.UpdateLogo(storedLogo.Url, storedLogo.PublicId, command.ModifiedBy);
 
-        if (!string.IsNullOrWhiteSpace(previousLogoUrl))
-            await _imageStorageService.DeleteAsync(previousLogoUrl, cancellationToken);
+        if (!string.IsNullOrWhiteSpace(previousLogoPublicId))
+            await _imageStorageService.DeleteAsync(previousLogoPublicId, cancellationToken);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

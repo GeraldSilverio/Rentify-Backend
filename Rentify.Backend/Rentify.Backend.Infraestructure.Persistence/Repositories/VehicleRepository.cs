@@ -22,9 +22,13 @@ public sealed class VehicleRepository : IVehicleRepository
     public async Task<Vehicle?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await _context.Vehicles
-            .Include(x => x.Images)
             .Include(x => x.UnavailableDates)
             .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted, cancellationToken);
+    }
+
+    public async Task<bool> ModelExistsAsync(Guid modelId, CancellationToken cancellationToken = default)
+    {
+        return await _context.Models.AnyAsync(x => x.Id == modelId && !x.IsDeleted, cancellationToken);
     }
 
     public async Task<bool> PlateNumberExistsAsync(string plateNumber, CancellationToken cancellationToken = default)

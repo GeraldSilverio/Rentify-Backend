@@ -6,6 +6,7 @@ public interface IVehicleRepository
 {
     Task AddAsync(Vehicle vehicle, CancellationToken cancellationToken = default);
     Task<Vehicle?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<bool> ModelExistsAsync(Guid modelId, CancellationToken cancellationToken = default);
     Task<bool> PlateNumberExistsAsync(string plateNumber, CancellationToken cancellationToken = default);
     Task<bool> VinExistsAsync(string vin, CancellationToken cancellationToken = default);
 }
