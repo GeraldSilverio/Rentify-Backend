@@ -9,5 +9,10 @@ public interface IImageStorageService
         IFormFile image,
         CancellationToken cancellationToken = default);
 
+    Task<StoredImageResult> SaveRentCarLogoAsync(
+        Guid rentCarId,
+        IFormFile logo,
+        CancellationToken cancellationToken = default);
+
     Task DeleteAsync(string url, CancellationToken cancellationToken = default);
 }

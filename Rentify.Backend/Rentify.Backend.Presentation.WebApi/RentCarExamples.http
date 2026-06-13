@@ -44,3 +44,14 @@ Content-Type: application/json
   "logoUrl": "https://cdn.rentify.dev/logos/rentify-cars-srl.png",
   "modifiedBy": "system"
 }
+
+### Upload rent car logo
+POST {{baseUrl}}/api/v1/rent-car/{{rentCarId}}/logo?modifiedBy=system
+Content-Type: multipart/form-data; boundary=RentCarLogoBoundary
+
+--RentCarLogoBoundary
+Content-Disposition: form-data; name="logo"; filename="logo.png"
+Content-Type: image/png
+
+< ./samples/logo.png
+--RentCarLogoBoundary--

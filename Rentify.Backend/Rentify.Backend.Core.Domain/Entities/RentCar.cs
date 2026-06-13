@@ -118,6 +118,13 @@ public class RentCar : BaseEntity
         ModifiedDate = DateTime.UtcNow;
     }
 
+    public void UpdateLogo(string? logoUrl, string modifiedBy)
+    {
+        LogoUrl = NormalizeLogoUrl(logoUrl);
+        ModifiedBy = modifiedBy;
+        ModifiedDate = DateTime.UtcNow;
+    }
+
     public void SetTenantId(Guid tenantId)
     {
         if (tenantId == Guid.Empty)
