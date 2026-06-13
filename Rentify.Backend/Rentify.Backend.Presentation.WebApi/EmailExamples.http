@@ -16,6 +16,20 @@ Content-Type: application/json
   "createdBy": "system"
 }
 
+### Create the password reset email template
+POST {{baseUrl}}/api/v1/emails/templates
+Content-Type: application/json
+
+{
+  "tenantId": null,
+  "code": "PASSWORD_RESET",
+  "name": "Password reset",
+  "subject": "Reset your Rentify password",
+  "htmlBody": "<h1>Password reset</h1><p>Hello {{FullName}},</p><p>Use this link to reset your password: <a href=\"{{ResetUrl}}\">Reset password</a></p><p>If you did not request this, you can ignore this email.</p>",
+  "textBody": "Hello {{FullName}}, use this link to reset your password: {{ResetUrl}}. If you did not request this, you can ignore this email.",
+  "createdBy": "system"
+}
+
 ### Create a tenant-specific email template
 POST {{baseUrl}}/api/v1/emails/templates
 Content-Type: application/json
@@ -78,4 +92,24 @@ Content-Type: application/json
     "TenantName": "Rentify Demo",
     "LoginUrl": "https://app.rentify.dev/login"
   }
+}
+
+### Request password reset email
+POST {{baseUrl}}/api/v1/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "owner@example.com",
+  "resetPasswordUrl": "https://app.rentify.dev/reset-password"
+}
+
+### Reset password
+POST {{baseUrl}}/api/v1/auth/reset-password
+Content-Type: application/json
+
+{
+  "email": "owner@example.com",
+  "token": "paste-token-from-reset-url",
+  "password": "NewPassword123!",
+  "confirmPassword": "NewPassword123!"
 }
