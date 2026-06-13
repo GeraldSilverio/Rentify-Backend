@@ -12,6 +12,7 @@ namespace Rentify.Backend.Core.Domain.Enums
         Active = 2,
         Expired = 3,
         Suspended = 4,
-        Cancelled = 5
+        Cancelled = 5,
+        Trialing = 6
     }
 }

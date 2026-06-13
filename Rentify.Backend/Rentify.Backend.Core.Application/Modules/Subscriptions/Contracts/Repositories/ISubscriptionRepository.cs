@@ -10,6 +10,11 @@ public interface ISubscriptionRepository
 
     Task<Guid> GetSubscriptionPlanIdByCodeAsync(string code, 
         CancellationToken cancellationToken = default);
+    Task<Subscription?> GetCurrentByTenantIdAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Subscription>> GetSubscriptionsToValidateAsync(
+        CancellationToken cancellationToken = default);
     Task AddAsync(
         Subscription subscription,
         CancellationToken cancellationToken = default);

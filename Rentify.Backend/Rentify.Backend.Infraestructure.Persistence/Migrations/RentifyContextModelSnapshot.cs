@@ -22,6 +22,67 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Core.EmailTemplate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("HtmlBody")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("TextBody")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "Code")
+                        .IsUnique();
+
+                    b.ToTable("EmailTemplates", (string)null);
+                });
+
             modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Core.Subscription", b =>
                 {
                     b.Property<Guid>("Id")
@@ -51,6 +112,9 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsTrial")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("ModifiedBy")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -70,6 +134,9 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("TrialEndsAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -223,6 +290,68 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                     b.ToTable("Tenants", (string)null);
                 });
 
+            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Core.TenantEmailConfiguration", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ApiKey")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("FromEmail")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("FromName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Provider")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "IsDefault");
+
+                    b.HasIndex("TenantId", "Provider")
+                        .IsUnique();
+
+                    b.ToTable("TenantEmailConfigurations", (string)null);
+                });
+
             modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Core.TenantSettings", b =>
                 {
                     b.Property<Guid>("TenantId")
@@ -341,6 +470,16 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                     b.ToTable("RentCars", (string)null);
                 });
 
+            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Core.EmailTemplate", b =>
+                {
+                    b.HasOne("Rentify.Backend.Core.Domain.Entities.Core.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Tenant");
+                });
+
             modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Core.Subscription", b =>
                 {
                     b.HasOne("Rentify.Backend.Core.Domain.Entities.Core.SubscriptionPlan", "SubscriptionPlan")
@@ -356,6 +495,17 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("SubscriptionPlan");
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Core.TenantEmailConfiguration", b =>
+                {
+                    b.HasOne("Rentify.Backend.Core.Domain.Entities.Core.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Tenant");
                 });

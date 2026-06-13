@@ -21,6 +21,11 @@ public sealed class SubscriptionConfiguration : IEntityTypeConfiguration<Subscri
         builder.Property(x => x.ExpiresAt)
             .IsRequired();
 
+        builder.Property(x => x.TrialEndsAt);
+
+        builder.Property(x => x.IsTrial)
+            .IsRequired();
+
         builder.Property(x => x.AutoRenew)
             .IsRequired();
 

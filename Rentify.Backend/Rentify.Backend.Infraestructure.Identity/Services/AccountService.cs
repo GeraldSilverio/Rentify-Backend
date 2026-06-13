@@ -29,8 +29,7 @@ public sealed class AccountService : IAccountService
     public async Task<bool> ExistsByEmailAsync(
         string email)
     {
-        return await _userManager.Users
-            .AnyAsync(x => x.Email == email);
+        return await _userManager.FindByEmailAsync(email) != null;
     }
 
     public async Task<Guid> CreateUserAsync(CreateUserCommand createUserCommand)
@@ -47,8 +46,14 @@ public sealed class AccountService : IAccountService
             FullName = createUserCommand.FullName,
             Email = createUserCommand.Email,
             UserName = createUserCommand.UserName,
+            PhoneNumber = createUserCommand.PhoneNumber,
             TenantId = createUserCommand.TenantId,
-            EmailConfirmed = true
+            EmailConfirmed = true,
+            IsActive = true,
+            CreatedBy = createUserCommand.CreatedBy,
+            ModifiedBy = createUserCommand.CreatedBy,
+            CreatedDate = DateTime.UtcNow,
+            ModifiedDate = DateTime.UtcNow
         };
 
         var result = await _userManager.CreateAsync(
