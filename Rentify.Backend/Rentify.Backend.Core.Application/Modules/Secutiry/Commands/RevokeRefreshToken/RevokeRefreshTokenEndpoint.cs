@@ -15,7 +15,9 @@ namespace Rentify.Backend.Core.Application.Modules.Secutiry.Commands.RevokeRefre
                     var response = await sender.Send(command);
 
                     return Results.Ok(response);
-                }).WithTags("Auth");
+                })
+                .RequireAuthorization()
+                .WithTags("Auth");
 
             return app;
         }

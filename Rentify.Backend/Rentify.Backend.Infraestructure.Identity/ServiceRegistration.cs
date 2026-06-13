@@ -44,7 +44,17 @@ namespace Rentify.Backend.Infraestructure.Identity
 
             #region JWToken
 
-            services.Configure<JwtSettings>(configuration.GetSection("JWTSettings"));
+            JwtSettings jwtSettings = GetJwtSettings(configuration);
+
+            services.Configure<JwtSettings>(options =>
+            {
+                options.Key = jwtSettings.Key;
+                options.Issuer = jwtSettings.Issuer;
+                options.Audience = jwtSettings.Audience;
+                options.DurationInMinutes = jwtSettings.DurationInMinutes;
+                options.RefreshTokenDurationInDays = jwtSettings.RefreshTokenDurationInDays;
+            });
+
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -60,9 +70,9 @@ namespace Rentify.Backend.Infraestructure.Identity
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ClockSkew = TimeSpan.Zero,
-                    ValidIssuer = configuration["JWTSettings:Issuer"],
-                    ValidAudience = configuration["JWTSettings:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWTSettings:Key"]!))
+                    ValidIssuer = jwtSettings.Issuer,
+                    ValidAudience = jwtSettings.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key))
                 };
 
                 options.Events = new JwtBearerEvents()
@@ -139,6 +149,18 @@ namespace Rentify.Backend.Infraestructure.Identity
             services.AddScoped<IAuthenticationService, AuthenticationService>();
 
             #endregion
+        }
+
+        private static JwtSettings GetJwtSettings(IConfiguration configuration)
+        {
+            return new JwtSettings
+            {
+                Key = ReadFromConfiguration.GetValueFromConfig(configuration, "JWT_KEY"),
+                Issuer = ReadFromConfiguration.GetValueFromConfig(configuration, "JWT_ISSUER"),
+                Audience = ReadFromConfiguration.GetValueFromConfig(configuration, "JWT_AUDIENCE"),
+                DurationInMinutes = int.Parse(ReadFromConfiguration.GetValueFromConfig(configuration, "JWT_DURATION_IN_MINUTES")),
+                RefreshTokenDurationInDays = int.Parse(ReadFromConfiguration.GetValueFromConfig(configuration, "JWT_REFRESH_TOKEN_DURATION_IN_DAYS"))
+            };
         }
 
         #endregion

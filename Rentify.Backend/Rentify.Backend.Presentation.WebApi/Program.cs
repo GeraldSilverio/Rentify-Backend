@@ -9,6 +9,7 @@ using Rentify.Backend.Core.Application.Modules.RentCars.Commands.UploadRentCarLo
 using Rentify.Backend.Core.Application.Modules.Secutiry;
 using Rentify.Backend.Core.Application.Modules.Subscriptions;
 using Rentify.Backend.Core.Application.Modules.Tenants.Commands.RegisterTenant;
+using Rentify.Backend.Core.Application.Modules.Vehicles;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.BlockVehicleAvailability;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.ChangeVehicleStatus;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.CreateVehicle;
@@ -70,16 +71,21 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.MapRegisterTenant();
-app.MapCreateRentCarEndpoints();
-app.MapUpdateRentCarEndpoints();
-app.MapUploadRentCarLogoEndpoints();
-app.MapCreateVehicleEndpoints();
-app.MapChangeVehicleStatusEndpoints();
-app.MapBlockVehicleAvailabilityEndpoints();
-app.MapUserEndpoints();
 app.MapAuthEndpoints();
-app.MapEmailEndpoints();
-app.MapSubscriptionEndpoints();
+
+var securedEndpoints = app.MapGroup(string.Empty)
+    .RequireAuthorization();
+
+securedEndpoints.MapCreateRentCarEndpoints();
+securedEndpoints.MapUpdateRentCarEndpoints();
+securedEndpoints.MapUploadRentCarLogoEndpoints();
+securedEndpoints.MapCreateVehicleEndpoints();
+securedEndpoints.MapChangeVehicleStatusEndpoints();
+securedEndpoints.MapBlockVehicleAvailabilityEndpoints();
+securedEndpoints.MapVehicleCatalogEndpoints();
+securedEndpoints.MapUserEndpoints();
+securedEndpoints.MapEmailEndpoints();
+securedEndpoints.MapSubscriptionEndpoints();
 
 app.UseCors(a => a.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod());
 // Configure the HTTP request pipeline.
