@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Rentify.Backend.Core.Application.Shared.Security;
 using Rentify.Backend.Core.Domain.Settings;
 using Rentify.Backend.Infraestructure.Identity.Contracts.Services;
 using Rentify.Backend.Infraestructure.Identity.Entities;
@@ -25,14 +26,20 @@ namespace Rentify.Backend.Infraestructure.Identity.Services
 
             var roles = await _userManager.GetRolesAsync(user);
 
-            var roleClaims = roles.Select(r => new Claim("roles", r));
+            var roleClaims = roles
+                .SelectMany(role => new[]
+                {
+                    new Claim(ApplicationClaimTypes.Roles, role),
+                    new Claim(ClaimTypes.Role, role)
+                });
 
             var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.UserName ?? string.Empty),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
-                new Claim("uid", user.Id.ToString())
+                new Claim(ApplicationClaimTypes.UserId, user.Id),
+                new Claim(ApplicationClaimTypes.TenantId, user.TenantId.ToString())
     }
             .Union(userClaims)
             .Union(roleClaims);

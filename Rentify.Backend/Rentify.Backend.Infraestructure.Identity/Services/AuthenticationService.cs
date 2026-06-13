@@ -42,18 +42,36 @@ namespace Rentify.Backend.Infraestructure.Identity.Services
 
         public async Task<LoginResponse> LoginAsync(LoginCommand loginCommand)
         {
-            var user = await _userManager.FindByNameAsync(loginCommand.UserName);
+            var user = await FindUserByUserNameOrEmailAsync(loginCommand.UserName);
 
-            if (user == null) throw new ApiException("User not found");
+            if (user == null)
+            {
+                throw new ApiException("Invalid credentials", StatusCodes.Status401Unauthorized);
+            }
 
-            var signInResult = await _signInManager.PasswordSignInAsync(loginCommand.UserName, loginCommand.Password, false, lockoutOnFailure: false);
+            if (!user.IsActive)
+            {
+                throw new ApiException("User is inactive", StatusCodes.Status403Forbidden);
+            }
 
-            if (!signInResult.Succeeded) throw new ApiException("Invalid credentials");
+            var signInResult = await _signInManager.CheckPasswordSignInAsync(user, loginCommand.Password, lockoutOnFailure: true);
+
+            if (!signInResult.Succeeded)
+            {
+                throw new ApiException("Invalid credentials", StatusCodes.Status401Unauthorized);
+            }
 
             var roles = await _userManager.GetRolesAsync(user);
             var tokenResponse = await GenerateTokenResponseAsync(user);
 
-            return new LoginResponse(user.UserName!, user.Email!, user.FullName!, roles.ToList(), tokenResponse);
+            return new LoginResponse(
+                Guid.Parse(user.Id),
+                user.TenantId,
+                user.UserName!,
+                user.Email!,
+                user.FullName!,
+                roles.ToList(),
+                tokenResponse);
         }
 
         public async Task<ForgotPasswordResponse> ForgotPasswordAsync(ForgotPasswordCommand forgotPasswordCommand)
@@ -170,6 +188,20 @@ namespace Rentify.Backend.Infraestructure.Identity.Services
         private int GetRefreshTokenDurationInDays()
         {
             return _jwtSettings.RefreshTokenDurationInDays > 0 ? _jwtSettings.RefreshTokenDurationInDays : 7;
+        }
+
+        private async Task<ApplicationUser?> FindUserByUserNameOrEmailAsync(string userNameOrEmail)
+        {
+            var normalizedValue = userNameOrEmail.Trim();
+
+            var user = await _userManager.FindByNameAsync(normalizedValue);
+
+            if (user != null)
+            {
+                return user;
+            }
+
+            return await _userManager.FindByEmailAsync(normalizedValue);
         }
     }
 }

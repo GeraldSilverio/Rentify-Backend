@@ -7,7 +7,7 @@ namespace Rentify.Backend.Core.Application.Modules.Secutiry.Commands.Login
         public LoginValidator()
         {
             RuleFor(x => x.UserName)
-                .NotEmpty().WithMessage("UserName is required");
+                .NotEmpty().WithMessage("UserName or Email is required");
 
             RuleFor(x => x.Password)
                 .NotEmpty().WithMessage("Password is required");
