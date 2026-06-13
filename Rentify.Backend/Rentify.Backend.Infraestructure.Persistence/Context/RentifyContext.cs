@@ -24,6 +24,9 @@ namespace Rentify.Backend.Infraestructure.Persistence.Context
             #endregion
 
             modelBuilder.ApplyConfiguration(new RentCarEntityConfiguration());
+            modelBuilder.ApplyConfiguration(new VehicleConfiguration());
+            modelBuilder.ApplyConfiguration(new VehicleImageConfiguration());
+            modelBuilder.ApplyConfiguration(new VehicleUnavailableDateConfiguration());
         }
 
         #region Core Domain DbSets
@@ -38,5 +41,8 @@ namespace Rentify.Backend.Infraestructure.Persistence.Context
         #endregion
 
         public DbSet<RentCar> RentCars { get; set; }
+        public DbSet<Vehicle> Vehicles { get; set; }
+        public DbSet<VehicleImage> VehicleImages { get; set; }
+        public DbSet<VehicleUnavailableDate> VehicleUnavailableDates { get; set; }
     }
 }

@@ -11,6 +11,8 @@ using Rentify.Backend.Core.Application.Modules.RentCars.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.RentCars.Implementations.Services;
 using Rentify.Backend.Core.Application.Modules.Subscriptions.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Subscriptions.Implementations;
+using Rentify.Backend.Core.Application.Modules.Vehicles.Contracts.Services;
+using Rentify.Backend.Core.Application.Modules.Vehicles.Implementations.Services;
 
 namespace Rentify.Backend.Core.Application;
 
@@ -46,6 +48,7 @@ public static class ServiceRegistration
         services.AddScoped<IRentCarService, RentCarService>();
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<ISubscriptionService, SubscriptionService>();
+        services.AddScoped<IVehicleService, VehicleService>();
         services.AddScoped<ITenantService,TenantService>();
 
     }

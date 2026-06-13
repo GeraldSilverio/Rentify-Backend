@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Rentify.Backend.Core.Application;
@@ -7,6 +8,11 @@ using Rentify.Backend.Core.Application.Modules.RentCars.Commands.UpdateRentCar;
 using Rentify.Backend.Core.Application.Modules.Secutiry;
 using Rentify.Backend.Core.Application.Modules.Subscriptions;
 using Rentify.Backend.Core.Application.Modules.Tenants.Commands.RegisterTenant;
+using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.BlockVehicleAvailability;
+using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.ChangeVehicleStatus;
+using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.CreateVehicle;
+using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.DeleteVehicleImage;
+using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.UploadVehicleImage;
 using Rentify.Backend.Infraestructure.Identity;
 using Rentify.Backend.Infraestructure.Identity.Entities;
 using Rentify.Backend.Infraestructure.Identity.Seeds;
@@ -21,10 +27,19 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add(new ProducesAttribute("application/json"));
-}).ConfigureApiBehaviorOptions(options =>
+})
+.AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+})
+.ConfigureApiBehaviorOptions(options =>
 {
     options.SuppressInferBindingSourcesForParameters = true;
     options.SuppressMapClientErrors = true;
+});
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 //Dependecias de las capas.
 builder.Services.AddIdentityInfrastructure(builder.Configuration);
@@ -54,6 +69,11 @@ using (var scope = app.Services.CreateScope())
 app.MapRegisterTenant();
 app.MapCreateRentCarEndpoints();
 app.MapUpdateRentCarEndpoints();
+app.MapCreateVehicleEndpoints();
+app.MapUploadVehicleImageEndpoints();
+app.MapDeleteVehicleImageEndpoints();
+app.MapChangeVehicleStatusEndpoints();
+app.MapBlockVehicleAvailabilityEndpoints();
 app.MapUserEndpoints();
 app.MapAuthEndpoints();
 app.MapEmailEndpoints();
@@ -68,6 +88,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
