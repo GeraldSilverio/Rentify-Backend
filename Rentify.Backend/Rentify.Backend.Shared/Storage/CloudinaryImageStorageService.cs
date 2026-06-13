@@ -3,7 +3,7 @@ using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Http;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Contracts.Services;
 
-namespace Rentify.Backend.Infraestructure.Persistence.Storage;
+namespace Rentify.Backend.Shared.Storage;
 
 public sealed class CloudinaryImageStorageService : IImageStorageService
 {

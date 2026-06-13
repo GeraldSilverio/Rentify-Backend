@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+		<PackageReference Include="CloudinaryDotNet" Version="1.29.2" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Rentify.Backend.Core.Application\Rentify.Backend.Core.Application.csproj" />
+		<ProjectReference Include="..\Rentify.Backend.Core.Domain\Rentify.Backend.Core.Domain.csproj" />
+	</ItemGroup>
+
+</Project>

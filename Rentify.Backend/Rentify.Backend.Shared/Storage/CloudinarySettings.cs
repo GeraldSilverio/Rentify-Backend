@@ -1,4 +1,4 @@
-namespace Rentify.Backend.Infraestructure.Persistence.Storage;
+namespace Rentify.Backend.Shared.Storage;
 
 public sealed class CloudinarySettings
 {

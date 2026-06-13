@@ -17,8 +17,9 @@ using Rentify.Backend.Infraestructure.Identity.Entities;
 using Rentify.Backend.Infraestructure.Identity.Seeds;
 using Rentify.Backend.Infraestructure.Persistence;
 using Rentify.Backend.Presentation.Endpoints;
-using Rentify.Backend.Presentation.WebApi.Configuration;
 using Rentify.Backend.Presentation.WebApi.Extensions;
+using Rentify.Backend.Shared;
+using Rentify.Backend.Shared.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 EnvFileLoader.LoadFromNearest(builder.Environment.ContentRootPath);
@@ -45,6 +46,7 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 //Dependecias de las capas.
 builder.Services.AddIdentityInfrastructure(builder.Configuration);
 builder.Services.AddPersistence(builder.Configuration);
+builder.Services.AddSharedServices();
 builder.Services.AddApplicationLayer();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

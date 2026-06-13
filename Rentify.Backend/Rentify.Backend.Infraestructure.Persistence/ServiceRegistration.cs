@@ -1,22 +1,17 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using CloudinaryDotNet;
 using Npgsql;
 using Rentify.Backend.Core.Application.Modules.Emails.Contracts.Repositories;
-using Rentify.Backend.Core.Application.Modules.Emails.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.RentCars.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Subscriptions.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Tenants.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Contracts.Repositories;
-using Rentify.Backend.Core.Application.Modules.Vehicles.Contracts.Services;
 using Rentify.Backend.Core.Application.Shared.Helpers;
 using Rentify.Backend.Core.Application.Shared.UnitOfWork;
-using Rentify.Backend.Infraestructure.Persistence.Emailing;
 using Rentify.Backend.Infraestructure.Persistence.Context;
 using Rentify.Backend.Infrastructure.Persistence.Repositories;
 using Rentify.Backend.Infraestructure.Persistence.Repositories;
-using Rentify.Backend.Infraestructure.Persistence.Storage;
 
 namespace Rentify.Backend.Infraestructure.Persistence
 {
@@ -50,17 +45,10 @@ namespace Rentify.Backend.Infraestructure.Persistence
             services.AddScoped<IRentCarRepository, RentCarRepository>();
             services.AddScoped<IEmailTemplateRepository, EmailTemplateRepository>();
             services.AddScoped<ITenantEmailConfigurationRepository, TenantEmailConfigurationRepository>();
-            CloudinarySettings cloudinarySettings = CloudinarySettings.FromEnvironment();
-            services.AddSingleton(new Cloudinary(new Account(
-                cloudinarySettings.CloudName,
-                cloudinarySettings.ApiKey,
-                cloudinarySettings.ApiSecret)));
 
-            services.AddScoped<IEmailProviderSender, ResendEmailProviderSender>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ISubscriptionPlanRepository, SubscriptionPlanRepository>();
             services.AddScoped<IVehicleRepository, VehicleRepository>();
-            services.AddScoped<IImageStorageService, CloudinaryImageStorageService>();
 
         }
     }

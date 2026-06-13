@@ -1,4 +1,4 @@
-namespace Rentify.Backend.Presentation.WebApi.Configuration;
+namespace Rentify.Backend.Shared.Configuration;
 
 public static class EnvFileLoader
 {

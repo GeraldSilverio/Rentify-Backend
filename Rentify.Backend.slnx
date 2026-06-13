@@ -8,6 +8,9 @@
     <Project Path="Rentify.Backend/Rentify.Backend.Infraestructure.Identity/Rentify.Backend.Infraestructure.Identity.csproj" />
     <Project Path="Rentify.Backend/Rentify.Backend.Infraestructure.Persistence/Rentify.Backend.Infraestructure.Persistence.csproj" />
   </Folder>
+  <Folder Name="/Source/Shared/">
+    <Project Path="Rentify.Backend/Rentify.Backend.Shared/Rentify.Backend.Shared.csproj" />
+  </Folder>
   <Folder Name="/Source/Presentation/">
     <Project Path="Rentify.Backend/Rentify.Backend.Presentation.WebApi/Rentify.Backend.Presentation.WebApi.csproj" />
   </Folder>
