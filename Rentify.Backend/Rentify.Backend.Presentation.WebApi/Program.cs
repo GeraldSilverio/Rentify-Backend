@@ -1,9 +1,16 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Rentify.Backend.Core.Application;
+using Rentify.Backend.Core.Application.Modules.Emails;
+using Rentify.Backend.Core.Application.Modules.RentCars.Commands.CreateRentCar;
+using Rentify.Backend.Core.Application.Modules.Secutiry;
+using Rentify.Backend.Core.Application.Modules.Subscriptions;
+using Rentify.Backend.Core.Application.Modules.Tenants.Commands.RegisterTenant;
 using Rentify.Backend.Infraestructure.Identity;
+using Rentify.Backend.Infraestructure.Identity.Entities;
 using Rentify.Backend.Infraestructure.Identity.Seeds;
 using Rentify.Backend.Infraestructure.Persistence;
+using Rentify.Backend.Presentation.Endpoints;
 using Rentify.Backend.Presentation.WebApi.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,7 +29,6 @@ builder.Services.AddControllers(options =>
 builder.Services.AddIdentityInfrastructure(builder.Configuration);
 builder.Services.AddPersistence(builder.Configuration);
 builder.Services.AddApplicationLayer();
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddEndpointsApiExplorer();
@@ -37,22 +43,21 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    var services = scope.ServiceProvider;
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-    try
-    {
-        var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
-        var rolesManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-
-       await DefaultRoles.CreateRoles(rolesManager);
-       await DefaultUser.CreateUser(userManager);
-    }
-    catch (Exception ex)
-    {
-        throw new Exception(ex.Message);
-    }
+    await DefaultRoles.CreateRoles(roleManager);
+    await DefaultUser.CreateUser(userManager);
 }
 
+app.MapRegisterTenant();
+app.MapCreateRentCarEndpoints();
+app.MapUserEndpoints();
+app.MapAuthEndpoints();
+app.MapEmailEndpoints();
+app.MapSubscriptionEndpoints();
+
+app.UseCors(a => a.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod());
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -66,6 +71,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseSwaggerExtension();
 app.UseErrorHandlingMiddleware();
+
 app.UseHealthChecks("/health");
 app.UseSession();
 

@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Rentify.Backend.Infraestructure.Identity.EntityConfigurations;
+using Rentify.Backend.Infraestructure.Identity.Entities;
 
 namespace Rentify.Backend.Infraestructure.Identity.Context
 {
@@ -10,6 +12,7 @@ namespace Rentify.Backend.Infraestructure.Identity.Context
     /// <param name="options">The DbContext options.</param>
     public class IdentityContext(DbContextOptions<IdentityContext> options) : IdentityDbContext<ApplicationUser>(options)
     {
+        public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -36,6 +39,8 @@ namespace Rentify.Backend.Infraestructure.Identity.Context
             {
                 entity.ToTable(name: "UserLogin");
             });
+
+            modelBuilder.ApplyConfiguration(new RefreshTokenConfiguration());
         }
     }
 }

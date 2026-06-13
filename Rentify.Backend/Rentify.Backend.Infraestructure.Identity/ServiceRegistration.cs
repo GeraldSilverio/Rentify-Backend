@@ -9,14 +9,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Npgsql;
-using Rentify.Backend.Core.Application.Helpers;
-using Rentify.Backend.Core.Application.Interfaces.Services;
-using Rentify.Backend.Core.Application.Wrappers;
+using Rentify.Backend.Core.Application.Modules.Secutiry.Contracts.Services;
+using Rentify.Backend.Core.Application.Shared.Helpers;
+using Rentify.Backend.Core.Application.Shared.Response;
 using Rentify.Backend.Core.Domain.Settings;
 using Rentify.Backend.Infraestructure.Identity.Context;
-using Rentify.Backend.Infraestructure.Identity.Interfaces;
-using Rentify.Backend.Infraestructure.Identity.Repositories.Implementations;
-using Rentify.Backend.Infraestructure.Identity.Repositories.Interfaces;
+using Rentify.Backend.Infraestructure.Identity.Contracts.Services;
+using Rentify.Backend.Infraestructure.Identity.Entities;
 using Rentify.Backend.Infraestructure.Identity.Services;
 
 namespace Rentify.Backend.Infraestructure.Identity
@@ -63,7 +62,7 @@ namespace Rentify.Backend.Infraestructure.Identity
                     ClockSkew = TimeSpan.Zero,
                     ValidIssuer = configuration["JWTSettings:Issuer"],
                     ValidAudience = configuration["JWTSettings:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWTSettings:Key"]))
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWTSettings:Key"]!))
                 };
 
                 options.Events = new JwtBearerEvents()
@@ -80,7 +79,7 @@ namespace Rentify.Backend.Infraestructure.Identity
                         c.HandleResponse();
                         c.Response.StatusCode = 401;
                         c.Response.ContentType = "application/json";
-                        var result = JsonConvert.SerializeObject(Result<string>.Failure(Error.Unauthorized("You are not authorized")));
+                        var result = JsonConvert.SerializeObject(ResultReponse<string>.Failure(Error.SetError("You are not authorized", StatusCodes.Status401Unauthorized)));
                         return c.Response.WriteAsync(result);
                     },
                     OnForbidden = c =>
@@ -89,7 +88,7 @@ namespace Rentify.Backend.Infraestructure.Identity
                         c.Response.ContentType = "application/json";
                         var result =
                             JsonConvert.SerializeObject(
-                                 Result<string>.Failure(Error.ForBidden("You are not Authorize to access this resource")));
+                                 ResultReponse<string>.Failure(Error.SetError("You are not authorized to access this resource",StatusCodes.Status403Forbidden)));
                         return c.Response.WriteAsync(result);
                     },
                 };
@@ -133,10 +132,11 @@ namespace Rentify.Backend.Infraestructure.Identity
         {
             #region Services
 
-            services.AddTransient<IAccountService, AccountService>();
+            //services.AddTransient<IAccountService, AccountService>();
             services.AddTransient<IJwtServices, JwtServices>();
-            services.AddTransient<IRolRepository, RolRepository>();
-            services.AddTransient<IRolService, RolService>();
+            services.AddScoped<IAccountService, AccountService>();
+
+            services.AddScoped<IAuthenticationService, AuthenticationService>();
 
             #endregion
         }

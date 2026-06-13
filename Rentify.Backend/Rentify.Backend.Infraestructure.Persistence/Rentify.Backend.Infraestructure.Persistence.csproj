@@ -24,9 +24,4 @@
 		<ProjectReference Include="..\Rentify.Backend.Core.Domain\Rentify.Backend.Core.Domain.csproj" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<Folder Include="EntitiesConfiguration\" />
-		<Folder Include="Migrations\" />
-	</ItemGroup>
-
 </Project>

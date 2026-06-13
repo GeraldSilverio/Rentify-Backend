@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Identity;
-using Rentify.Backend.Core.Application;
+using Rentify.Backend.Core.Application.Shared.Security;
 
 namespace Rentify.Backend.Infraestructure.Identity.Seeds
 {
@@ -15,7 +15,18 @@ namespace Rentify.Backend.Infraestructure.Identity.Seeds
         /// <returns>A task representing the asynchronous operation.</returns>
         public static async Task CreateRoles(RoleManager<IdentityRole> roleManager)
         {
-            await roleManager.CreateAsync(new IdentityRole("USER"));
+            await CreateRoleIfNotExistsAsync(roleManager, ApplicationRoles.User);
+            await CreateRoleIfNotExistsAsync(roleManager, ApplicationRoles.Owner);
+        }
+
+        private static async Task CreateRoleIfNotExistsAsync(
+            RoleManager<IdentityRole> roleManager,
+            string roleName)
+        {
+            if (!await roleManager.RoleExistsAsync(roleName))
+            {
+                await roleManager.CreateAsync(new IdentityRole(roleName));
+            }
         }
     }
 }
