@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Rentify.Backend.Core.Application;
 using Rentify.Backend.Core.Application.Modules.Emails;
@@ -6,6 +7,8 @@ using Rentify.Backend.Core.Application.Modules.Secutiry;
 using Rentify.Backend.Core.Application.Modules.Subscriptions;
 using Rentify.Backend.Core.Application.Modules.Tenants.Commands.RegisterTenant;
 using Rentify.Backend.Infraestructure.Identity;
+using Rentify.Backend.Infraestructure.Identity.Entities;
+using Rentify.Backend.Infraestructure.Identity.Seeds;
 using Rentify.Backend.Infraestructure.Persistence;
 using Rentify.Backend.Presentation.Endpoints;
 using Rentify.Backend.Presentation.WebApi.Extensions;
@@ -37,6 +40,15 @@ builder.Services.AddSwaggerExtension();
 builder.Services.AddApiVersioningExtension();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+    await DefaultRoles.CreateRoles(roleManager);
+    await DefaultUser.CreateUser(userManager);
+}
 
 app.MapRegisterTenant();
 app.MapCreateRentCarEndpoints();
