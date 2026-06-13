@@ -5,5 +5,7 @@ namespace Rentify.Backend.Core.Application.Modules.Tenants.Commands.RegisterTena
 
 public sealed record RegisterTenantCommand(
     string RentCarName,
-    string CreatedBy
+    string CreatedBy,
+    string SubscriptionPlanCode = "STARTER",
+    int TrialDays = 14
 ) : IRequest<ResultReponse<RegisterTenantResponse>>;

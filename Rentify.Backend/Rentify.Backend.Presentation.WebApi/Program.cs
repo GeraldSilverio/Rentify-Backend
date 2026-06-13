@@ -3,6 +3,7 @@ using Rentify.Backend.Core.Application;
 using Rentify.Backend.Core.Application.Modules.Emails;
 using Rentify.Backend.Core.Application.Modules.RentCars.Commands.CreateRentCar;
 using Rentify.Backend.Core.Application.Modules.Secutiry;
+using Rentify.Backend.Core.Application.Modules.Subscriptions;
 using Rentify.Backend.Core.Application.Modules.Tenants.Commands.RegisterTenant;
 using Rentify.Backend.Infraestructure.Identity;
 using Rentify.Backend.Infraestructure.Persistence;
@@ -42,6 +43,7 @@ app.MapCreateRentCarEndpoints();
 app.MapUserEndpoints();
 app.MapAuthEndpoints();
 app.MapEmailEndpoints();
+app.MapSubscriptionEndpoints();
 
 app.UseCors(a => a.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod());
 // Configure the HTTP request pipeline.

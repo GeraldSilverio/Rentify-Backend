@@ -17,6 +17,10 @@ namespace Rentify.Backend.Core.Domain.Entities.Core
 
         public DateTime ExpiresAt { get; private set; }
 
+        public DateTime? TrialEndsAt { get; private set; }
+
+        public bool IsTrial { get; private set; }
+
         public bool AutoRenew { get; private set; }
 
         public DateTime? CancelledAt { get; private set; }
@@ -35,6 +39,8 @@ namespace Rentify.Backend.Core.Domain.Entities.Core
             Guid subscriptionPlanId,
             DateTime startsAt,
             DateTime expiresAt,
+            DateTime? trialEndsAt,
+            bool isTrial,
             string createdBy)
         {
             Id = Guid.NewGuid();
@@ -44,9 +50,12 @@ namespace Rentify.Backend.Core.Domain.Entities.Core
 
             StartsAt = startsAt;
             ExpiresAt = expiresAt;
+            TrialEndsAt = trialEndsAt;
+            IsTrial = isTrial;
 
-            Status = SubscriptionStatus.Active;
+            Status = isTrial ? SubscriptionStatus.Trialing : SubscriptionStatus.Active;
             AutoRenew = true;
+            IsActive = true;
 
             CreatedDate = DateTime.UtcNow;
             CreatedBy = createdBy;
@@ -58,15 +67,22 @@ namespace Rentify.Backend.Core.Domain.Entities.Core
             Guid tenantId,
             Guid subscriptionPlanId,
             int durationInDays,
+            int trialDays,
             string createdBy)
         {
             var now = DateTime.UtcNow;
+            var trialEndsAt = trialDays > 0 ? now.AddDays(trialDays) : (DateTime?)null;
+            var expiresAt = trialEndsAt.HasValue
+                ? trialEndsAt.Value.AddDays(durationInDays)
+                : now.AddDays(durationInDays);
 
             return new Subscription(
                 tenantId,
                 subscriptionPlanId,
                 now,
-                now.AddDays(durationInDays),
+                expiresAt,
+                trialEndsAt,
+                trialDays > 0,
                 createdBy);
         }
 
@@ -74,6 +90,7 @@ namespace Rentify.Backend.Core.Domain.Entities.Core
         {
             Status = SubscriptionStatus.Cancelled;
             CancelledAt = DateTime.UtcNow;
+            IsActive = false;
 
             ModifiedBy = modifiedBy;
             ModifiedDate = DateTime.UtcNow;
@@ -82,9 +99,35 @@ namespace Rentify.Backend.Core.Domain.Entities.Core
         public void Renew(int durationInDays, string modifiedBy)
         {
             ExpiresAt = ExpiresAt.AddDays(durationInDays);
+            IsTrial = false;
+            TrialEndsAt = null;
+            Status = SubscriptionStatus.Active;
+            IsActive = true;
 
             ModifiedBy = modifiedBy;
             ModifiedDate = DateTime.UtcNow;
+        }
+
+        public void ValidateStatus(string modifiedBy)
+        {
+            var now = DateTime.UtcNow;
+
+            if (now > ExpiresAt && Status != SubscriptionStatus.Expired)
+            {
+                Status = SubscriptionStatus.Expired;
+                IsActive = false;
+                ModifiedBy = modifiedBy;
+                ModifiedDate = now;
+                return;
+            }
+
+            if (IsTrial && TrialEndsAt.HasValue && now > TrialEndsAt.Value && now <= ExpiresAt)
+            {
+                IsTrial = false;
+                Status = SubscriptionStatus.Active;
+                ModifiedBy = modifiedBy;
+                ModifiedDate = now;
+            }
         }
 
         public bool IsExpired()

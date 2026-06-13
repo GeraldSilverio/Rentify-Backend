@@ -11,5 +11,17 @@ public sealed class RegisterTenantValidator
         RuleFor(x => x.RentCarName)
             .NotEmpty()
             .MaximumLength(150);
+
+        RuleFor(x => x.CreatedBy)
+            .NotEmpty()
+            .MaximumLength(100);
+
+        RuleFor(x => x.SubscriptionPlanCode)
+            .NotEmpty()
+            .MaximumLength(50);
+
+        RuleFor(x => x.TrialDays)
+            .GreaterThanOrEqualTo(0)
+            .LessThanOrEqualTo(90);
     }
 }

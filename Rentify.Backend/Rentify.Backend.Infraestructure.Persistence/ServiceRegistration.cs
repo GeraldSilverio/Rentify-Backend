@@ -12,6 +12,7 @@ using Rentify.Backend.Core.Application.Shared.UnitOfWork;
 using Rentify.Backend.Infraestructure.Persistence.Emailing;
 using Rentify.Backend.Infraestructure.Persistence.Context;
 using Rentify.Backend.Infrastructure.Persistence.Repositories;
+using Rentify.Backend.Infraestructure.Persistence.Repositories;
 
 namespace Rentify.Backend.Infraestructure.Persistence
 {
@@ -47,6 +48,8 @@ namespace Rentify.Backend.Infraestructure.Persistence
             services.AddScoped<ITenantEmailConfigurationRepository, TenantEmailConfigurationRepository>();
             services.AddScoped<IEmailProviderSender, ResendEmailProviderSender>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<ISubscriptionPlanRepository, SubscriptionPlanRepository>();
+
         }
     }
 }

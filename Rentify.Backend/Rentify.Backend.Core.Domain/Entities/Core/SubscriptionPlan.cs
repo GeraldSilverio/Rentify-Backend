@@ -41,8 +41,6 @@ namespace Rentify.Backend.Core.Domain.Entities.Core
 
         public bool WhiteLabelEnabled { get; private set; }
 
-        public bool IsActive { get; private set; }
-
         // EF
         private SubscriptionPlan()
         {
