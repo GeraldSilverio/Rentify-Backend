@@ -4,11 +4,11 @@ using Rentify.Backend.Core.Domain.Entities.Core;
 
 namespace Rentify.Backend.Infraestructure.Persistence.EntityConfiguration.Core
 {
-    public sealed class EmailTemplateConfiguration : IEntityTypeConfiguration<EmailTemplate>
+    public sealed class SystemEmailTemplateConfiguration : IEntityTypeConfiguration<SystemEmailTemplate>
     {
-        public void Configure(EntityTypeBuilder<EmailTemplate> builder)
+        public void Configure(EntityTypeBuilder<SystemEmailTemplate> builder)
         {
-            builder.ToTable("EmailTemplates");
+            builder.ToTable("SystemEmailTemplates");
 
             builder.HasKey(x => x.Id);
 
@@ -48,14 +48,6 @@ namespace Rentify.Backend.Infraestructure.Persistence.EntityConfiguration.Core
 
             builder.Property(x => x.IsDeleted)
                 .IsRequired();
-
-            builder.HasIndex(x => new { x.TenantId, x.Code })
-                .IsUnique();
-
-            builder.HasOne(x => x.Tenant)
-                .WithMany()
-                .HasForeignKey(x => x.TenantId)
-                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
