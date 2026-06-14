@@ -19,7 +19,7 @@ namespace Rentify.Backend.Infraestructure.Persistence.Context
             modelBuilder.ApplyConfiguration(new TenantSettingsConfiguration());
             modelBuilder.ApplyConfiguration(new SubscriptionConfiguration());
             modelBuilder.ApplyConfiguration(new SubscriptionPlanConfiguration());
-            modelBuilder.ApplyConfiguration(new EmailTemplateConfiguration());
+            modelBuilder.ApplyConfiguration((IEntityTypeConfiguration<Core.Domain.Entities.Core.SystemEmailTemplate>)new EntityConfiguration.Core.SystemEmailTemplateConfiguration());
             modelBuilder.ApplyConfiguration(new TenantEmailConfigurationConfiguration());
             #endregion
 
@@ -36,7 +36,7 @@ namespace Rentify.Backend.Infraestructure.Persistence.Context
         public DbSet<TenantSettings> TenantSettings { get; set; }
         public DbSet<Subscription> Subscriptions { get; set; }
         public DbSet<SubscriptionPlan> SubscriptionPlans { get; set; }
-        public DbSet<EmailTemplate> EmailTemplates { get; set; }
+        public DbSet<Core.Domain.Entities.Core.SystemEmailTemplate> SystemEmailTemplates { get; set; }
         public DbSet<TenantEmailConfiguration> TenantEmailConfigurations { get; set; }
 
         #endregion

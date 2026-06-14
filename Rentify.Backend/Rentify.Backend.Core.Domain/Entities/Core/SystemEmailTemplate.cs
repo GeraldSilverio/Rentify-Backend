@@ -2,23 +2,20 @@ using Rentify.Backend.Core.Domain.Commons;
 
 namespace Rentify.Backend.Core.Domain.Entities.Core
 {
-    public class EmailTemplate : BaseEntity
+    public class SystemEmailTemplate : BaseEntity
     {
         public Guid Id { get; private set; }
-        public Guid? TenantId { get; private set; }
         public string Code { get; private set; }
         public string Name { get; private set; }
         public string Subject { get; private set; }
         public string HtmlBody { get; private set; }
         public string? TextBody { get; private set; }
-        public Tenant? Tenant { get; private set; }
 
-        private EmailTemplate()
+        private SystemEmailTemplate()
         {
         }
 
-        private EmailTemplate(
-            Guid? tenantId,
+        private SystemEmailTemplate(
             string code,
             string name,
             string subject,
@@ -27,7 +24,6 @@ namespace Rentify.Backend.Core.Domain.Entities.Core
             string createdBy)
         {
             Id = Guid.NewGuid();
-            TenantId = tenantId;
             Code = code.Trim().ToUpperInvariant();
             Name = name.Trim();
             Subject = subject.Trim();
@@ -40,8 +36,7 @@ namespace Rentify.Backend.Core.Domain.Entities.Core
             ModifiedDate = CreatedDate;
         }
 
-        public static EmailTemplate Create(
-            Guid? tenantId,
+        public static SystemEmailTemplate Create(
             string code,
             string name,
             string subject,
@@ -49,7 +44,7 @@ namespace Rentify.Backend.Core.Domain.Entities.Core
             string? textBody,
             string createdBy)
         {
-            return new EmailTemplate(tenantId, code, name, subject, htmlBody, textBody, createdBy);
+            return new SystemEmailTemplate(code, name, subject, htmlBody, textBody, createdBy);
         }
 
         public void Update(

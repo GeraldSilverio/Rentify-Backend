@@ -7,9 +7,9 @@ namespace Rentify.Backend.Core.Application.Modules.Emails.Queries.ListEmailTempl
 {
     public class ListEmailTemplatesHandler : IRequestHandler<ListEmailTemplatesQuery, ResultReponse<IReadOnlyList<EmailTemplateResponse>>>
     {
-        private readonly IEmailTemplateRepository _emailTemplateRepository;
+        private readonly ISystemEmailTemplateRepository _emailTemplateRepository;
 
-        public ListEmailTemplatesHandler(IEmailTemplateRepository emailTemplateRepository)
+        public ListEmailTemplatesHandler(ISystemEmailTemplateRepository emailTemplateRepository)
         {
             _emailTemplateRepository = emailTemplateRepository;
         }
@@ -19,7 +19,7 @@ namespace Rentify.Backend.Core.Application.Modules.Emails.Queries.ListEmailTempl
             var templates = await _emailTemplateRepository.ListAsync(request.TenantId, cancellationToken);
 
             var response = templates
-                .Select(x => new EmailTemplateResponse(x.Id, x.TenantId, x.Code, x.Name, x.Subject, x.HtmlBody, x.TextBody, x.IsActive))
+                .Select(x => new EmailTemplateResponse(x.Id, x.Code, x.Name, x.Subject, x.HtmlBody, x.TextBody, x.IsActive))
                 .ToList();
 
             return ResultReponse<IReadOnlyList<EmailTemplateResponse>>.Success(response);

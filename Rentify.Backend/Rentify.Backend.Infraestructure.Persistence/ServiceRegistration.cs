@@ -43,7 +43,7 @@ namespace Rentify.Backend.Infraestructure.Persistence
             services.AddScoped<ITenantRepository, TenantRepository>();
             services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
             services.AddScoped<IRentCarRepository, RentCarRepository>();
-            services.AddScoped<IEmailTemplateRepository, EmailTemplateRepository>();
+            services.AddScoped<ISystemEmailTemplateRepository, SystemEmailTemplateRepository>();
             services.AddScoped<ITenantEmailConfigurationRepository, TenantEmailConfigurationRepository>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();

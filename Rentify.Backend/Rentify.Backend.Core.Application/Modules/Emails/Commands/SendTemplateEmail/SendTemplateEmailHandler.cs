@@ -15,7 +15,7 @@ namespace Rentify.Backend.Core.Application.Modules.Emails.Commands.SendTemplateE
 
         public async Task<ResultReponse<SendTemplateEmailResponse>> Handle(SendTemplateEmailCommand request, CancellationToken cancellationToken)
         {
-            var result = await _emailService.SendTemplateEmailAsync(request, cancellationToken);
+            var result = await _emailService.SendEmailAsync(request, cancellationToken);
 
             return ResultReponse<SendTemplateEmailResponse>.Success(result);
         }

@@ -95,7 +95,7 @@ namespace Rentify.Backend.Infraestructure.Identity.Services
             var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
             var resetUrl = BuildResetPasswordUrl(forgotPasswordCommand.ResetPasswordUrl, user.Email!, resetToken);
 
-            await _emailService.SendTemplateEmailAsync(new SendTemplateEmailCommand(
+            await _emailService.SendEmailAsync(new SendTemplateEmailCommand(
                 user.TenantId,
                 EmailTemplateCodes.PasswordReset,
                 user.Email!,
