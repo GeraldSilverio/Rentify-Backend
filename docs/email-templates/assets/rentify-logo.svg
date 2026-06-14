@@ -1,0 +1,20 @@
+<svg width="320" height="88" viewBox="0 0 320 88" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Rentify logo</title>
+  <desc id="desc">Rentify vehicle rental platform logo with road, car and key mark.</desc>
+  <path d="M18 58C28.5 43 43.5 35.5 63 35.5H92C106 35.5 118.5 42.5 126 54.5L133.5 66.5H29.5L18 58Z" fill="#061B3A"/>
+  <path d="M35 48H57.5C62.5 48 68 50 72.5 53L83 60H30L35 48Z" fill="#FFFFFF"/>
+  <path d="M77 47H95.5C102.5 47 109.5 51 113.5 57L115.5 60H91.5L77 47Z" fill="#FFFFFF"/>
+  <circle cx="43.5" cy="67.5" r="7.5" fill="#0F172A"/>
+  <circle cx="43.5" cy="67.5" r="3.5" fill="#EAF3FF"/>
+  <circle cx="111.5" cy="67.5" r="7.5" fill="#0F172A"/>
+  <circle cx="111.5" cy="67.5" r="3.5" fill="#EAF3FF"/>
+  <path d="M24 73C49.5 70 78.5 70 126 73" stroke="#1D4ED8" stroke-width="6" stroke-linecap="round"/>
+  <path d="M33 24C47.5 14 66 10 84.5 15C103.5 20 118 33.5 125.5 50" stroke="#061B3A" stroke-width="8" stroke-linecap="round"/>
+  <path d="M29 31H63" stroke="#14B8A6" stroke-width="7" stroke-linecap="round"/>
+  <path d="M20 42H50" stroke="#14B8A6" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="111" cy="24" r="10" fill="#F59E0B"/>
+  <circle cx="111" cy="24" r="3.2" fill="#FFFFFF"/>
+  <path d="M111 34V45M111 41H117M111 45H115" stroke="#F59E0B" stroke-width="4" stroke-linecap="round"/>
+  <text x="154" y="56" fill="#061B3A" font-family="Inter, Arial, Helvetica, sans-serif" font-size="42" font-weight="800" letter-spacing="0">Rent</text>
+  <text x="250" y="56" fill="#2563EB" font-family="Inter, Arial, Helvetica, sans-serif" font-size="42" font-style="italic" font-weight="800" letter-spacing="0">ify</text>
+</svg>

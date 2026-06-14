@@ -1,0 +1,164 @@
+WITH updated AS (
+    UPDATE public."SystemEmailTemplates"
+    SET
+        "Name" = 'Bienvenida owner',
+        "Subject" = 'Bienvenido a Rentify, tu suscripción está activa',
+        "HtmlBody" = $$<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>Bienvenido a Rentify</title>
+</head>
+<body style="margin:0;padding:0;background-color:#edf3f8;color:#172033;font-family:Arial,Helvetica,sans-serif;">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">Tu cuenta owner y suscripción de Rentify están listas para comenzar a gestionar tu flota.</div>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background-color:#edf3f8;margin:0;padding:0;">
+    <tr><td align="center" style="padding:32px 14px;">
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:680px;border-collapse:collapse;">
+        <tr><td style="padding:0 4px 16px 4px;">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+            <tr>
+              <td align="left" style="vertical-align:middle;">
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0"><tr>
+                  <td width="44" height="44" align="center" style="width:44px;height:44px;background-color:#061b3a;border-radius:8px;"><span style="display:block;font-size:23px;line-height:44px;font-weight:800;color:#ffffff;">R</span></td>
+                  <td style="padding-left:12px;"><div style="font-size:27px;line-height:30px;font-weight:800;color:#061b3a;letter-spacing:0;">Rent<span style="color:#2563eb;font-style:italic;">ify</span></div><div style="font-size:11px;line-height:16px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1.2px;">Rental fleet platform</div></td>
+                </tr></table>
+              </td>
+              <td align="right" style="vertical-align:middle;font-size:12px;line-height:18px;font-weight:700;color:#14b8a6;text-transform:uppercase;letter-spacing:1px;">Cuenta owner activa</td>
+            </tr>
+          </table>
+        </td></tr>
+        <tr><td style="background-color:#ffffff;border:1px solid #d5e0ea;border-radius:8px;overflow:hidden;">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+            <tr><td style="background-color:#061b3a;padding:0;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                <tr><td style="padding:32px 32px 28px 32px;"><p style="margin:0 0 10px 0;font-size:12px;line-height:18px;font-weight:800;color:#7dd3fc;text-transform:uppercase;letter-spacing:1.2px;">Bienvenido a tu centro de operaciones</p><h1 style="margin:0;font-size:30px;line-height:38px;font-weight:800;color:#ffffff;letter-spacing:0;">Tu plataforma para gestionar rentas, vehículos y reservas ya está lista</h1></td></tr>
+                <tr><td style="height:6px;background-color:#14b8a6;line-height:6px;font-size:0;">&nbsp;</td></tr>
+              </table>
+            </td></tr>
+            <tr><td style="padding:32px;">
+              <p style="margin:0 0 18px 0;font-size:16px;line-height:26px;color:#334155;">Hola {{OwnerFullName}},</p>
+              <p style="margin:0 0 22px 0;font-size:16px;line-height:26px;color:#334155;">Bienvenido a Rentify. Tu cuenta owner para <strong style="color:#061b3a;">{{TenantName}}</strong> fue creada correctamente y tu suscripción <strong style="color:#061b3a;">{{SubscriptionPlanName}}</strong> ya está activa para comenzar a organizar tu negocio de renta de vehículos.</p>
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 26px 0;"><tr>
+                <td style="padding:0 8px 0 0;" width="50%"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#f8fafc;border:1px solid #dbe7f1;border-radius:8px;"><tr><td style="padding:18px;"><p style="margin:0 0 6px 0;font-size:12px;line-height:18px;color:#64748b;font-weight:800;text-transform:uppercase;letter-spacing:.8px;">Empresa</p><p style="margin:0;font-size:17px;line-height:24px;color:#061b3a;font-weight:800;">{{TenantName}}</p></td></tr></table></td>
+                <td style="padding:0 0 0 8px;" width="50%"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#f8fafc;border:1px solid #dbe7f1;border-radius:8px;"><tr><td style="padding:18px;"><p style="margin:0 0 6px 0;font-size:12px;line-height:18px;color:#64748b;font-weight:800;text-transform:uppercase;letter-spacing:.8px;">Plan</p><p style="margin:0;font-size:17px;line-height:24px;color:#061b3a;font-weight:800;">{{SubscriptionPlanName}}</p></td></tr></table></td>
+              </tr></table>
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 26px 0;background-color:#ecfeff;border:1px solid #bae6fd;border-radius:8px;"><tr><td width="52" align="center" style="width:52px;padding:16px 0 16px 16px;vertical-align:top;"><div style="width:36px;height:36px;border-radius:8px;background-color:#061b3a;color:#ffffff;font-size:20px;line-height:36px;font-weight:800;text-align:center;">1</div></td><td style="padding:16px 18px 16px 12px;"><p style="margin:0 0 6px 0;font-size:14px;line-height:22px;color:#0f172a;font-weight:800;">Primer paso recomendado</p><p style="margin:0;font-size:14px;line-height:22px;color:#475569;">Completa el perfil de tu rent car, registra tus vehículos y comienza a configurar la disponibilidad de tu flota.</p></td></tr></table>
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="left" style="margin:0 0 28px 0;border-collapse:separate;"><tr><td align="center" bgcolor="#2563eb" style="border-radius:7px;background-color:#2563eb;box-shadow:0 8px 18px rgba(37,99,235,0.22);">
+                <!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{DashboardUrl}}" style="height:48px;v-text-anchor:middle;width:226px;" arcsize="14%" stroke="f" fillcolor="#2563eb"><w:anchorlock/><center style="color:#ffffff;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:700;">Ir al dashboard</center></v:roundrect><![endif]-->
+                <!--[if !mso]><!-- --><a href="{{DashboardUrl}}" target="_blank" rel="noopener" style="background-color:#2563eb;border:1px solid #2563eb;border-radius:7px;color:#ffffff;display:inline-block;font-size:15px;font-weight:700;line-height:48px;min-width:226px;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;">Ir al dashboard</a><!--<![endif]-->
+              </td></tr></table>
+              <div style="clear:both;height:1px;line-height:1px;font-size:1px;">&nbsp;</div>
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 24px 0;border:1px solid #dbe7f1;border-radius:8px;"><tr><td style="padding:18px;"><p style="margin:0 0 12px 0;font-size:14px;line-height:22px;color:#334155;font-weight:800;">Resumen de tu suscripción</p><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td style="padding:6px 0;font-size:13px;line-height:20px;color:#64748b;">Estado</td><td align="right" style="padding:6px 0;font-size:13px;line-height:20px;color:#061b3a;font-weight:700;">{{SubscriptionStatus}}</td></tr><tr><td style="padding:6px 0;font-size:13px;line-height:20px;color:#64748b;">Inicio</td><td align="right" style="padding:6px 0;font-size:13px;line-height:20px;color:#061b3a;font-weight:700;">{{SubscriptionStartDate}}</td></tr><tr><td style="padding:6px 0;font-size:13px;line-height:20px;color:#64748b;">Vencimiento</td><td align="right" style="padding:6px 0;font-size:13px;line-height:20px;color:#061b3a;font-weight:700;">{{SubscriptionExpiresAt}}</td></tr></table></td></tr></table>
+              <p style="margin:0 0 16px 0;font-size:14px;line-height:22px;color:#64748b;">Si tienes preguntas durante la configuración inicial, responde este correo o escríbenos a <a href="mailto:{{SupportEmail}}" style="color:#2563eb;text-decoration:underline;">{{SupportEmail}}</a>.</p>
+              <p style="margin:0;font-size:14px;line-height:22px;color:#64748b;">Estamos felices de acompañarte mientras conviertes tu operación de renta en una experiencia más organizada, medible y profesional.</p>
+            </td></tr>
+            <tr><td style="padding:0 32px 32px 32px;"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-top:1px solid #dbe7f1;"><tr><td style="padding-top:20px;"><p style="margin:0 0 6px 0;font-size:12px;line-height:18px;color:#94a3b8;">Cuenta owner: {{OwnerEmail}}</p><p style="margin:0;font-size:12px;line-height:18px;color:#94a3b8;">Rentify protege tu operación, reservas y flota con herramientas diseñadas para empresas de renta de vehículos.</p></td></tr></table></td></tr>
+          </table>
+        </td></tr>
+        <tr><td style="padding:18px 4px 0 4px;text-align:center;"><p style="margin:0;font-size:12px;line-height:18px;color:#64748b;">Plataforma SaaS para empresas de renta de vehículos, gestión de flotas y operaciones de reservas.</p></td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>$$,
+        "TextBody" = $$Hola {{OwnerFullName}},
+
+Bienvenido a Rentify.
+
+Tu cuenta owner para {{TenantName}} fue creada correctamente y tu suscripción {{SubscriptionPlanName}} ya está activa.
+
+Resumen de tu suscripción:
+- Estado: {{SubscriptionStatus}}
+- Inicio: {{SubscriptionStartDate}}
+- Vencimiento: {{SubscriptionExpiresAt}}
+
+Primer paso recomendado:
+Completa el perfil de tu rent car, registra tus vehículos y configura la disponibilidad de tu flota.
+
+Ingresa al dashboard:
+{{DashboardUrl}}
+
+Si tienes preguntas durante la configuración inicial, escríbenos a {{SupportEmail}}.
+
+Equipo de Rentify$$,
+        "ModifiedBy" = 'ADMIN',
+        "ModifiedDate" = CURRENT_TIMESTAMP,
+        "IsDeleted" = FALSE,
+        "IsActive" = TRUE
+    WHERE "Code" = 'OWNER_WELCOME'
+    RETURNING "Id"
+)
+INSERT INTO public."SystemEmailTemplates"
+(
+    "Id",
+    "Code",
+    "Name",
+    "Subject",
+    "HtmlBody",
+    "TextBody",
+    "CreatedBy",
+    "ModifiedBy",
+    "CreatedDate",
+    "ModifiedDate",
+    "IsDeleted",
+    "IsActive"
+)
+SELECT
+    '8b8ab48b-5f80-4cc5-a503-7c26fbf5333d'::uuid,
+    'OWNER_WELCOME',
+    'Bienvenida owner',
+    'Bienvenido a Rentify, tu suscripción está activa',
+    "HtmlBody",
+    "TextBody",
+    'ADMIN',
+    'ADMIN',
+    CURRENT_TIMESTAMP,
+    CURRENT_TIMESTAMP,
+    FALSE,
+    TRUE
+FROM (
+    SELECT
+        $$<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>Bienvenido a Rentify</title>
+</head>
+<body style="margin:0;padding:0;background-color:#edf3f8;color:#172033;font-family:Arial,Helvetica,sans-serif;">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">Tu cuenta owner y suscripción de Rentify están listas para comenzar a gestionar tu flota.</div>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background-color:#edf3f8;margin:0;padding:0;">
+    <tr><td align="center" style="padding:32px 14px;">
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:680px;border-collapse:collapse;">
+        <tr><td style="padding:0 4px 16px 4px;"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td align="left" style="vertical-align:middle;"><table role="presentation" cellspacing="0" cellpadding="0" border="0"><tr><td width="44" height="44" align="center" style="width:44px;height:44px;background-color:#061b3a;border-radius:8px;"><span style="display:block;font-size:23px;line-height:44px;font-weight:800;color:#ffffff;">R</span></td><td style="padding-left:12px;"><div style="font-size:27px;line-height:30px;font-weight:800;color:#061b3a;letter-spacing:0;">Rent<span style="color:#2563eb;font-style:italic;">ify</span></div><div style="font-size:11px;line-height:16px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1.2px;">Rental fleet platform</div></td></tr></table></td><td align="right" style="vertical-align:middle;font-size:12px;line-height:18px;font-weight:700;color:#14b8a6;text-transform:uppercase;letter-spacing:1px;">Cuenta owner activa</td></tr></table></td></tr>
+        <tr><td style="background-color:#ffffff;border:1px solid #d5e0ea;border-radius:8px;overflow:hidden;"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td style="background-color:#061b3a;padding:32px;"><p style="margin:0 0 10px 0;font-size:12px;line-height:18px;font-weight:800;color:#7dd3fc;text-transform:uppercase;letter-spacing:1.2px;">Bienvenido a tu centro de operaciones</p><h1 style="margin:0;font-size:30px;line-height:38px;font-weight:800;color:#ffffff;letter-spacing:0;">Tu plataforma para gestionar rentas, vehículos y reservas ya está lista</h1></td></tr><tr><td style="height:6px;background-color:#14b8a6;line-height:6px;font-size:0;">&nbsp;</td></tr><tr><td style="padding:32px;"><p style="margin:0 0 18px 0;font-size:16px;line-height:26px;color:#334155;">Hola {{OwnerFullName}},</p><p style="margin:0 0 22px 0;font-size:16px;line-height:26px;color:#334155;">Bienvenido a Rentify. Tu cuenta owner para <strong style="color:#061b3a;">{{TenantName}}</strong> fue creada correctamente y tu suscripción <strong style="color:#061b3a;">{{SubscriptionPlanName}}</strong> ya está activa para comenzar a organizar tu negocio de renta de vehículos.</p><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 26px 0;background-color:#ecfeff;border:1px solid #bae6fd;border-radius:8px;"><tr><td width="52" align="center" style="width:52px;padding:16px 0 16px 16px;vertical-align:top;"><div style="width:36px;height:36px;border-radius:8px;background-color:#061b3a;color:#ffffff;font-size:20px;line-height:36px;font-weight:800;text-align:center;">1</div></td><td style="padding:16px 18px 16px 12px;"><p style="margin:0 0 6px 0;font-size:14px;line-height:22px;color:#0f172a;font-weight:800;">Primer paso recomendado</p><p style="margin:0;font-size:14px;line-height:22px;color:#475569;">Completa el perfil de tu rent car, registra tus vehículos y comienza a configurar la disponibilidad de tu flota.</p></td></tr></table><table role="presentation" cellspacing="0" cellpadding="0" border="0" align="left" style="margin:0 0 28px 0;border-collapse:separate;"><tr><td align="center" bgcolor="#2563eb" style="border-radius:7px;background-color:#2563eb;box-shadow:0 8px 18px rgba(37,99,235,0.22);"><a href="{{DashboardUrl}}" target="_blank" rel="noopener" style="background-color:#2563eb;border:1px solid #2563eb;border-radius:7px;color:#ffffff;display:inline-block;font-size:15px;font-weight:700;line-height:48px;min-width:226px;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;">Ir al dashboard</a></td></tr></table><div style="clear:both;height:1px;line-height:1px;font-size:1px;">&nbsp;</div><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 24px 0;border:1px solid #dbe7f1;border-radius:8px;"><tr><td style="padding:18px;"><p style="margin:0 0 12px 0;font-size:14px;line-height:22px;color:#334155;font-weight:800;">Resumen de tu suscripción</p><p style="margin:0;font-size:13px;line-height:22px;color:#64748b;">Estado: <strong style="color:#061b3a;">{{SubscriptionStatus}}</strong><br>Inicio: <strong style="color:#061b3a;">{{SubscriptionStartDate}}</strong><br>Vencimiento: <strong style="color:#061b3a;">{{SubscriptionExpiresAt}}</strong></p></td></tr></table><p style="margin:0 0 16px 0;font-size:14px;line-height:22px;color:#64748b;">Si tienes preguntas durante la configuración inicial, escríbenos a <a href="mailto:{{SupportEmail}}" style="color:#2563eb;text-decoration:underline;">{{SupportEmail}}</a>.</p><p style="margin:0;font-size:14px;line-height:22px;color:#64748b;">Estamos felices de acompañarte mientras conviertes tu operación de renta en una experiencia más organizada, medible y profesional.</p></td></tr></table></td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>$$ AS "HtmlBody",
+        $$Hola {{OwnerFullName}},
+
+Bienvenido a Rentify.
+
+Tu cuenta owner para {{TenantName}} fue creada correctamente y tu suscripción {{SubscriptionPlanName}} ya está activa.
+
+Resumen de tu suscripción:
+- Estado: {{SubscriptionStatus}}
+- Inicio: {{SubscriptionStartDate}}
+- Vencimiento: {{SubscriptionExpiresAt}}
+
+Primer paso recomendado:
+Completa el perfil de tu rent car, registra tus vehículos y configura la disponibilidad de tu flota.
+
+Ingresa al dashboard:
+{{DashboardUrl}}
+
+Si tienes preguntas durante la configuración inicial, escríbenos a {{SupportEmail}}.
+
+Equipo de Rentify$$ AS "TextBody"
+) AS template
+WHERE NOT EXISTS (SELECT 1 FROM updated);
