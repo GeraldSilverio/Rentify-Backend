@@ -1,0 +1,20 @@
+Hola {{OwnerFullName}},
+
+Bienvenido a Rentify.
+
+Tu cuenta owner para {{TenantName}} fue creada correctamente y tu suscripción {{SubscriptionPlanName}} ya está activa.
+
+Resumen de tu suscripción:
+- Estado: {{SubscriptionStatus}}
+- Inicio: {{SubscriptionStartDate}}
+- Vencimiento: {{SubscriptionExpiresAt}}
+
+Primer paso recomendado:
+Completa el perfil de tu rent car, registra tus vehículos y configura la disponibilidad de tu flota.
+
+Ingresa al dashboard:
+{{DashboardUrl}}
+
+Si tienes preguntas durante la configuración inicial, escríbenos a {{SupportEmail}}.
+
+Equipo de Rentify

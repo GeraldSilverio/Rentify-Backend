@@ -8,7 +8,9 @@ public class RentCar : BaseEntity
     public Guid Id { get; private set; }
 
     public string Name { get; private set; }
-    public string Description { get; private set; }    
+    public string Description { get; private set; }
+    public string? LogoUrl { get; private set; }
+    public string? LogoPublicId { get; private set; }
     
     public Guid TenantId { get; private set; } = Guid.NewGuid();
 
@@ -33,6 +35,7 @@ public class RentCar : BaseEntity
         Email email,
         PhoneNumber whatsApp,
         Address address,
+        string? logoUrl,
         string createdBy,
         Guid tenantId)
     {
@@ -43,6 +46,7 @@ public class RentCar : BaseEntity
         Email = email;
         WhatsApp = whatsApp;
         Address = address;
+        LogoUrl = NormalizeLogoUrl(logoUrl);
         IsActive = true;
         CreatedDate = DateTime.UtcNow;
         CreatedBy = createdBy;
@@ -60,6 +64,7 @@ public class RentCar : BaseEntity
         string street,
         string city,
         string country,
+        string? logoUrl,
         string createdBy,
         Guid tenantId)
     {
@@ -73,6 +78,7 @@ public class RentCar : BaseEntity
             new Email(email),
             new PhoneNumber(whatsApp),
             new Address(street, city, country),
+            logoUrl,
             createdBy,
             tenantId);
     }
@@ -97,6 +103,7 @@ public class RentCar : BaseEntity
         string street,
         string city,
         string country,
+        string? logoUrl,
         string updatedBy)
     {
         Validate(name);
@@ -107,8 +114,17 @@ public class RentCar : BaseEntity
         Email = new Email(email);
         WhatsApp = new PhoneNumber(whatsApp);
         Address = new Address(street, city, country);
+        LogoUrl = NormalizeLogoUrl(logoUrl);
         ModifiedBy = updatedBy;
+        ModifiedDate = DateTime.UtcNow;
+    }
 
+    public void UpdateLogo(string? logoUrl, string? logoPublicId, string modifiedBy)
+    {
+        LogoUrl = NormalizeLogoUrl(logoUrl);
+        LogoPublicId = string.IsNullOrWhiteSpace(logoPublicId) ? null : logoPublicId.Trim();
+        ModifiedBy = modifiedBy;
+        ModifiedDate = DateTime.UtcNow;
     }
 
     public void SetTenantId(Guid tenantId)
@@ -127,5 +143,18 @@ public class RentCar : BaseEntity
 
         if (name.Length > 100)
             throw new ArgumentException("Name is too long.");
+    }
+
+    private static string? NormalizeLogoUrl(string? logoUrl)
+    {
+        if (string.IsNullOrWhiteSpace(logoUrl))
+            return null;
+
+        string normalizedLogoUrl = logoUrl.Trim();
+
+        if (normalizedLogoUrl.Length > 500)
+            throw new ArgumentException("Logo URL is too long.");
+
+        return normalizedLogoUrl;
     }
 }

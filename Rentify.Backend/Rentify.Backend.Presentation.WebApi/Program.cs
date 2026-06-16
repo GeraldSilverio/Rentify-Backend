@@ -1,33 +1,61 @@
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Rentify.Backend.Core.Application;
+using Rentify.Backend.Core.Application.Modules.Customers;
+using Rentify.Backend.Core.Application.Modules.Dashboard;
 using Rentify.Backend.Core.Application.Modules.Emails;
+using Rentify.Backend.Core.Application.Modules.Payments;
 using Rentify.Backend.Core.Application.Modules.RentCars.Commands.CreateRentCar;
+using Rentify.Backend.Core.Application.Modules.RentCars.Commands.UpdateRentCar;
+using Rentify.Backend.Core.Application.Modules.RentCars.Commands.UploadRentCarLogo;
+using Rentify.Backend.Core.Application.Modules.Reservations;
 using Rentify.Backend.Core.Application.Modules.Secutiry;
 using Rentify.Backend.Core.Application.Modules.Subscriptions;
 using Rentify.Backend.Core.Application.Modules.Tenants.Commands.RegisterTenant;
+using Rentify.Backend.Core.Application.Modules.Vehicles;
+using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.BlockVehicleAvailability;
+using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.ChangeVehicleStatus;
+using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.CreateVehicle;
+using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.DeleteVehicle;
+using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.SetPrimaryVehicleImage;
+using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.UpdateVehicle;
+using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.UploadVehicleImage;
 using Rentify.Backend.Infraestructure.Identity;
 using Rentify.Backend.Infraestructure.Identity.Entities;
 using Rentify.Backend.Infraestructure.Identity.Seeds;
 using Rentify.Backend.Infraestructure.Persistence;
 using Rentify.Backend.Presentation.Endpoints;
 using Rentify.Backend.Presentation.WebApi.Extensions;
+using Rentify.Backend.Shared;
+using Rentify.Backend.Shared.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
+EnvFileLoader.LoadFromNearest(builder.Environment.ContentRootPath);
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add(new ProducesAttribute("application/json"));
-}).ConfigureApiBehaviorOptions(options =>
+})
+.AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+})
+.ConfigureApiBehaviorOptions(options =>
 {
     options.SuppressInferBindingSourcesForParameters = true;
     options.SuppressMapClientErrors = true;
 });
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 //Dependecias de las capas.
 builder.Services.AddIdentityInfrastructure(builder.Configuration);
 builder.Services.AddPersistence(builder.Configuration);
+builder.Services.AddSharedServices();
 builder.Services.AddApplicationLayer();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -51,11 +79,29 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.MapRegisterTenant();
-app.MapCreateRentCarEndpoints();
-app.MapUserEndpoints();
 app.MapAuthEndpoints();
-app.MapEmailEndpoints();
-app.MapSubscriptionEndpoints();
+
+var securedEndpoints = app.MapGroup(string.Empty)
+    .RequireAuthorization();
+
+securedEndpoints.MapCreateRentCarEndpoints();
+securedEndpoints.MapUpdateRentCarEndpoints();
+securedEndpoints.MapUploadRentCarLogoEndpoints();
+securedEndpoints.MapCreateVehicleEndpoints();
+securedEndpoints.MapUpdateVehicleEndpoints();
+securedEndpoints.MapDeleteVehicleEndpoints();
+securedEndpoints.MapUploadVehicleImageEndpoints();
+securedEndpoints.MapSetPrimaryVehicleImageEndpoints();
+securedEndpoints.MapChangeVehicleStatusEndpoints();
+securedEndpoints.MapBlockVehicleAvailabilityEndpoints();
+securedEndpoints.MapVehicleCatalogEndpoints();
+securedEndpoints.MapCustomerEndpoints();
+securedEndpoints.MapReservationEndpoints();
+securedEndpoints.MapPaymentEndpoints();
+securedEndpoints.MapDashboardEndpoints();
+securedEndpoints.MapUserEndpoints();
+securedEndpoints.MapEmailEndpoints();
+securedEndpoints.MapSubscriptionEndpoints();
 
 app.UseCors(a => a.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod());
 // Configure the HTTP request pipeline.

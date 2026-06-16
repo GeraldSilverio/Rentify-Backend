@@ -7,20 +7,22 @@ using Rentify.Backend.Core.Application.Modules.Emails.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Emails.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Emails.Dtos;
 using Rentify.Backend.Core.Application.Shared.Exceptions;
+using Rentify.Backend.Core.Application.Shared.Helpers;
 using Rentify.Backend.Core.Application.Shared.UnitOfWork;
 using Rentify.Backend.Core.Domain.Entities.Core;
+using Rentify.Backend.Core.Domain.Enums;
 
 namespace Rentify.Backend.Core.Application.Modules.Emails.Implementations.Services
 {
     public class EmailService : IEmailService
     {
-        private readonly IEmailTemplateRepository _emailTemplateRepository;
+        private readonly ISystemEmailTemplateRepository _emailTemplateRepository;
         private readonly ITenantEmailConfigurationRepository _tenantEmailConfigurationRepository;
         private readonly IEnumerable<IEmailProviderSender> _emailProviderSenders;
         private readonly IUnitOfWork _unitOfWork;
 
         public EmailService(
-            IEmailTemplateRepository emailTemplateRepository,
+            ISystemEmailTemplateRepository emailTemplateRepository,
             ITenantEmailConfigurationRepository tenantEmailConfigurationRepository,
             IEnumerable<IEmailProviderSender> emailProviderSenders,
             IUnitOfWork unitOfWork)
@@ -38,8 +40,7 @@ namespace Rentify.Backend.Core.Application.Modules.Emails.Implementations.Servic
                 throw new ApiException("Email template code already exists", StatusCodes.Status400BadRequest);
             }
 
-            var emailTemplate = EmailTemplate.Create(
-                command.TenantId,
+            var emailTemplate = SystemEmailTemplate.Create(
                 command.Code,
                 command.Name,
                 command.Subject,
@@ -109,14 +110,14 @@ namespace Rentify.Backend.Core.Application.Modules.Emails.Implementations.Servic
             return tenantEmailConfiguration.Id;
         }
 
-        public async Task<SendTemplateEmailResponse> SendTemplateEmailAsync(SendTemplateEmailCommand command, CancellationToken cancellationToken = default)
+        public async Task<SendTemplateEmailResponse> SendEmailAsync(SendTemplateEmailCommand command, CancellationToken cancellationToken = default)
         {
-            var tenantEmailConfiguration = await _tenantEmailConfigurationRepository.GetDefaultAsync(command.TenantId, cancellationToken);
+            //var tenantEmailConfiguration = await _tenantEmailConfigurationRepository.GetDefaultAsync(command.TenantId, cancellationToken);
 
-            if (tenantEmailConfiguration == null)
-            {
-                throw new ApiException("Tenant email configuration not found", StatusCodes.Status404NotFound);
-            }
+            //if (tenantEmailConfiguration == null)
+            //{
+            //    throw new ApiException("Tenant email configuration not found", StatusCodes.Status404NotFound);
+            //}
 
             var emailTemplate = await _emailTemplateRepository.GetByCodeAsync(command.TenantId, command.TemplateCode, cancellationToken);
 
@@ -125,11 +126,11 @@ namespace Rentify.Backend.Core.Application.Modules.Emails.Implementations.Servic
                 throw new ApiException("Email template not found", StatusCodes.Status404NotFound);
             }
 
-            var emailProviderSender = _emailProviderSenders.FirstOrDefault(x => x.Provider == tenantEmailConfiguration.Provider);
+            var emailProviderSender = _emailProviderSenders.FirstOrDefault(x => x.Provider == EmailProviderType.Resend);
 
             if (emailProviderSender == null)
             {
-                throw new ApiException($"Email provider {tenantEmailConfiguration.Provider} is not implemented", StatusCodes.Status400BadRequest);
+                throw new ApiException($"Email provider {EmailProviderType.Resend} is not implemented", StatusCodes.Status400BadRequest);
             }
 
             var variables = command.Variables ?? new Dictionary<string, string>();
@@ -139,16 +140,16 @@ namespace Rentify.Backend.Core.Application.Modules.Emails.Implementations.Servic
 
             var messageId = await emailProviderSender.SendAsync(
                 new EmailProviderSendRequest(
-                    tenantEmailConfiguration.ApiKey,
-                    tenantEmailConfiguration.FromEmail,
-                    tenantEmailConfiguration.FromName,
+                    ReadFromConfiguration.GetValueFromConfig("RESEND_API_KEY"),
+                    ReadFromConfiguration.GetValueFromConfig("EMAIL_FROM"),
+                    ReadFromConfiguration.GetValueFromConfig("EMAIL_FROM_NAME"),
                     command.To,
                     subject,
                     htmlBody,
                     textBody),
                 cancellationToken);
 
-            return new SendTemplateEmailResponse(tenantEmailConfiguration.Provider.ToString(), messageId);
+            return new SendTemplateEmailResponse(EmailProviderType.Resend.ToString(), messageId);
         }
 
         private static string RenderTemplate(string template, Dictionary<string, string> variables)

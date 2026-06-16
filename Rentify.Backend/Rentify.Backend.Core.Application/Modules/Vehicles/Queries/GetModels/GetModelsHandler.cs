@@ -1,0 +1,35 @@
+using MediatR;
+using Microsoft.AspNetCore.Http;
+using Rentify.Backend.Core.Application.Modules.Vehicles.Contracts.Repositories;
+using Rentify.Backend.Core.Application.Modules.Vehicles.Dtos;
+using Rentify.Backend.Core.Application.Shared.Response;
+
+namespace Rentify.Backend.Core.Application.Modules.Vehicles.Queries.GetModels;
+
+public sealed class GetModelsHandler
+    : IRequestHandler<GetModelsQuery, ResultReponse<IReadOnlyCollection<VehicleModelResponse>>>
+{
+    private readonly IVehicleCatalogRepository _vehicleCatalogRepository;
+
+    public GetModelsHandler(IVehicleCatalogRepository vehicleCatalogRepository)
+    {
+        _vehicleCatalogRepository = vehicleCatalogRepository;
+    }
+
+    public async Task<ResultReponse<IReadOnlyCollection<VehicleModelResponse>>> Handle(
+        GetModelsQuery request,
+        CancellationToken cancellationToken)
+    {
+        bool brandExists = await _vehicleCatalogRepository.VehicleBrandExistsAsync(request.VehicleBrandId, cancellationToken);
+        if (!brandExists)
+        {
+            return ResultReponse<IReadOnlyCollection<VehicleModelResponse>>.Failure(
+                Error.SetError("Vehicle brand not found.", StatusCodes.Status404NotFound));
+        }
+
+        IReadOnlyCollection<VehicleModelResponse> models =
+            await _vehicleCatalogRepository.GetVehicleModelsByBrandAsync(request.VehicleBrandId, cancellationToken);
+
+        return ResultReponse<IReadOnlyCollection<VehicleModelResponse>>.Success(models);
+    }
+}

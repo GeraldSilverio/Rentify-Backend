@@ -54,3 +54,6 @@ TestResult.xml
 nunit-*.xml
 .vs/
 /Rentify.Backend/Rentify.Backend.Presentation.WebApi/appsettings.json
+.env
+*.env
+!.env.example

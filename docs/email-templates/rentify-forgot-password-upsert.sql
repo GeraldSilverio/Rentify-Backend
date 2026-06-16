@@ -1,0 +1,274 @@
+WITH updated AS (
+    UPDATE public."SystemEmailTemplates"
+    SET
+        "Name" = 'Restablecimiento de contraseña',
+        "Subject" = 'Restablece tu contraseña de Rentify',
+        "HtmlBody" = $$<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>Restablece tu contraseña de Rentify</title>
+</head>
+<body style="margin:0; padding:0; background-color:#edf3f8; color:#172033; font-family:Arial, Helvetica, sans-serif;">
+  <div style="display:none; max-height:0; overflow:hidden; opacity:0; color:transparent;">Utiliza este enlace seguro para restablecer tu contraseña de Rentify.</div>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%; background-color:#edf3f8; margin:0; padding:0;">
+    <tr>
+      <td align="center" style="padding:32px 14px;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%; max-width:660px; border-collapse:collapse;">
+          <tr>
+            <td style="padding:0 4px 16px 4px;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                  <td align="left" style="vertical-align:middle;">
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                      <tr>
+                        <td width="44" height="44" align="center" style="width:44px; height:44px; background-color:#061b3a; border-radius:8px;"><span style="display:block; font-size:23px; line-height:44px; font-weight:800; color:#ffffff;">R</span></td>
+                        <td style="padding-left:12px;">
+                          <div style="font-size:27px; line-height:30px; font-weight:800; color:#061b3a; letter-spacing:0;">Rent<span style="color:#2563eb; font-style:italic;">ify</span></div>
+                          <div style="font-size:11px; line-height:16px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:1.2px;">Rental fleet platform</div>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                  <td align="right" style="vertical-align:middle; font-size:12px; line-height:18px; font-weight:700; color:#2563eb; text-transform:uppercase; letter-spacing:1px;">Seguridad</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="background-color:#ffffff; border:1px solid #d5e0ea; border-radius:8px; overflow:hidden;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                  <td style="background-color:#061b3a; padding:0;">
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                      <tr>
+                        <td style="padding:30px 32px 28px 32px;">
+                          <p style="margin:0 0 10px 0; font-size:12px; line-height:18px; font-weight:800; color:#7dd3fc; text-transform:uppercase; letter-spacing:1.2px;">Acceso seguro a tu flota</p>
+                          <h1 style="margin:0; font-size:29px; line-height:37px; font-weight:800; color:#ffffff; letter-spacing:0;">Recupera tu cuenta y vuelve a gestionar tus vehículos</h1>
+                        </td>
+                      </tr>
+                      <tr><td style="height:6px; background-color:#2563eb; line-height:6px; font-size:0;">&nbsp;</td></tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:32px;">
+                    <p style="margin:0 0 18px 0; font-size:16px; line-height:26px; color:#334155;">Hola {{FullName}},</p>
+                    <p style="margin:0 0 22px 0; font-size:16px; line-height:26px; color:#334155;">Recibimos una solicitud para restablecer la contraseña de tu cuenta de Rentify asociada al correo <strong style="color:#061b3a;">{{Email}}</strong>. Tu panel de reservas, vehículos y operaciones seguirá protegido hasta que confirmes el cambio.</p>
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 26px 0; background-color:#f8fafc; border:1px solid #dbe7f1; border-radius:8px;">
+                      <tr>
+                        <td width="52" align="center" style="width:52px; padding:16px 0 16px 16px; vertical-align:top;"><div style="width:36px; height:36px; border-radius:8px; background-color:#e0f2fe; color:#0369a1; font-size:20px; line-height:36px; font-weight:800; text-align:center;">✓</div></td>
+                        <td style="padding:16px 18px 16px 12px;"><p style="margin:0; font-size:14px; line-height:22px; color:#475569;">Usa el botón para crear una nueva contraseña y continuar administrando tu negocio de renta de vehículos de forma segura.</p></td>
+                      </tr>
+                    </table>
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="left" style="margin:0 0 28px 0; border-collapse:separate;">
+                      <tr>
+                        <td align="center" bgcolor="#2563eb" style="border-radius:7px; background-color:#2563eb; box-shadow:0 8px 18px rgba(37,99,235,0.22);">
+                          <!--[if mso]>
+                          <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ResetUrl}}" style="height:48px;v-text-anchor:middle;width:238px;" arcsize="14%" stroke="f" fillcolor="#2563eb">
+                            <w:anchorlock/>
+                            <center style="color:#ffffff;font-family:Arial, Helvetica, sans-serif;font-size:15px;font-weight:700;">Restablecer contraseña</center>
+                          </v:roundrect>
+                          <![endif]-->
+                          <!--[if !mso]><!-- -->
+                          <a href="{{ResetUrl}}" target="_blank" rel="noopener" style="background-color:#2563eb; border:1px solid #2563eb; border-radius:7px; color:#ffffff; display:inline-block; font-size:15px; font-weight:700; line-height:48px; min-width:238px; text-align:center; text-decoration:none; -webkit-text-size-adjust:none;">Restablecer contraseña</a>
+                          <!--<![endif]-->
+                        </td>
+                      </tr>
+                    </table>
+                    <div style="clear:both; height:1px; line-height:1px; font-size:1px;">&nbsp;</div>
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 24px 0; background-color:#ffffff; border:1px solid #dbe7f1; border-radius:8px;">
+                      <tr>
+                        <td style="padding:16px;">
+                          <p style="margin:0 0 8px 0; font-size:13px; line-height:20px; font-weight:800; color:#334155;">¿El botón no abre?</p>
+                          <p style="margin:0; font-size:13px; line-height:20px; color:#64748b; word-break:break-word;">Copia y pega este enlace en tu navegador:<br><a href="{{ResetUrl}}" target="_blank" rel="noopener" style="color:#2563eb; text-decoration:underline;">{{ResetUrl}}</a></p>
+                        </td>
+                      </tr>
+                    </table>
+                    <p style="margin:0 0 16px 0; font-size:14px; line-height:22px; color:#64748b;">Si no solicitaste este cambio, puedes ignorar este correo de forma segura. Tu contraseña permanecerá sin cambios.</p>
+                    <p style="margin:0; font-size:14px; line-height:22px; color:#64748b;">Por tu seguridad, nunca compartas este enlace ni tus credenciales con otras personas.</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:0 32px 32px 32px;">
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-top:1px solid #dbe7f1;">
+                      <tr>
+                        <td style="padding-top:20px;">
+                          <p style="margin:0 0 6px 0; font-size:12px; line-height:18px; color:#94a3b8;">Cuenta: {{Email}}</p>
+                          <p style="margin:0; font-size:12px; line-height:18px; color:#94a3b8;">Rentify protege tu operación, reservas y flota con autenticación segura.</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:18px 4px 0 4px; text-align:center;"><p style="margin:0; font-size:12px; line-height:18px; color:#64748b;">Plataforma SaaS para empresas de renta de vehículos, gestión de flotas y operaciones de reservas.</p></td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>$$,
+        "TextBody" = $$Hola {{FullName}},
+
+Recibimos una solicitud para restablecer la contraseña de tu cuenta de Rentify asociada al correo {{Email}}.
+
+Usa este enlace seguro para crear una nueva contraseña y continuar administrando tu negocio de renta de vehículos:
+
+{{ResetUrl}}
+
+Si no solicitaste este cambio, puedes ignorar este correo de forma segura. Tu contraseña permanecerá sin cambios.
+
+Por tu seguridad, nunca compartas este enlace ni tus credenciales con otras personas.
+
+Equipo de Rentify$$,
+        "ModifiedBy" = 'ADMIN',
+        "ModifiedDate" = CURRENT_TIMESTAMP,
+        "IsDeleted" = FALSE,
+        "IsActive" = TRUE
+    WHERE "Code" = 'PASSWORD_RESET'
+    RETURNING "Id"
+)
+INSERT INTO public."SystemEmailTemplates"
+(
+    "Id",
+    "Code",
+    "Name",
+    "Subject",
+    "HtmlBody",
+    "TextBody",
+    "CreatedBy",
+    "ModifiedBy",
+    "CreatedDate",
+    "ModifiedDate",
+    "IsDeleted",
+    "IsActive"
+)
+SELECT
+    '3fa85f64-5717-4562-b3fc-2c963f66afa6'::uuid,
+    'PASSWORD_RESET',
+    'Restablecimiento de contraseña',
+    'Restablece tu contraseña de Rentify',
+    $$<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>Restablece tu contraseña de Rentify</title>
+</head>
+<body style="margin:0; padding:0; background-color:#edf3f8; color:#172033; font-family:Arial, Helvetica, sans-serif;">
+  <div style="display:none; max-height:0; overflow:hidden; opacity:0; color:transparent;">Utiliza este enlace seguro para restablecer tu contraseña de Rentify.</div>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%; background-color:#edf3f8; margin:0; padding:0;">
+    <tr>
+      <td align="center" style="padding:32px 14px;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%; max-width:660px; border-collapse:collapse;">
+          <tr>
+            <td style="padding:0 4px 16px 4px;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                  <td align="left" style="vertical-align:middle;">
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                      <tr>
+                        <td width="44" height="44" align="center" style="width:44px; height:44px; background-color:#061b3a; border-radius:8px;"><span style="display:block; font-size:23px; line-height:44px; font-weight:800; color:#ffffff;">R</span></td>
+                        <td style="padding-left:12px;">
+                          <div style="font-size:27px; line-height:30px; font-weight:800; color:#061b3a; letter-spacing:0;">Rent<span style="color:#2563eb; font-style:italic;">ify</span></div>
+                          <div style="font-size:11px; line-height:16px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:1.2px;">Rental fleet platform</div>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                  <td align="right" style="vertical-align:middle; font-size:12px; line-height:18px; font-weight:700; color:#2563eb; text-transform:uppercase; letter-spacing:1px;">Seguridad</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="background-color:#ffffff; border:1px solid #d5e0ea; border-radius:8px; overflow:hidden;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                  <td style="background-color:#061b3a; padding:0;">
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                      <tr>
+                        <td style="padding:30px 32px 28px 32px;">
+                          <p style="margin:0 0 10px 0; font-size:12px; line-height:18px; font-weight:800; color:#7dd3fc; text-transform:uppercase; letter-spacing:1.2px;">Acceso seguro a tu flota</p>
+                          <h1 style="margin:0; font-size:29px; line-height:37px; font-weight:800; color:#ffffff; letter-spacing:0;">Recupera tu cuenta y vuelve a gestionar tus vehículos</h1>
+                        </td>
+                      </tr>
+                      <tr><td style="height:6px; background-color:#2563eb; line-height:6px; font-size:0;">&nbsp;</td></tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:32px;">
+                    <p style="margin:0 0 18px 0; font-size:16px; line-height:26px; color:#334155;">Hola {{FullName}},</p>
+                    <p style="margin:0 0 22px 0; font-size:16px; line-height:26px; color:#334155;">Recibimos una solicitud para restablecer la contraseña de tu cuenta de Rentify asociada al correo <strong style="color:#061b3a;">{{Email}}</strong>. Tu panel de reservas, vehículos y operaciones seguirá protegido hasta que confirmes el cambio.</p>
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 26px 0; background-color:#f8fafc; border:1px solid #dbe7f1; border-radius:8px;">
+                      <tr>
+                        <td width="52" align="center" style="width:52px; padding:16px 0 16px 16px; vertical-align:top;"><div style="width:36px; height:36px; border-radius:8px; background-color:#e0f2fe; color:#0369a1; font-size:20px; line-height:36px; font-weight:800; text-align:center;">✓</div></td>
+                        <td style="padding:16px 18px 16px 12px;"><p style="margin:0; font-size:14px; line-height:22px; color:#475569;">Usa el botón para crear una nueva contraseña y continuar administrando tu negocio de renta de vehículos de forma segura.</p></td>
+                      </tr>
+                    </table>
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="left" style="margin:0 0 28px 0; border-collapse:separate;">
+                      <tr>
+                        <td align="center" bgcolor="#2563eb" style="border-radius:7px; background-color:#2563eb; box-shadow:0 8px 18px rgba(37,99,235,0.22);">
+                          <!--[if mso]>
+                          <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ResetUrl}}" style="height:48px;v-text-anchor:middle;width:238px;" arcsize="14%" stroke="f" fillcolor="#2563eb">
+                            <w:anchorlock/>
+                            <center style="color:#ffffff;font-family:Arial, Helvetica, sans-serif;font-size:15px;font-weight:700;">Restablecer contraseña</center>
+                          </v:roundrect>
+                          <![endif]-->
+                          <!--[if !mso]><!-- -->
+                          <a href="{{ResetUrl}}" target="_blank" rel="noopener" style="background-color:#2563eb; border:1px solid #2563eb; border-radius:7px; color:#ffffff; display:inline-block; font-size:15px; font-weight:700; line-height:48px; min-width:238px; text-align:center; text-decoration:none; -webkit-text-size-adjust:none;">Restablecer contraseña</a>
+                          <!--<![endif]-->
+                        </td>
+                      </tr>
+                    </table>
+                    <div style="clear:both; height:1px; line-height:1px; font-size:1px;">&nbsp;</div>
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 24px 0; background-color:#ffffff; border:1px solid #dbe7f1; border-radius:8px;">
+                      <tr>
+                        <td style="padding:16px;">
+                          <p style="margin:0 0 8px 0; font-size:13px; line-height:20px; font-weight:800; color:#334155;">¿El botón no abre?</p>
+                          <p style="margin:0; font-size:13px; line-height:20px; color:#64748b; word-break:break-word;">Copia y pega este enlace en tu navegador:<br><a href="{{ResetUrl}}" target="_blank" rel="noopener" style="color:#2563eb; text-decoration:underline;">{{ResetUrl}}</a></p>
+                        </td>
+                      </tr>
+                    </table>
+                    <p style="margin:0 0 16px 0; font-size:14px; line-height:22px; color:#64748b;">Si no solicitaste este cambio, puedes ignorar este correo de forma segura. Tu contraseña permanecerá sin cambios.</p>
+                    <p style="margin:0; font-size:14px; line-height:22px; color:#64748b;">Por tu seguridad, nunca compartas este enlace ni tus credenciales con otras personas.</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>$$,
+    $$Hola {{FullName}},
+
+Recibimos una solicitud para restablecer la contraseña de tu cuenta de Rentify asociada al correo {{Email}}.
+
+Usa este enlace seguro para crear una nueva contraseña y continuar administrando tu negocio de renta de vehículos:
+
+{{ResetUrl}}
+
+Si no solicitaste este cambio, puedes ignorar este correo de forma segura. Tu contraseña permanecerá sin cambios.
+
+Por tu seguridad, nunca compartas este enlace ni tus credenciales con otras personas.
+
+Equipo de Rentify$$,
+    'ADMIN',
+    'ADMIN',
+    CURRENT_TIMESTAMP,
+    CURRENT_TIMESTAMP,
+    FALSE,
+    TRUE
+WHERE NOT EXISTS (SELECT 1 FROM updated);

@@ -9,9 +9,9 @@ namespace Rentify.Backend.Core.Application.Modules.Emails.Queries.GetEmailTempla
 {
     public class GetEmailTemplateHandler : IRequestHandler<GetEmailTemplateQuery, ResultReponse<EmailTemplateResponse>>
     {
-        private readonly IEmailTemplateRepository _emailTemplateRepository;
+        private readonly ISystemEmailTemplateRepository _emailTemplateRepository;
 
-        public GetEmailTemplateHandler(IEmailTemplateRepository emailTemplateRepository)
+        public GetEmailTemplateHandler(ISystemEmailTemplateRepository emailTemplateRepository)
         {
             _emailTemplateRepository = emailTemplateRepository;
         }
@@ -27,7 +27,6 @@ namespace Rentify.Backend.Core.Application.Modules.Emails.Queries.GetEmailTempla
 
             var response = new EmailTemplateResponse(
                 template.Id,
-                template.TenantId,
                 template.Code,
                 template.Name,
                 template.Subject,

@@ -7,7 +7,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="DotNetEnv" Version="3.2.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.15" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.1.0" />
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.15" />
@@ -23,6 +22,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\Rentify.Backend.Infraestructure.Identity\Rentify.Backend.Infraestructure.Identity.csproj" />
 		<ProjectReference Include="..\Rentify.Backend.Infraestructure.Persistence\Rentify.Backend.Infraestructure.Persistence.csproj" />
+		<ProjectReference Include="..\Rentify.Backend.Shared\Rentify.Backend.Shared.csproj" />
 	</ItemGroup>
 
 </Project>
