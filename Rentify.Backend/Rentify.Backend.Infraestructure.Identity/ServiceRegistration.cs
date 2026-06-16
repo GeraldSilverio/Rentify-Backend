@@ -115,11 +115,11 @@ namespace Rentify.Backend.Infraestructure.Identity
         {
             #region IdentityContext
 
-            string hostAddress = ReadFromConfiguration.GetValueFromConfig(configuration, "DB_HOST");
-            string dataBase = ReadFromConfiguration.GetValueFromConfig(configuration, "DB_DATABASE_NAME");
-            string userDb = ReadFromConfiguration.GetValueFromConfig(configuration, "DB_USER");
-            string passwordDb = ReadFromConfiguration.GetValueFromConfig(configuration, "DB_PASSWORD");
-            string portNumber = ReadFromConfiguration.GetValueFromConfig(configuration, "DB_PORT");
+            string hostAddress = ReadFromConfiguration.GetValueFromConfig("DB_HOST");
+            string dataBase = ReadFromConfiguration.GetValueFromConfig("DB_DATABASE_NAME");
+            string userDb = ReadFromConfiguration.GetValueFromConfig("DB_USER");
+            string passwordDb = ReadFromConfiguration.GetValueFromConfig("DB_PASSWORD");
+            string portNumber = ReadFromConfiguration.GetValueFromConfig("DB_PORT");
 
             var builder = new NpgsqlConnectionStringBuilder
             {
@@ -155,11 +155,11 @@ namespace Rentify.Backend.Infraestructure.Identity
         {
             return new JwtSettings
             {
-                Key = ReadFromConfiguration.GetValueFromConfig(configuration, "JWT_KEY"),
-                Issuer = ReadFromConfiguration.GetValueFromConfig(configuration, "JWT_ISSUER"),
-                Audience = ReadFromConfiguration.GetValueFromConfig(configuration, "JWT_AUDIENCE"),
-                DurationInMinutes = int.Parse(ReadFromConfiguration.GetValueFromConfig(configuration, "JWT_DURATION_IN_MINUTES")),
-                RefreshTokenDurationInDays = int.Parse(ReadFromConfiguration.GetValueFromConfig(configuration, "JWT_REFRESH_TOKEN_DURATION_IN_DAYS"))
+                Key = ReadFromConfiguration.GetValueFromConfig("JWT_KEY"),
+                Issuer = ReadFromConfiguration.GetValueFromConfig("JWT_ISSUER"),
+                Audience = ReadFromConfiguration.GetValueFromConfig("JWT_AUDIENCE"),
+                DurationInMinutes = int.Parse(ReadFromConfiguration.GetValueFromConfig("JWT_DURATION_IN_MINUTES")),
+                RefreshTokenDurationInDays = int.Parse(ReadFromConfiguration.GetValueFromConfig("JWT_REFRESH_TOKEN_DURATION_IN_DAYS"))
             };
         }
 

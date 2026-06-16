@@ -7,6 +7,7 @@ public sealed class ChangeVehicleStatusValidator : AbstractValidator<ChangeVehic
 {
     public ChangeVehicleStatusValidator()
     {
+        RuleFor(x => x.TenantId).NotEmpty().WithMessage("Tenant Id is required.");
         RuleFor(x => x.VehicleId).NotEmpty().WithMessage("Vehicle Id is required.");
         RuleFor(x => x.Status).IsInEnum().NotEqual((VehicleStatus)0).WithMessage("Vehicle status is invalid.");
         RuleFor(x => x.ModifiedBy).NotEmpty().WithMessage("Modified by is required.");

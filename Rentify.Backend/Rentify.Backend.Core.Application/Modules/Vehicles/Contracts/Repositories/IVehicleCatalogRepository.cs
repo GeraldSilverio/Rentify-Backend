@@ -4,7 +4,7 @@ namespace Rentify.Backend.Core.Application.Modules.Vehicles.Contracts.Repositori
 
 public interface IVehicleCatalogRepository
 {
-    Task<IReadOnlyCollection<BrandResponse>> GetBrandsAsync(CancellationToken cancellationToken = default);
-    Task<IReadOnlyCollection<ModelResponse>> GetModelsByBrandAsync(Guid brandId, CancellationToken cancellationToken = default);
-    Task<bool> BrandExistsAsync(Guid brandId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<VehicleBrandResponse>> GetVehicleBrandsAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<VehicleModelResponse>> GetVehicleModelsByBrandAsync(Guid vehicleBrandId, CancellationToken cancellationToken = default);
+    Task<bool> VehicleBrandExistsAsync(Guid vehicleBrandId, CancellationToken cancellationToken = default);
 }

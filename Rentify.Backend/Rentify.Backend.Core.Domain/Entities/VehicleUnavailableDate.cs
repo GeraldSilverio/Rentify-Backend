@@ -5,6 +5,7 @@ namespace Rentify.Backend.Core.Domain.Entities;
 public class VehicleUnavailableDate : BaseEntity
 {
     public Guid Id { get; private set; }
+    public Guid TenantId { get; private set; }
     public Guid VehicleId { get; private set; }
     public DateOnly StartDate { get; private set; }
     public DateOnly EndDate { get; private set; }
@@ -18,6 +19,7 @@ public class VehicleUnavailableDate : BaseEntity
 
     private VehicleUnavailableDate(
         Guid id,
+        Guid tenantId,
         Guid vehicleId,
         DateOnly startDate,
         DateOnly endDate,
@@ -25,6 +27,7 @@ public class VehicleUnavailableDate : BaseEntity
         string createdBy)
     {
         Id = id;
+        TenantId = tenantId;
         VehicleId = vehicleId;
         StartDate = startDate;
         EndDate = endDate;
@@ -37,12 +40,16 @@ public class VehicleUnavailableDate : BaseEntity
     }
 
     public static VehicleUnavailableDate Create(
+        Guid tenantId,
         Guid vehicleId,
         DateOnly startDate,
         DateOnly endDate,
         string? reason,
         string createdBy)
     {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("Tenant Id is required.");
+
         if (vehicleId == Guid.Empty)
             throw new ArgumentException("Vehicle Id is required.");
 
@@ -51,6 +58,7 @@ public class VehicleUnavailableDate : BaseEntity
 
         return new VehicleUnavailableDate(
             Guid.NewGuid(),
+            tenantId,
             vehicleId,
             startDate,
             endDate,

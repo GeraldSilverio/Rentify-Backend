@@ -12,6 +12,8 @@ public sealed class VehicleUnavailableDateConfiguration : IEntityTypeConfigurati
 
         builder.HasKey(x => x.Id);
 
+        builder.HasIndex(x => new { x.TenantId, x.VehicleId });
+
         builder.Property(x => x.StartDate)
             .IsRequired();
 

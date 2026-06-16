@@ -6,7 +6,7 @@ using Rentify.Backend.Core.Application.Shared.Response;
 namespace Rentify.Backend.Core.Application.Modules.Vehicles.Queries.GetBrands;
 
 public sealed class GetBrandsHandler
-    : IRequestHandler<GetBrandsQuery, ResultReponse<IReadOnlyCollection<BrandResponse>>>
+    : IRequestHandler<GetBrandsQuery, ResultReponse<IReadOnlyCollection<VehicleBrandResponse>>>
 {
     private readonly IVehicleCatalogRepository _vehicleCatalogRepository;
 
@@ -15,13 +15,13 @@ public sealed class GetBrandsHandler
         _vehicleCatalogRepository = vehicleCatalogRepository;
     }
 
-    public async Task<ResultReponse<IReadOnlyCollection<BrandResponse>>> Handle(
+    public async Task<ResultReponse<IReadOnlyCollection<VehicleBrandResponse>>> Handle(
         GetBrandsQuery request,
         CancellationToken cancellationToken)
     {
-        IReadOnlyCollection<BrandResponse> brands =
-            await _vehicleCatalogRepository.GetBrandsAsync(cancellationToken);
+        IReadOnlyCollection<VehicleBrandResponse> brands =
+            await _vehicleCatalogRepository.GetVehicleBrandsAsync(cancellationToken);
 
-        return ResultReponse<IReadOnlyCollection<BrandResponse>>.Success(brands);
+        return ResultReponse<IReadOnlyCollection<VehicleBrandResponse>>.Success(brands);
     }
 }

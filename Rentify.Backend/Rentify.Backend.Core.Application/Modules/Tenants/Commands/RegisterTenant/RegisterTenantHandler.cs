@@ -8,6 +8,7 @@ using Rentify.Backend.Core.Application.Modules.Subscriptions.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Tenants.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Users.Commands.CreateUser;
 using Rentify.Backend.Core.Application.Shared.Exceptions;
+using Rentify.Backend.Core.Application.Shared.Helpers;
 using Rentify.Backend.Core.Application.Shared.Response;
 using Rentify.Backend.Core.Application.Shared.Security;
 using Rentify.Backend.Core.Application.Shared.UnitOfWork;
@@ -99,8 +100,8 @@ public sealed class RegisterTenantHandler : IRequestHandler<RegisterTenantComman
                     ["SubscriptionStatus"] = subscription.Status.ToString(),
                     ["SubscriptionStartDate"] = FormatDate(subscription.StartsAt),
                     ["SubscriptionExpiresAt"] = FormatDate(subscription.ExpiresAt),
-                    ["DashboardUrl"] = GetEnvironmentValueOrDefault("RENTIFY_DASHBOARD_URL", "https://app.rentify.com/dashboard"),
-                    ["SupportEmail"] = GetEnvironmentValueOrDefault("SUPPORT_EMAIL", "support@rentify.com")
+                    ["DashboardUrl"] = ReadFromConfiguration.GetValueFromConfig("RENTIFY_DASHBOARD_URL"),
+                    ["SupportEmail"] = ReadFromConfiguration.GetValueFromConfig("SUPPORT_EMAIL")
                 }),
                 cancellationToken);
 
@@ -128,12 +129,5 @@ public sealed class RegisterTenantHandler : IRequestHandler<RegisterTenantComman
     private static string FormatDate(DateTime date)
     {
         return date.ToString("yyyy-MM-dd");
-    }
-
-    private static string GetEnvironmentValueOrDefault(string key, string defaultValue)
-    {
-        var value = Environment.GetEnvironmentVariable(key);
-
-        return string.IsNullOrWhiteSpace(value) ? defaultValue : value;
     }
 }

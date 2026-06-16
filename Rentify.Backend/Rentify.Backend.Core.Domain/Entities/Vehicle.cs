@@ -3,24 +3,27 @@ using Rentify.Backend.Core.Domain.Enums;
 
 namespace Rentify.Backend.Core.Domain.Entities;
 
-public class Vehicle : BaseEntity
+public sealed class Vehicle : BaseEntity
 {
+    private readonly List<VehicleImage> _images = [];
     private readonly List<VehicleUnavailableDate> _unavailableDates = [];
 
     public Guid Id { get; private set; }
+    public Guid TenantId { get; private set; }
     public Guid RentCarId { get; private set; }
-    public Guid ModelId { get; private set; }
+    public Guid VehicleModelId { get; private set; }
+    public Guid VehicleTypeId { get; private set; }
     public int Year { get; private set; }
     public string PlateNumber { get; private set; } = null!;
     public string Vin { get; private set; } = null!;
     public string Color { get; private set; } = null!;
     public decimal DailyRate { get; private set; }
     public VehicleStatus Status { get; private set; }
-    public string ImageUrl { get; private set; } = null!;
-    public string ImagePublicId { get; private set; } = null!;
 
     public RentCar RentCar { get; private set; } = null!;
-    public Model Model { get; private set; } = null!;
+    public VehicleModel VehicleModel { get; private set; } = null!;
+    public VehicleType VehicleType { get; private set; } = null!;
+    public IReadOnlyCollection<VehicleImage> Images => _images.AsReadOnly();
     public IReadOnlyCollection<VehicleUnavailableDate> UnavailableDates => _unavailableDates.AsReadOnly();
 
     private Vehicle()
@@ -29,27 +32,27 @@ public class Vehicle : BaseEntity
 
     private Vehicle(
         Guid id,
+        Guid tenantId,
         Guid rentCarId,
-        Guid modelId,
+        Guid vehicleModelId,
+        Guid vehicleTypeId,
         int year,
         string plateNumber,
         string vin,
         string color,
         decimal dailyRate,
-        string imageUrl,
-        string imagePublicId,
         string createdBy)
     {
         Id = id;
+        TenantId = tenantId;
         RentCarId = rentCarId;
-        ModelId = modelId;
+        VehicleModelId = vehicleModelId;
+        VehicleTypeId = vehicleTypeId;
         Year = year;
-        PlateNumber = plateNumber;
-        Vin = vin;
-        Color = color;
+        PlateNumber = NormalizePlateNumber(plateNumber);
+        Vin = vin.Trim().ToUpperInvariant();
+        Color = color.Trim();
         DailyRate = dailyRate;
-        ImageUrl = imageUrl;
-        ImagePublicId = imagePublicId;
         Status = VehicleStatus.Available;
         CreatedBy = createdBy;
         ModifiedBy = createdBy;
@@ -59,37 +62,88 @@ public class Vehicle : BaseEntity
     }
 
     public static Vehicle Create(
+        Guid tenantId,
         Guid rentCarId,
-        Guid modelId,
+        Guid vehicleModelId,
+        Guid vehicleTypeId,
         int year,
         string plateNumber,
         string vin,
         string color,
         decimal dailyRate,
-        string imageUrl,
-        string imagePublicId,
         string createdBy)
     {
-        if (rentCarId == Guid.Empty)
-            throw new ArgumentException("Rent car Id is required.");
-
-        if (modelId == Guid.Empty)
-            throw new ArgumentException("Model Id is required.");
-
-        Validate(year, plateNumber, vin, dailyRate, imageUrl, imagePublicId);
+        ValidateIds(tenantId, rentCarId, vehicleModelId, vehicleTypeId);
+        Validate(year, plateNumber, vin, color, dailyRate);
 
         return new Vehicle(
             Guid.NewGuid(),
+            tenantId,
             rentCarId,
-            modelId,
+            vehicleModelId,
+            vehicleTypeId,
             year,
-            NormalizePlateNumber(plateNumber),
-            vin.Trim().ToUpperInvariant(),
-            color?.Trim() ?? string.Empty,
+            plateNumber,
+            vin,
+            color,
             dailyRate,
-            imageUrl.Trim(),
-            imagePublicId.Trim(),
             createdBy);
+    }
+
+    public void Update(
+        Guid vehicleModelId,
+        Guid vehicleTypeId,
+        int year,
+        string plateNumber,
+        string vin,
+        string color,
+        decimal dailyRate,
+        string modifiedBy)
+    {
+        if (vehicleModelId == Guid.Empty)
+            throw new ArgumentException("Vehicle model Id is required.");
+
+        if (vehicleTypeId == Guid.Empty)
+            throw new ArgumentException("Vehicle type Id is required.");
+
+        Validate(year, plateNumber, vin, color, dailyRate);
+
+        VehicleModelId = vehicleModelId;
+        VehicleTypeId = vehicleTypeId;
+        Year = year;
+        PlateNumber = NormalizePlateNumber(plateNumber);
+        Vin = vin.Trim().ToUpperInvariant();
+        Color = color.Trim();
+        DailyRate = dailyRate;
+        ModifiedBy = modifiedBy;
+        ModifiedDate = DateTime.UtcNow;
+    }
+
+    public VehicleImage AddImage(string url, string publicId, bool isPrimary, string createdBy)
+    {
+        bool shouldBePrimary = isPrimary || !_images.Any(x => !x.IsDeleted);
+
+        if (shouldBePrimary)
+            UnmarkPrimaryImages(createdBy);
+
+        VehicleImage image = VehicleImage.Create(TenantId, Id, url, publicId, shouldBePrimary, createdBy);
+        _images.Add(image);
+
+        ModifiedBy = createdBy;
+        ModifiedDate = DateTime.UtcNow;
+
+        return image;
+    }
+
+    public void SetPrimaryImage(Guid imageId, string modifiedBy)
+    {
+        VehicleImage image = _images.FirstOrDefault(x => x.Id == imageId && !x.IsDeleted)
+                             ?? throw new ArgumentException("Vehicle image not found.");
+
+        UnmarkPrimaryImages(modifiedBy);
+        image.MarkAsPrimary(modifiedBy);
+        ModifiedBy = modifiedBy;
+        ModifiedDate = DateTime.UtcNow;
     }
 
     public void ChangeStatus(VehicleStatus status, string modifiedBy)
@@ -99,12 +153,20 @@ public class Vehicle : BaseEntity
         ModifiedDate = DateTime.UtcNow;
     }
 
+    public void Delete(string modifiedBy)
+    {
+        IsDeleted = true;
+        IsActive = false;
+        ModifiedBy = modifiedBy;
+        ModifiedDate = DateTime.UtcNow;
+    }
+
     public void AddUnavailableDate(DateOnly startDate, DateOnly endDate, string? reason, string createdBy)
     {
         if (_unavailableDates.Any(x => !x.IsDeleted && x.Overlaps(startDate, endDate)))
             throw new ArgumentException("Vehicle already has an unavailable range that overlaps these dates.");
 
-        _unavailableDates.Add(VehicleUnavailableDate.Create(Id, startDate, endDate, reason, createdBy));
+        _unavailableDates.Add(VehicleUnavailableDate.Create(TenantId, Id, startDate, endDate, reason, createdBy));
         Status = VehicleStatus.Unavailable;
         ModifiedBy = createdBy;
         ModifiedDate = DateTime.UtcNow;
@@ -116,13 +178,39 @@ public class Vehicle : BaseEntity
                && !_unavailableDates.Any(x => !x.IsDeleted && x.Overlaps(startDate, endDate));
     }
 
+    private void UnmarkPrimaryImages(string modifiedBy)
+    {
+        foreach (VehicleImage image in _images.Where(x => x.IsPrimary && !x.IsDeleted))
+        {
+            image.UnmarkAsPrimary(modifiedBy);
+        }
+    }
+
+    private static void ValidateIds(
+        Guid tenantId,
+        Guid rentCarId,
+        Guid vehicleModelId,
+        Guid vehicleTypeId)
+    {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("Tenant Id is required.");
+
+        if (rentCarId == Guid.Empty)
+            throw new ArgumentException("Rent car Id is required.");
+
+        if (vehicleModelId == Guid.Empty)
+            throw new ArgumentException("Vehicle model Id is required.");
+
+        if (vehicleTypeId == Guid.Empty)
+            throw new ArgumentException("Vehicle type Id is required.");
+    }
+
     private static void Validate(
         int year,
         string plateNumber,
         string vin,
-        decimal dailyRate,
-        string imageUrl,
-        string imagePublicId)
+        string color,
+        decimal dailyRate)
     {
         if (year < 1980 || year > DateTime.UtcNow.Year + 1)
             throw new ArgumentException("Vehicle year is invalid.");
@@ -136,14 +224,14 @@ public class Vehicle : BaseEntity
         if (vin.Trim().Length != 17)
             throw new ArgumentException("VIN must contain 17 characters.");
 
+        if (string.IsNullOrWhiteSpace(color))
+            throw new ArgumentException("Vehicle color is required.");
+
+        if (color.Length > 50)
+            throw new ArgumentException("Vehicle color is too long.");
+
         if (dailyRate <= 0)
             throw new ArgumentException("Daily rate must be greater than zero.");
-
-        if (string.IsNullOrWhiteSpace(imageUrl))
-            throw new ArgumentException("Image URL is required.");
-
-        if (string.IsNullOrWhiteSpace(imagePublicId))
-            throw new ArgumentException("Image public Id is required.");
     }
 
     private static string NormalizePlateNumber(string plateNumber)

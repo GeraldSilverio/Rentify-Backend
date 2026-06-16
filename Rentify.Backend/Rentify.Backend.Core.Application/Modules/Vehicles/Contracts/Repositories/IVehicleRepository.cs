@@ -5,8 +5,10 @@ namespace Rentify.Backend.Core.Application.Modules.Vehicles.Contracts.Repositori
 public interface IVehicleRepository
 {
     Task AddAsync(Vehicle vehicle, CancellationToken cancellationToken = default);
-    Task<Vehicle?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
-    Task<bool> ModelExistsAsync(Guid modelId, CancellationToken cancellationToken = default);
-    Task<bool> PlateNumberExistsAsync(string plateNumber, CancellationToken cancellationToken = default);
-    Task<bool> VinExistsAsync(string vin, CancellationToken cancellationToken = default);
+    Task<Vehicle?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default);
+    Task<Vehicle?> GetByIdWithImagesAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default);
+    Task<bool> VehicleModelExistsAsync(Guid vehicleModelId, CancellationToken cancellationToken = default);
+    Task<bool> VehicleTypeExistsAsync(Guid tenantId, Guid vehicleTypeId, CancellationToken cancellationToken = default);
+    Task<bool> PlateNumberExistsAsync(Guid tenantId, string plateNumber, Guid? excludedVehicleId = null, CancellationToken cancellationToken = default);
+    Task<bool> VinExistsAsync(Guid tenantId, string vin, Guid? excludedVehicleId = null, CancellationToken cancellationToken = default);
 }

@@ -4,11 +4,11 @@ using Rentify.Backend.Core.Domain.Entities;
 
 namespace Rentify.Backend.Infraestructure.Persistence.EntityConfiguration;
 
-public sealed class BrandConfiguration : IEntityTypeConfiguration<Brand>
+public sealed class VehicleBrandConfiguration : IEntityTypeConfiguration<VehicleBrand>
 {
-    public void Configure(EntityTypeBuilder<Brand> builder)
+    public void Configure(EntityTypeBuilder<VehicleBrand> builder)
     {
-        builder.ToTable("Brands");
+        builder.ToTable("VehicleBrands");
 
         builder.HasKey(x => x.Id);
 
@@ -20,8 +20,8 @@ public sealed class BrandConfiguration : IEntityTypeConfiguration<Brand>
             .IsUnique();
 
         builder.HasMany(x => x.Models)
-            .WithOne(x => x.Brand)
-            .HasForeignKey(x => x.BrandId)
+            .WithOne(x => x.VehicleBrand)
+            .HasForeignKey(x => x.VehicleBrandId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.Navigation(x => x.Models)

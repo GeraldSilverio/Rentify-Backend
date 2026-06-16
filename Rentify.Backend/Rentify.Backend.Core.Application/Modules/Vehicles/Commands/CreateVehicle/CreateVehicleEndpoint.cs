@@ -9,34 +9,28 @@ public static class CreateVehicleEndpoint
 {
     public static IEndpointRouteBuilder MapCreateVehicleEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapPost("/api/v1/vehicles", async(
-            Guid rentCarId,
-            Guid modelId,
-            int year,
-            string plateNumber,
-            string vin,
-            string color,
-            decimal dailyRate,
-            IFormFile image,
-            string createdBy,
-            ISender sender) =>
+        app.MapPost("/api/v1/tenants/{tenantId:guid}/vehicles", async (
+            Guid tenantId,
+            CreateVehicleRequest request,
+            ISender sender,
+            CancellationToken cancellationToken) =>
         {
             var command = new CreateVehicleCommand(
-                rentCarId,
-                modelId,
-                year,
-                plateNumber,
-                vin,
-                color,
-                dailyRate,
-                image,
-                createdBy);
+                tenantId,
+                request.RentCarId,
+                request.VehicleModelId,
+                request.VehicleTypeId,
+                request.Year,
+                request.PlateNumber,
+                request.Vin,
+                request.Color,
+                request.DailyRate,
+                request.CreatedBy);
 
-            var response = await sender.Send(command);
+            var response = await sender.Send(command, cancellationToken);
 
-            return Results.Created("/api/v1/vehicles", response);
+            return Results.Created($"/api/v1/tenants/{tenantId}/vehicles/{response.Value}", response);
         })
-        .DisableAntiforgery()
         .WithTags("Vehicles");
 
         return app;

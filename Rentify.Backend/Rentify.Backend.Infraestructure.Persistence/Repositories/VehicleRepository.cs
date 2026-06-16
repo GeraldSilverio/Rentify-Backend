@@ -19,33 +19,69 @@ public sealed class VehicleRepository : IVehicleRepository
         await _context.Vehicles.AddAsync(vehicle, cancellationToken);
     }
 
-    public async Task<Vehicle?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<Vehicle?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
     {
         return await _context.Vehicles
             .Include(x => x.UnavailableDates)
-            .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted, cancellationToken);
+            .FirstOrDefaultAsync(x => x.TenantId == tenantId && x.Id == id && !x.IsDeleted, cancellationToken);
     }
 
-    public async Task<bool> ModelExistsAsync(Guid modelId, CancellationToken cancellationToken = default)
+    public async Task<Vehicle?> GetByIdWithImagesAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
     {
-        return await _context.Models.AnyAsync(x => x.Id == modelId && !x.IsDeleted, cancellationToken);
+        return await _context.Vehicles
+            .Include(x => x.Images)
+            .FirstOrDefaultAsync(x => x.TenantId == tenantId && x.Id == id && !x.IsDeleted, cancellationToken);
     }
 
-    public async Task<bool> PlateNumberExistsAsync(string plateNumber, CancellationToken cancellationToken = default)
+    public async Task<bool> VehicleModelExistsAsync(Guid vehicleModelId, CancellationToken cancellationToken = default)
     {
-        string normalizedPlateNumber = plateNumber.Trim().ToUpperInvariant().Replace("-", string.Empty).Replace(" ", string.Empty);
+        return await _context.VehicleModels.AnyAsync(x => x.Id == vehicleModelId && !x.IsDeleted, cancellationToken);
+    }
 
-        return await _context.Vehicles.AnyAsync(
-            x => x.PlateNumber == normalizedPlateNumber && !x.IsDeleted,
+    public async Task<bool> VehicleTypeExistsAsync(
+        Guid tenantId,
+        Guid vehicleTypeId,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.VehicleTypes.AnyAsync(
+            x => x.TenantId == tenantId && x.Id == vehicleTypeId && !x.IsDeleted,
             cancellationToken);
     }
 
-    public async Task<bool> VinExistsAsync(string vin, CancellationToken cancellationToken = default)
+    public async Task<bool> PlateNumberExistsAsync(
+        Guid tenantId,
+        string plateNumber,
+        Guid? excludedVehicleId = null,
+        CancellationToken cancellationToken = default)
+    {
+        string normalizedPlateNumber = NormalizePlateNumber(plateNumber);
+
+        return await _context.Vehicles.AnyAsync(
+            x => x.TenantId == tenantId
+                 && x.PlateNumber == normalizedPlateNumber
+                 && !x.IsDeleted
+                 && (!excludedVehicleId.HasValue || x.Id != excludedVehicleId.Value),
+            cancellationToken);
+    }
+
+    public async Task<bool> VinExistsAsync(
+        Guid tenantId,
+        string vin,
+        Guid? excludedVehicleId = null,
+        CancellationToken cancellationToken = default)
     {
         string normalizedVin = vin.Trim().ToUpperInvariant();
 
         return await _context.Vehicles.AnyAsync(
-            x => x.Vin == normalizedVin && !x.IsDeleted,
+            x => x.TenantId == tenantId
+                 && x.Vin == normalizedVin
+                 && !x.IsDeleted
+                 && (!excludedVehicleId.HasValue || x.Id != excludedVehicleId.Value),
             cancellationToken);
+    }
+
+    private static string NormalizePlateNumber(string plateNumber)
+    {
+        return plateNumber.Trim().ToUpperInvariant().Replace("-", string.Empty).Replace(" ", string.Empty);
     }
 }

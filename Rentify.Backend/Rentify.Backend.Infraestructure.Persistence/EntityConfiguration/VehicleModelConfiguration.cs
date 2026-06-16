@@ -4,11 +4,11 @@ using Rentify.Backend.Core.Domain.Entities;
 
 namespace Rentify.Backend.Infraestructure.Persistence.EntityConfiguration;
 
-public sealed class ModelConfiguration : IEntityTypeConfiguration<Model>
+public sealed class VehicleModelConfiguration : IEntityTypeConfiguration<VehicleModel>
 {
-    public void Configure(EntityTypeBuilder<Model> builder)
+    public void Configure(EntityTypeBuilder<VehicleModel> builder)
     {
-        builder.ToTable("Models");
+        builder.ToTable("VehicleModels");
 
         builder.HasKey(x => x.Id);
 
@@ -16,7 +16,7 @@ public sealed class ModelConfiguration : IEntityTypeConfiguration<Model>
             .IsRequired()
             .HasMaxLength(100);
 
-        builder.HasIndex(x => new { x.BrandId, x.Name })
+        builder.HasIndex(x => new { x.VehicleBrandId, x.Name })
             .IsUnique();
     }
 }

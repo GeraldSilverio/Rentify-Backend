@@ -9,13 +9,13 @@ public static class GetBrandsEndpoint
 {
     public static IEndpointRouteBuilder MapGetBrandsEndpoint(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/api/v1/brands", async (ISender sender) =>
+        app.MapGet("/api/v1/vehicle-brands", async (ISender sender) =>
         {
             var response = await sender.Send(new GetBrandsQuery());
 
             return Results.Ok(response);
         })
-        .WithTags("Vehicle Catalog");
+        .WithTags("Vehicles");
 
         return app;
     }

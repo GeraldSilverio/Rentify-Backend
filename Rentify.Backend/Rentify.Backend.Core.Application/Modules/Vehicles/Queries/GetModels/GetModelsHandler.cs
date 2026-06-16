@@ -7,7 +7,7 @@ using Rentify.Backend.Core.Application.Shared.Response;
 namespace Rentify.Backend.Core.Application.Modules.Vehicles.Queries.GetModels;
 
 public sealed class GetModelsHandler
-    : IRequestHandler<GetModelsQuery, ResultReponse<IReadOnlyCollection<ModelResponse>>>
+    : IRequestHandler<GetModelsQuery, ResultReponse<IReadOnlyCollection<VehicleModelResponse>>>
 {
     private readonly IVehicleCatalogRepository _vehicleCatalogRepository;
 
@@ -16,20 +16,20 @@ public sealed class GetModelsHandler
         _vehicleCatalogRepository = vehicleCatalogRepository;
     }
 
-    public async Task<ResultReponse<IReadOnlyCollection<ModelResponse>>> Handle(
+    public async Task<ResultReponse<IReadOnlyCollection<VehicleModelResponse>>> Handle(
         GetModelsQuery request,
         CancellationToken cancellationToken)
     {
-        bool brandExists = await _vehicleCatalogRepository.BrandExistsAsync(request.BrandId, cancellationToken);
+        bool brandExists = await _vehicleCatalogRepository.VehicleBrandExistsAsync(request.VehicleBrandId, cancellationToken);
         if (!brandExists)
         {
-            return ResultReponse<IReadOnlyCollection<ModelResponse>>.Failure(
-                Error.SetError("Brand not found.", StatusCodes.Status404NotFound));
+            return ResultReponse<IReadOnlyCollection<VehicleModelResponse>>.Failure(
+                Error.SetError("Vehicle brand not found.", StatusCodes.Status404NotFound));
         }
 
-        IReadOnlyCollection<ModelResponse> models =
-            await _vehicleCatalogRepository.GetModelsByBrandAsync(request.BrandId, cancellationToken);
+        IReadOnlyCollection<VehicleModelResponse> models =
+            await _vehicleCatalogRepository.GetVehicleModelsByBrandAsync(request.VehicleBrandId, cancellationToken);
 
-        return ResultReponse<IReadOnlyCollection<ModelResponse>>.Success(models);
+        return ResultReponse<IReadOnlyCollection<VehicleModelResponse>>.Success(models);
     }
 }

@@ -14,33 +14,33 @@ public sealed class VehicleCatalogRepository : IVehicleCatalogRepository
         _context = context;
     }
 
-    public async Task<IReadOnlyCollection<BrandResponse>> GetBrandsAsync(
+    public async Task<IReadOnlyCollection<VehicleBrandResponse>> GetVehicleBrandsAsync(
         CancellationToken cancellationToken = default)
     {
-        return await _context.Brands
+        return await _context.VehicleBrands
             .AsNoTracking()
             .Where(x => x.IsActive && !x.IsDeleted)
             .OrderBy(x => x.Name)
-            .Select(x => new BrandResponse(x.Id, x.Name))
+            .Select(x => new VehicleBrandResponse(x.Id, x.Name))
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyCollection<ModelResponse>> GetModelsByBrandAsync(
-        Guid brandId,
+    public async Task<IReadOnlyCollection<VehicleModelResponse>> GetVehicleModelsByBrandAsync(
+        Guid vehicleBrandId,
         CancellationToken cancellationToken = default)
     {
-        return await _context.Models
+        return await _context.VehicleModels
             .AsNoTracking()
-            .Where(x => x.BrandId == brandId && x.IsActive && !x.IsDeleted)
+            .Where(x => x.VehicleBrandId == vehicleBrandId && x.IsActive && !x.IsDeleted)
             .OrderBy(x => x.Name)
-            .Select(x => new ModelResponse(x.Id, x.Name, x.BrandId, x.Brand.Name))
+            .Select(x => new VehicleModelResponse(x.Id, x.Name, x.VehicleBrandId, x.VehicleBrand.Name))
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<bool> BrandExistsAsync(Guid brandId, CancellationToken cancellationToken = default)
+    public async Task<bool> VehicleBrandExistsAsync(Guid vehicleBrandId, CancellationToken cancellationToken = default)
     {
-        return await _context.Brands
+        return await _context.VehicleBrands
             .AsNoTracking()
-            .AnyAsync(x => x.Id == brandId && x.IsActive && !x.IsDeleted, cancellationToken);
+            .AnyAsync(x => x.Id == vehicleBrandId && x.IsActive && !x.IsDeleted, cancellationToken);
     }
 }

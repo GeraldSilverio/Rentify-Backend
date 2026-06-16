@@ -16,17 +16,18 @@ public sealed class VehicleConfiguration : IEntityTypeConfiguration<Vehicle>
             .IsRequired()
             .HasMaxLength(20);
 
-        builder.HasIndex(x => x.PlateNumber)
+        builder.HasIndex(x => new { x.TenantId, x.PlateNumber })
             .IsUnique();
 
         builder.Property(x => x.Vin)
             .IsRequired()
             .HasMaxLength(17);
 
-        builder.HasIndex(x => x.Vin)
+        builder.HasIndex(x => new { x.TenantId, x.Vin })
             .IsUnique();
 
         builder.Property(x => x.Color)
+            .IsRequired()
             .HasMaxLength(50);
 
         builder.Property(x => x.DailyRate)
@@ -36,23 +37,30 @@ public sealed class VehicleConfiguration : IEntityTypeConfiguration<Vehicle>
             .HasConversion<string>()
             .HasMaxLength(30);
 
-        builder.Property(x => x.ImageUrl)
-            .IsRequired()
-            .HasMaxLength(500);
-
-        builder.Property(x => x.ImagePublicId)
-            .IsRequired()
-            .HasMaxLength(255);
+        builder.HasIndex(x => new { x.TenantId, x.Status });
 
         builder.HasOne(x => x.RentCar)
             .WithMany()
             .HasForeignKey(x => x.RentCarId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne(x => x.Model)
+        builder.HasOne(x => x.VehicleModel)
             .WithMany()
-            .HasForeignKey(x => x.ModelId)
+            .HasForeignKey(x => x.VehicleModelId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(x => x.VehicleType)
+            .WithMany()
+            .HasForeignKey(x => x.VehicleTypeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany(x => x.Images)
+            .WithOne(x => x.Vehicle)
+            .HasForeignKey(x => x.VehicleId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(x => x.Images)
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.HasMany(x => x.UnavailableDates)
             .WithOne(x => x.Vehicle)

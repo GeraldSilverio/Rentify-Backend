@@ -6,6 +6,7 @@ public sealed class BlockVehicleAvailabilityValidator : AbstractValidator<BlockV
 {
     public BlockVehicleAvailabilityValidator()
     {
+        RuleFor(x => x.TenantId).NotEmpty().WithMessage("Tenant Id is required.");
         RuleFor(x => x.VehicleId).NotEmpty().WithMessage("Vehicle Id is required.");
         RuleFor(x => x.StartDate).NotEmpty().WithMessage("Start date is required.");
         RuleFor(x => x.EndDate)

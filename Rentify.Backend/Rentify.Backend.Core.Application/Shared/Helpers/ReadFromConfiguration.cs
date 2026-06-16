@@ -2,7 +2,7 @@ namespace Rentify.Backend.Core.Application.Shared.Helpers
 {
     public static class ReadFromConfiguration
     {
-        public static string GetValueFromConfig(Microsoft.Extensions.Configuration.IConfiguration config, string keyConfig)
+        public static string GetValueFromConfig(string keyConfig)
         {
             string? value = Environment.GetEnvironmentVariable(keyConfig);
             if (!string.IsNullOrWhiteSpace(value))

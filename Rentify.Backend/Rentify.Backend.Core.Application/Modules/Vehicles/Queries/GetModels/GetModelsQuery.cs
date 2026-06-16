@@ -4,4 +4,4 @@ using Rentify.Backend.Core.Application.Shared.Response;
 
 namespace Rentify.Backend.Core.Application.Modules.Vehicles.Queries.GetModels;
 
-public sealed record GetModelsQuery(Guid BrandId) : IRequest<ResultReponse<IReadOnlyCollection<ModelResponse>>>;
+public sealed record GetModelsQuery(Guid VehicleBrandId) : IRequest<ResultReponse<IReadOnlyCollection<VehicleModelResponse>>>;
