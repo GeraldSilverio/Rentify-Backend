@@ -1,8 +1,17 @@
 using Microsoft.EntityFrameworkCore;
 using Rentify.Backend.Core.Domain.Entities;
 using Rentify.Backend.Core.Domain.Entities.Core;
-using Rentify.Backend.Infraestructure.Persistence.EntityConfiguration;
+using Rentify.Backend.Core.Domain.Entities.Customers;
+using Rentify.Backend.Core.Domain.Entities.Payments;
+using Rentify.Backend.Core.Domain.Entities.Reservations;
+using Rentify.Backend.Core.Domain.Entities.Vehicles;
 using Rentify.Backend.Infraestructure.Persistence.EntityConfiguration.Core;
+using Rentify.Backend.Infraestructure.Persistence.EntityConfiguration.Customers;
+using Rentify.Backend.Infraestructure.Persistence.EntityConfiguration.Payments;
+using Rentify.Backend.Infraestructure.Persistence.EntityConfiguration.Reservation;
+using Rentify.Backend.Infraestructure.Persistence.EntityConfiguration.Reservations;
+using Rentify.Backend.Infraestructure.Persistence.EntityConfiguration.Vehicle;
+using Rentify.Backend.Infraestructure.Persistence.EntityConfiguration.Vehicles;
 
 namespace Rentify.Backend.Infraestructure.Persistence.Context
 {

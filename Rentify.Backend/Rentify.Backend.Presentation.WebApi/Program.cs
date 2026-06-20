@@ -80,6 +80,7 @@ using (var scope = app.Services.CreateScope())
 
 app.MapRegisterTenant();
 app.MapAuthEndpoints();
+app.MapSubscriptionEndpoints();
 
 var securedEndpoints = app.MapGroup(string.Empty)
     .RequireAuthorization();
@@ -101,7 +102,6 @@ securedEndpoints.MapPaymentEndpoints();
 securedEndpoints.MapDashboardEndpoints();
 securedEndpoints.MapUserEndpoints();
 securedEndpoints.MapEmailEndpoints();
-securedEndpoints.MapSubscriptionEndpoints();
 
 app.UseCors(a => a.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod());
 // Configure the HTTP request pipeline.

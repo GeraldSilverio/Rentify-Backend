@@ -16,6 +16,7 @@ using Rentify.Backend.Core.Application.Shared.UnitOfWork;
 using Rentify.Backend.Infraestructure.Persistence.Context;
 using Rentify.Backend.Infrastructure.Persistence.Repositories;
 using Rentify.Backend.Infraestructure.Persistence.Repositories;
+using Rentify.Backend.Infraestructure.Persistence.Repositories.Core;
 
 namespace Rentify.Backend.Infraestructure.Persistence
 {

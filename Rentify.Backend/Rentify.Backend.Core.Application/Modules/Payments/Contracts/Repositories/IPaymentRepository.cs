@@ -1,4 +1,5 @@
 using Rentify.Backend.Core.Domain.Entities;
+using Rentify.Backend.Core.Domain.Entities.Payments;
 
 namespace Rentify.Backend.Core.Application.Modules.Payments.Contracts.Repositories;
 

@@ -1,4 +1,5 @@
 using Rentify.Backend.Core.Domain.Entities;
+using Rentify.Backend.Core.Domain.Entities.Reservations;
 
 namespace Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Repositories;
 

@@ -144,10 +144,10 @@ namespace Rentify.Backend.Core.Application.Modules.Emails.Implementations.Servic
 
             var messageId = await emailProviderSender.SendAsync(
                 new EmailProviderSendRequest(
-                    tenantEmailConfiguration.ApiKey,
-                    tenantEmailConfiguration.FromEmail,
-                    tenantEmailConfiguration.FromName,
-                    command.To,
+                    ReadFromConfiguration.GetValueFromConfig("RESEND_API_KEY"),
+                    ReadFromConfiguration.GetValueFromConfig("EMAIL_FROM"),
+                    ReadFromConfiguration.GetValueFromConfig("EMAIL_FROM_NAME"),
+                    "ing.geraldsilverioserrata@gmail.com",
                     subject,
                     htmlBody,
                     textBody),

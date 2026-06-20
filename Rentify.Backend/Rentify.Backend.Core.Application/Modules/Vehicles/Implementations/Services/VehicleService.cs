@@ -13,6 +13,7 @@ using Rentify.Backend.Core.Application.Shared.Exceptions;
 using Rentify.Backend.Core.Application.Shared.Storage;
 using Rentify.Backend.Core.Application.Shared.UnitOfWork;
 using Rentify.Backend.Core.Domain.Entities;
+using Rentify.Backend.Core.Domain.Entities.Vehicles;
 
 namespace Rentify.Backend.Core.Application.Modules.Vehicles.Implementations.Services;
 

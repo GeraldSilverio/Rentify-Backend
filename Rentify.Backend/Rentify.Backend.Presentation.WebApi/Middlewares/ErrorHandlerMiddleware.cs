@@ -33,6 +33,7 @@ namespace Rentify.Backend.Presentation.WebApi.Middlewares
                         (int)HttpStatusCode.InternalServerError => (int)HttpStatusCode.InternalServerError,
                         (int)HttpStatusCode.NotFound => (int)HttpStatusCode.NotFound,
                         (int)HttpStatusCode.NoContent => (int)HttpStatusCode.NoContent,
+                        (int)HttpStatusCode.Unauthorized => (int)HttpStatusCode.Unauthorized,
                         _ => (int)HttpStatusCode.InternalServerError,
                     },
                     KeyNotFoundException e => (int)HttpStatusCode.NotFound,

@@ -21,6 +21,7 @@ public sealed class GetDashboardMetricsHandler : IRequestHandler<GetDashboardMet
             DateOnly.FromDateTime(DateTime.UtcNow),
             cancellationToken);
 
-        return ResultReponse<DashboardMetricsResponse>.Success(metrics);
+
+        return ResultReponse<DashboardMetricsResponse>.Success(new DashboardMetricsResponse(5000,20,10,8));
     }
 }

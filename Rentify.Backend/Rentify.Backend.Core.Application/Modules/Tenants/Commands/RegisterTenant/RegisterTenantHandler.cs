@@ -17,7 +17,7 @@ namespace Rentify.Backend.Core.Application.Modules.Tenants.Commands.RegisterTena
 
 public sealed class RegisterTenantHandler : IRequestHandler<RegisterTenantCommand, ResultReponse<RegisterTenantResponse>>
 {
-    private readonly ITenantService _tenantService;
+    private readonly ITenantService _tenantService; 
     private readonly ISubscriptionService _subscriptionService;
     private readonly IAccountService _accountService;
     private readonly IEmailService _emailService;
@@ -43,7 +43,12 @@ public sealed class RegisterTenantHandler : IRequestHandler<RegisterTenantComman
     {
         if (await _accountService.ExistsByEmailAsync(request.OwnerEmail))
         {
-            throw new ApiException("Owner email already exists", StatusCodes.Status400BadRequest);
+            throw new ApiException("El correo proporcionado ya esta registrado en Rentify.", StatusCodes.Status400BadRequest);
+        }
+
+        if(await _accountService.ExistByUserNameAsync(request.OwnerUserName))
+        {
+            throw new ApiException("El nombre de usuario proporcionado ya esta registrado en Rentify.", StatusCodes.Status400BadRequest);
         }
 
         var tenantId = await _tenantService.CreateTenantAsync(request, cancellationToken);

@@ -30,11 +30,11 @@ public sealed class RegisterTenantValidator
 
         RuleFor(x => x.OwnerPassword)
             .NotEmpty().WithMessage("OwnerPassword is required")
-            .MinimumLength(8).WithMessage("OwnerPassword must have 8 characters")
-            .Matches("[A-Z]").WithMessage("OwnerPassword must have 1 capital letter")
-            .Matches("[a-z]").WithMessage("OwnerPassword must have 1 minuscule letter")
-            .Matches("[0-9]").WithMessage("OwnerPassword must have 1 number")
-            .Matches("[^a-zA-Z0-9]").WithMessage("OwnerPassword must have 1 special character");
+            .MinimumLength(8).WithMessage("La contraseña debe tener minimo 8 caracteres")
+            .Matches("[A-Z]").WithMessage("La contraseña debe tener minimo 1 caracter en mayuscula.")
+            .Matches("[a-z]").WithMessage("La contraseña debe tener minimo 1 caracter en minuscula.")
+            .Matches("[0-9]").WithMessage("La contraseña debe tener 1 número.")
+            .Matches("[^a-zA-Z0-9]").WithMessage("La contraseña debe tener 1 caracter especial.");
 
         RuleFor(x => x.CreatedBy)
             .NotEmpty()

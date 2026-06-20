@@ -6,6 +6,8 @@ using Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Repositori
 using Rentify.Backend.Core.Application.Shared.Exceptions;
 using Rentify.Backend.Core.Application.Shared.UnitOfWork;
 using Rentify.Backend.Core.Domain.Entities;
+using Rentify.Backend.Core.Domain.Entities.Payments;
+using Rentify.Backend.Core.Domain.Entities.Reservations;
 
 namespace Rentify.Backend.Core.Application.Modules.Payments.Implementations.Services;
 
@@ -41,6 +43,7 @@ public sealed class PaymentService : IPaymentService
             command.CreatedBy);
 
         string invoiceNumber = await _paymentRepository.GenerateInvoiceNumberAsync(command.TenantId, cancellationToken);
+
         Invoice invoice = Invoice.Create(
             command.TenantId,
             payment.Id,

@@ -10,6 +10,8 @@ public interface IAccountService
     Task<bool> ExistsByEmailAsync(
         string email);
 
+    Task<bool> ExistByUserNameAsync(string userName);
+
     Task<Guid> CreateUserAsync(
         CreateUserCommand createUserCommand);
 

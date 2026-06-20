@@ -9,6 +9,7 @@ using Rentify.Backend.Core.Application.Shared.Exceptions;
 using Rentify.Backend.Core.Application.Shared.Storage;
 using Rentify.Backend.Core.Application.Shared.UnitOfWork;
 using Rentify.Backend.Core.Domain.Entities;
+using Rentify.Backend.Core.Domain.Entities.Customers;
 
 namespace Rentify.Backend.Core.Application.Modules.Customers.Implementations.Services;
 

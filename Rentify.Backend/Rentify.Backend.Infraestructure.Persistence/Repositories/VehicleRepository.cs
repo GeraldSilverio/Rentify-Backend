@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Contracts.Repositories;
 using Rentify.Backend.Core.Domain.Entities;
+using Rentify.Backend.Core.Domain.Entities.Vehicles;
 using Rentify.Backend.Infraestructure.Persistence.Context;
 
 namespace Rentify.Backend.Infraestructure.Persistence.Repositories;

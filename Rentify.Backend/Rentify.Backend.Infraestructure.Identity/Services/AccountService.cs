@@ -34,10 +34,7 @@ public sealed class AccountService : IAccountService
 
     public async Task<Guid> CreateUserAsync(CreateUserCommand createUserCommand)
     {
-        if (await ExistsByEmailAsync(createUserCommand.Email)) throw new ApiException("Email already exists", StatusCodes.Status400BadRequest);
-
-        if (await ExistByUserNameAsync(createUserCommand.UserName)) throw new ApiException("UserName already exists", StatusCodes.Status400BadRequest);
-        
+              
         if (await _roleManager.FindByNameAsync(createUserCommand.Role) == null ) throw new ApiException($"Role {createUserCommand.Role} does not exist", StatusCodes.Status400BadRequest);
         
         var user = new ApplicationUser  
@@ -70,7 +67,7 @@ public sealed class AccountService : IAccountService
         return Guid.Parse(user.Id);
     }
 
-    private async Task<bool> ExistByUserNameAsync(string userName)
+    public async Task<bool> ExistByUserNameAsync(string userName)
     {
         ApplicationUser? user = await _userManager.FindByNameAsync(userName);
 

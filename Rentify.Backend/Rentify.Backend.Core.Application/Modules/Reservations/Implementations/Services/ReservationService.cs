@@ -7,6 +7,8 @@ using Rentify.Backend.Core.Application.Modules.Vehicles.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Shared.Exceptions;
 using Rentify.Backend.Core.Application.Shared.UnitOfWork;
 using Rentify.Backend.Core.Domain.Entities;
+using Rentify.Backend.Core.Domain.Entities.Reservations;
+using Rentify.Backend.Core.Domain.Entities.Vehicles;
 using Rentify.Backend.Core.Domain.Enums;
 
 namespace Rentify.Backend.Core.Application.Modules.Reservations.Implementations.Services;

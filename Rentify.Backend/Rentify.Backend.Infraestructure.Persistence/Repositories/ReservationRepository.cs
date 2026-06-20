@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Repositories;
 using Rentify.Backend.Core.Domain.Entities;
+using Rentify.Backend.Core.Domain.Entities.Reservations;
 using Rentify.Backend.Core.Domain.Enums;
 using Rentify.Backend.Infraestructure.Persistence.Context;
 

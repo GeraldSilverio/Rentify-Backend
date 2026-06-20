@@ -4,11 +4,6 @@ using Microsoft.AspNetCore.Routing;
 using Rentify.Backend.Core.Application.Modules.Subscriptions.Commands.ValidateInactiveSubscriptions;
 using Rentify.Backend.Core.Application.Modules.Subscriptions.Queries.GetCurrentSubscription;
 using Rentify.Backend.Core.Application.Modules.Subscriptions.Queries.GetSubscriptionPlans;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Rentify.Backend.Core.Application.Modules.Secutiry
 {
