@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Rentify.Backend.Core.Application.Modules.Emails.Commands.ConfigureTenantEmail;
 using Rentify.Backend.Core.Application.Modules.Emails.Commands.CreateEmailTemplate;
 using Rentify.Backend.Core.Application.Modules.Emails.Commands.SendTemplateEmail;
@@ -20,17 +21,20 @@ namespace Rentify.Backend.Core.Application.Modules.Emails.Implementations.Servic
         private readonly ITenantEmailConfigurationRepository _tenantEmailConfigurationRepository;
         private readonly IEnumerable<IEmailProviderSender> _emailProviderSenders;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IConfiguration _config;
 
         public EmailService(
             ISystemEmailTemplateRepository emailTemplateRepository,
             ITenantEmailConfigurationRepository tenantEmailConfigurationRepository,
             IEnumerable<IEmailProviderSender> emailProviderSenders,
-            IUnitOfWork unitOfWork)
+            IUnitOfWork unitOfWork,
+            IConfiguration config)
         {
             _emailTemplateRepository = emailTemplateRepository;
             _tenantEmailConfigurationRepository = tenantEmailConfigurationRepository;
             _emailProviderSenders = emailProviderSenders;
             _unitOfWork = unitOfWork;
+            _config = config;
         }
 
         public async Task<Guid> CreateEmailTemplateAsync(CreateEmailTemplateCommand command, CancellationToken cancellationToken = default)
@@ -140,9 +144,9 @@ namespace Rentify.Backend.Core.Application.Modules.Emails.Implementations.Servic
 
             var messageId = await emailProviderSender.SendAsync(
                 new EmailProviderSendRequest(
-                    ReadFromConfiguration.GetValueFromConfig("RESEND_API_KEY"),
-                    ReadFromConfiguration.GetValueFromConfig("EMAIL_FROM"),
-                    ReadFromConfiguration.GetValueFromConfig("EMAIL_FROM_NAME"),
+                    tenantEmailConfiguration.ApiKey,
+                    tenantEmailConfiguration.FromEmail,
+                    tenantEmailConfiguration.FromName,
                     command.To,
                     subject,
                     htmlBody,
