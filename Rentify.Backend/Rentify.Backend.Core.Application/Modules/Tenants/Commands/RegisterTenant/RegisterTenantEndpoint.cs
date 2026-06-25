@@ -11,7 +11,7 @@ public static class RegisterTenantEndpoint
         this IEndpointRouteBuilder app)
     {
         app.MapPost(
-            "/api/v1/tenant/register-tenant",
+            "/api/v1/tenant",
             async (
                 RegisterTenantCommand command,
                 ISender sender) =>

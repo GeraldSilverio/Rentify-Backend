@@ -4,6 +4,6 @@ namespace Rentify.Backend.Core.Application.Modules.Tenants.Contracts.Services
 {
     public interface ITenantService
     {
-        Task<Guid> CreateTenantAsync(RegisterTenantCommand registerTenantCommand,CancellationToken cancellationToken);
+        Task<RegisterTenantResponse> CreateTenantAsync(RegisterTenantCommand registerTenantCommand,CancellationToken cancellationToken);
     }
 }

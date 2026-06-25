@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Identity;
-using Rentify.Backend.Core.Application.Shared.Security;
+using Rentify.Backend.Core.Application.Shared.Constants;
 using Rentify.Backend.Infraestructure.Identity.Entities;
 
 namespace Rentify.Backend.Infraestructure.Identity.Seeds

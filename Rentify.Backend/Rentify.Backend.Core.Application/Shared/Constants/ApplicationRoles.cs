@@ -1,4 +1,4 @@
-namespace Rentify.Backend.Core.Application.Shared.Security
+namespace Rentify.Backend.Core.Application.Shared.Constants
 {
     public static class ApplicationRoles
     {

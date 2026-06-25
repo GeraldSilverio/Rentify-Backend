@@ -5,7 +5,6 @@ namespace Rentify.Backend.Core.Application.Modules.Vehicles.Dtos;
 public sealed record VehicleListItemResponse(
     Guid Id,
     Guid TenantId,
-    Guid RentCarId,
     Guid VehicleModelId,
     string VehicleModelName,
     Guid VehicleBrandId,

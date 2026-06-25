@@ -39,11 +39,6 @@ public sealed class VehicleConfiguration : IEntityTypeConfiguration<Backend.Core
 
         builder.HasIndex(x => new { x.TenantId, x.Status });
 
-        builder.HasOne(x => x.RentCar)
-            .WithMany()
-            .HasForeignKey(x => x.RentCarId)
-            .OnDelete(DeleteBehavior.Restrict);
-
         builder.HasOne(x => x.VehicleModel)
             .WithMany()
             .HasForeignKey(x => x.VehicleModelId)

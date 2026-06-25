@@ -6,7 +6,6 @@ using Rentify.Backend.Core.Application.Modules.Customers.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Dashboard.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Emails.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Payments.Contracts.Repositories;
-using Rentify.Backend.Core.Application.Modules.RentCars.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Subscriptions.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Tenants.Contracts.Repositories;
@@ -48,7 +47,6 @@ namespace Rentify.Backend.Infraestructure.Persistence
             //Inyecciones de dependencias.
             services.AddScoped<ITenantRepository, TenantRepository>();
             services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
-            services.AddScoped<IRentCarRepository, RentCarRepository>();
             services.AddScoped<ISystemEmailTemplateRepository, SystemEmailTemplateRepository>();
             services.AddScoped<ITenantEmailConfigurationRepository, TenantEmailConfigurationRepository>();
 

@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Rentify.Backend.Core.Application.Shared.Security;
+using Rentify.Backend.Core.Application.Shared.Constants;
 using Rentify.Backend.Core.Domain.Settings;
 using Rentify.Backend.Infraestructure.Identity.Contracts.Services;
 using Rentify.Backend.Infraestructure.Identity.Entities;

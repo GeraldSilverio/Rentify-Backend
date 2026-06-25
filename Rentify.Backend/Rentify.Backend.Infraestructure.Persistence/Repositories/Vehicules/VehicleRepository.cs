@@ -78,7 +78,6 @@ public sealed class VehicleRepository : IVehicleRepository
             .Select(vehicle => new VehicleListItemResponse(
                 vehicle.Id,
                 vehicle.TenantId,
-                vehicle.RentCarId,
                 vehicle.VehicleModelId,
                 vehicle.VehicleModel.Name,
                 vehicle.VehicleModel.VehicleBrandId,

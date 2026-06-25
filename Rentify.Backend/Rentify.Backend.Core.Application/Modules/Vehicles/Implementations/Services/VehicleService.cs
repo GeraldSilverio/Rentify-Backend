@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Http;
-using Rentify.Backend.Core.Application.Modules.RentCars.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.BlockVehicleAvailability;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.ChangeVehicleStatus;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.CreateVehicle;
@@ -12,7 +11,6 @@ using Rentify.Backend.Core.Application.Modules.Vehicles.Contracts.Services;
 using Rentify.Backend.Core.Application.Shared.Exceptions;
 using Rentify.Backend.Core.Application.Shared.Storage;
 using Rentify.Backend.Core.Application.Shared.UnitOfWork;
-using Rentify.Backend.Core.Domain.Entities;
 using Rentify.Backend.Core.Domain.Entities.Vehicles;
 
 namespace Rentify.Backend.Core.Application.Modules.Vehicles.Implementations.Services;
@@ -23,35 +21,30 @@ public sealed class VehicleService : IVehicleService
     private const int MaxImagesPerVehicle = 5;
 
     private readonly IVehicleRepository _vehicleRepository;
-    private readonly IRentCarRepository _rentCarRepository;
     private readonly IFileStorageService _fileStorageService;
     private readonly IUnitOfWork _unitOfWork;
 
     public VehicleService(
         IVehicleRepository vehicleRepository,
-        IRentCarRepository rentCarRepository,
         IFileStorageService fileStorageService,
         IUnitOfWork unitOfWork)
     {
         _vehicleRepository = vehicleRepository;
-        _rentCarRepository = rentCarRepository;
         _fileStorageService = fileStorageService;
         _unitOfWork = unitOfWork;
     }
 
     public async Task<Guid> CreateAsync(CreateVehicleCommand command, CancellationToken cancellationToken = default)
     {
-        RentCar rentCar = await GetRentCarOrThrowAsync(command.RentCarId, command.TenantId, cancellationToken);
-
         if (await _vehicleRepository.PlateNumberExistsAsync(command.TenantId, command.PlateNumber, cancellationToken: cancellationToken))
             throw new ApiException($"Vehicle with plate number '{command.PlateNumber}' already exists for this tenant.", StatusCodes.Status400BadRequest);
 
         if (await _vehicleRepository.VinExistsAsync(command.TenantId, command.Vin, cancellationToken: cancellationToken))
-            throw new ApiException($"Vehicle with VIN '{command.Vin}' already exists for this tenant.", StatusCodes.Status400BadRequest);
+            throw new ApiException($"Vehicle with VI" +
+                $"N '{command.Vin}' already exists for this tenant.", StatusCodes.Status400BadRequest);
 
         Vehicle vehicle = Vehicle.Create(
             command.TenantId,
-            rentCar.Id,
             command.VehicleModelId,
             command.VehicleTypeId,
             command.Year,
@@ -218,18 +211,6 @@ public sealed class VehicleService : IVehicleService
         return await _vehicleRepository.GetByIdWithImagesAsync(tenantId, vehicleId, cancellationToken)
                ?? throw new ApiException("Vehicle not found.", StatusCodes.Status404NotFound);
     }
-
-    private async Task<RentCar> GetRentCarOrThrowAsync(Guid rentCarId, Guid tenantId, CancellationToken cancellationToken)
-    {
-        RentCar rentCar = await _rentCarRepository.GetByIdAsync(rentCarId, cancellationToken)
-                          ?? throw new ApiException("Rent car profile not found.", StatusCodes.Status404NotFound);
-
-        if (rentCar.TenantId != tenantId)
-            throw new ApiException("Rent car profile not found for this tenant.", StatusCodes.Status404NotFound);
-
-        return rentCar;
-    }
-
     private async Task DeleteUploadedFilesAsync(IEnumerable<StoredFileResult> uploadedFiles)
     {
         foreach (StoredFileResult uploadedFile in uploadedFiles)

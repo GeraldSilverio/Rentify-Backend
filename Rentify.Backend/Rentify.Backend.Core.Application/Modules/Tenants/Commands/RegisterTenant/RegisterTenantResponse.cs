@@ -5,5 +5,4 @@ public sealed record RegisterTenantResponse(
     Guid SubscriptionId,
     Guid OwnerUserId,
     DateTime SubscriptionExpiresAt,
-    DateTime? TrialEndsAt,
-    string Message);
+    DateTime? TrialEndsAt);

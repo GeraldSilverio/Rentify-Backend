@@ -7,7 +7,7 @@ using Rentify.Backend.Core.Application.Modules.Emails.Dtos;
 using Rentify.Backend.Core.Application.Shared.Exceptions;
 using Rentify.Backend.Core.Domain.Enums;
 
-namespace Rentify.Backend.Shared.Emailing;
+namespace Rentify.Backend.Infraestructure.Shared.Emailing;
 
 public sealed class ResendEmailProviderSender : IEmailProviderSender
 {

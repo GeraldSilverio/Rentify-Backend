@@ -7,6 +7,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <Compile Remove="Modules\RentCars\**" />
+      <EmbeddedResource Remove="Modules\RentCars\**" />
+      <None Remove="Modules\RentCars\**" />
+    </ItemGroup>
+
+    <ItemGroup>
       <PackageReference Include="FluentValidation" Version="12.1.1" />
       <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
       <PackageReference Include="MediatR" Version="14.1.0" />
@@ -19,7 +25,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Modules\RentCars\Queries\" />
       <Folder Include="Modules\Secutiry\Dtos\Request\" />
     </ItemGroup>
 

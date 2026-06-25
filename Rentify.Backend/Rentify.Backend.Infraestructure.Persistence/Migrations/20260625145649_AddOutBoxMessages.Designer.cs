@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Rentify.Backend.Infraestructure.Persistence.Context;
@@ -11,9 +12,11 @@ using Rentify.Backend.Infraestructure.Persistence.Context;
 namespace Rentify.Backend.Infraestructure.Persistence.Migrations
 {
     [DbContext(typeof(RentifyContext))]
-    partial class RentifyContextModelSnapshot : ModelSnapshot
+    [Migration("20260625145649_AddOutBoxMessages")]
+    partial class AddOutBoxMessages
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

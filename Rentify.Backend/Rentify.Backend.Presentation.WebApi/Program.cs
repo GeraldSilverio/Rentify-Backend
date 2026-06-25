@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+using Hangfire;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Rentify.Backend.Core.Application;
@@ -6,8 +6,6 @@ using Rentify.Backend.Core.Application.Modules.Customers;
 using Rentify.Backend.Core.Application.Modules.Dashboard;
 using Rentify.Backend.Core.Application.Modules.Emails;
 using Rentify.Backend.Core.Application.Modules.Payments;
-using Rentify.Backend.Core.Application.Modules.RentCars.Commands.UpdateRentCar;
-using Rentify.Backend.Core.Application.Modules.RentCars.Commands.UploadRentCarLogo;
 using Rentify.Backend.Core.Application.Modules.Reservations;
 using Rentify.Backend.Core.Application.Modules.Secutiry;
 using Rentify.Backend.Core.Application.Modules.Tenants.Commands.RegisterTenant;
@@ -23,10 +21,12 @@ using Rentify.Backend.Infraestructure.Identity;
 using Rentify.Backend.Infraestructure.Identity.Entities;
 using Rentify.Backend.Infraestructure.Identity.Seeds;
 using Rentify.Backend.Infraestructure.Persistence;
+using Rentify.Backend.Infraestructure.Shared;
 using Rentify.Backend.Presentation.Endpoints;
 using Rentify.Backend.Presentation.WebApi.Extensions;
 using Rentify.Backend.Shared;
 using Rentify.Backend.Shared.Configuration;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 EnvFileLoader.LoadFromNearest(builder.Environment.ContentRootPath);
@@ -83,8 +83,6 @@ app.MapSubscriptionEndpoints();
 var securedEndpoints = app.MapGroup(string.Empty)
     .RequireAuthorization();
 
-securedEndpoints.MapUpdateRentCarEndpoints();
-securedEndpoints.MapUploadRentCarLogoEndpoints();
 securedEndpoints.MapCreateVehicleEndpoints();
 securedEndpoints.MapUpdateVehicleEndpoints();
 securedEndpoints.MapDeleteVehicleEndpoints();
@@ -107,7 +105,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseHangfireDashboard("/hangfire");
+app.UseRentifyHangfireJobs();
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseAuthentication();

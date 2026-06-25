@@ -11,8 +11,6 @@ using Rentify.Backend.Core.Application.Modules.Customers.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Customers.Implementations.Services;
 using Rentify.Backend.Core.Application.Modules.Payments.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Payments.Implementations.Services;
-using Rentify.Backend.Core.Application.Modules.RentCars.Contracts.Services;
-using Rentify.Backend.Core.Application.Modules.RentCars.Implementations.Services;
 using Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Reservations.Implementations.Services;
 using Rentify.Backend.Core.Application.Modules.Subscriptions.Contracts.Services;
@@ -51,7 +49,6 @@ public static class ServiceRegistration
             typeof(IPipelineBehavior<,>),
             typeof(ValidationBehavior<,>));
 
-        services.AddScoped<IRentCarService, RentCarService>();
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<ISubscriptionService, SubscriptionService>();
         services.AddScoped<IVehicleService, VehicleService>();

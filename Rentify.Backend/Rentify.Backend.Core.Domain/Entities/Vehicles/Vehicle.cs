@@ -10,7 +10,6 @@ public sealed class Vehicle : BaseEntity
 
     public Guid Id { get; private set; }
     public Guid TenantId { get; private set; }
-    public Guid RentCarId { get; private set; }
     public Guid VehicleModelId { get; private set; }
     public Guid VehicleTypeId { get; private set; }
     public int Year { get; private set; }
@@ -18,8 +17,7 @@ public sealed class Vehicle : BaseEntity
     public string Vin { get; private set; } = null!;
     public string Color { get; private set; } = null!;
     public decimal DailyRate { get; private set; }
-    public VehicleStatus Status { get; private set; }
-    public RentCar RentCar { get; private set; } = null!;
+    public VehicleStatus Status { get; private set; }           
     public VehicleModel VehicleModel { get; private set; } = null!;
     public VehicleType VehicleType { get; private set; } = null!;
     public IReadOnlyCollection<VehicleImage> Images => _images.AsReadOnly();
@@ -32,7 +30,6 @@ public sealed class Vehicle : BaseEntity
     private Vehicle(
         Guid id,
         Guid tenantId,
-        Guid rentCarId,
         Guid vehicleModelId,
         Guid vehicleTypeId,
         int year,
@@ -44,7 +41,6 @@ public sealed class Vehicle : BaseEntity
     {
         Id = id;
         TenantId = tenantId;
-        RentCarId = rentCarId;
         VehicleModelId = vehicleModelId;
         VehicleTypeId = vehicleTypeId;
         Year = year;
@@ -62,7 +58,6 @@ public sealed class Vehicle : BaseEntity
 
     public static Vehicle Create(
         Guid tenantId,
-        Guid rentCarId,
         Guid vehicleModelId,
         Guid vehicleTypeId,
         int year,
@@ -72,13 +67,12 @@ public sealed class Vehicle : BaseEntity
         decimal dailyRate,
         string createdBy)
     {
-        ValidateIds(tenantId, rentCarId, vehicleModelId, vehicleTypeId);
+        ValidateIds(tenantId,vehicleModelId, vehicleTypeId);
         Validate(year, plateNumber, vin, color, dailyRate);
 
         return new Vehicle(
             Guid.NewGuid(),
             tenantId,
-            rentCarId,
             vehicleModelId,
             vehicleTypeId,
             year,
@@ -187,15 +181,11 @@ public sealed class Vehicle : BaseEntity
 
     private static void ValidateIds(
         Guid tenantId,
-        Guid rentCarId,
         Guid vehicleModelId,
         Guid vehicleTypeId)
     {
         if (tenantId == Guid.Empty)
             throw new ArgumentException("Tenant Id is required.");
-
-        if (rentCarId == Guid.Empty)
-            throw new ArgumentException("Rent car Id is required.");
 
         if (vehicleModelId == Guid.Empty)
             throw new ArgumentException("Vehicle model Id is required.");
