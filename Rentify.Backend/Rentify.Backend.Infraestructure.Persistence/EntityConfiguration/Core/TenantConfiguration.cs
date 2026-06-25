@@ -16,20 +16,19 @@ namespace Rentify.Backend.Infraestructure.Persistence.EntityConfiguration.Core
                 .IsRequired()
                 .HasMaxLength(150);
 
-            builder.Property(x => x.Slug)
-                .IsRequired()
-                .HasMaxLength(100);
+            builder.Property(x => x.LegalName)
+               .IsRequired()
+               .HasMaxLength(150);
 
-            builder.HasIndex(x => x.Slug)
+            builder.Property(x => x.Rnc)
+                .IsRequired()
+                .HasMaxLength(15);
+
+            builder.HasIndex(x => x.Rnc)
                 .IsUnique();
 
             builder.Property(x => x.IsActive)
                 .IsRequired();
-
-            builder.Property(x => x.IsSuspended)
-                .IsRequired();
-
-            builder.Property(x => x.SuspendedAt);
 
             // Audit
             builder.Property(x => x.CreatedBy)
@@ -46,11 +45,11 @@ namespace Rentify.Backend.Infraestructure.Persistence.EntityConfiguration.Core
             builder.Property(x => x.ModifiedDate)
                 .IsRequired();
 
-            // Relationships
-            builder.HasOne(x => x.Settings)
-                .WithOne(x => x.Tenant)
-                .HasForeignKey<TenantSettings>(x => x.TenantId)
-                .OnDelete(DeleteBehavior.Cascade);
+            builder.Property(x => x.BusinessModel)
+                .HasConversion<int>()
+                .IsRequired();
+
+
         }
     }
 }

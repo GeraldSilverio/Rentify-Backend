@@ -13,18 +13,18 @@ public static class UploadVehicleImageEndpoint
         app.MapPost("/api/v1/tenants/{tenantId:guid}/vehicles/{vehicleId:guid}/images", async (
             Guid tenantId,
             Guid vehicleId,
-            IFormFile image,
+            IFormFileCollection images,
             [FromForm] bool isPrimary,
             [FromForm] string createdBy,
             ISender sender,
             CancellationToken cancellationToken) =>
         {
             var response = await sender.Send(
-                new UploadVehicleImageCommand(tenantId, vehicleId, image, isPrimary, createdBy),
+                new UploadVehicleImageCommand(tenantId, vehicleId, images.ToList(), isPrimary, createdBy),
                 cancellationToken);
 
             return Results.Created(
-                $"/api/v1/tenants/{tenantId}/vehicles/{vehicleId}/images/{response.Value}",
+                $"/api/v1/tenants/{tenantId}/vehicles/{vehicleId}/images",
                 response);
         })
         .DisableAntiforgery()

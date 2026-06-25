@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using Rentify.Backend.Core.Application.Modules.Tenants.Commands.RegisterTenant;
 
 namespace Rentify.Backend.Core.Application.Modules.Tenants.Commands.RegisterTenant;
 
@@ -12,23 +11,23 @@ public sealed class RegisterTenantValidator
             .NotEmpty()
             .MaximumLength(150);
 
-        RuleFor(x => x.OwnerFullName)
+        RuleFor(x => x.UserInfomation.FullName)
             .NotEmpty().WithMessage("OwnerFullName is required")
             .MaximumLength(150);
 
-        RuleFor(x => x.OwnerUserName)
+        RuleFor(x => x.UserInfomation.UserName)
             .NotEmpty().WithMessage("OwnerUserName is required")
             .MaximumLength(100);
 
-        RuleFor(x => x.OwnerEmail)
+        RuleFor(x => x.UserInfomation.ContactInformation.Email)
             .NotEmpty().WithMessage("OwnerEmail is required")
             .EmailAddress().WithMessage("Please enter a valid owner email address.");
 
-        RuleFor(x => x.OwnerPhoneNumber)
+        RuleFor(x => x.UserInfomation.ContactInformation.PhoneNumber)
             .NotEmpty().WithMessage("OwnerPhoneNumber is required")
             .MaximumLength(30);
 
-        RuleFor(x => x.OwnerPassword)
+        RuleFor(x => x.UserInfomation.Password)
             .NotEmpty().WithMessage("OwnerPassword is required")
             .MinimumLength(8).WithMessage("La contraseña debe tener minimo 8 caracteres")
             .Matches("[A-Z]").WithMessage("La contraseña debe tener minimo 1 caracter en mayuscula.")

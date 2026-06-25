@@ -13,17 +13,6 @@ public sealed class TenantRepository : ITenantRepository
     {
         _context = context;
     }
-
-    public async Task<bool> SlugExistsAsync(
-        string slug,
-        CancellationToken cancellationToken = default)
-    {
-        return await _context.Tenants
-            .AnyAsync(
-                x => x.Slug == slug,
-                cancellationToken);
-    }
-
     public async Task AddAsync(
         Tenant tenant,
         CancellationToken cancellationToken = default)

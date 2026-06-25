@@ -13,7 +13,6 @@ namespace Rentify.Backend.Infraestructure.Persistence.Repositories.Core
         {
             try
             {
-
                 return await _rentifyContext.SubscriptionPlans.OrderBy(x=>x.Price)
                     .Where(x => x.IsActive && !x.IsDeleted).
                     Select(x => new GetSubscriptionPlanResponse(
@@ -32,7 +31,6 @@ namespace Rentify.Backend.Infraestructure.Persistence.Repositories.Core
                     x.WhiteLabelEnabled))
                     .AsNoTracking()
                     .ToListAsync();
-
             }
             catch (Exception ex)
             {

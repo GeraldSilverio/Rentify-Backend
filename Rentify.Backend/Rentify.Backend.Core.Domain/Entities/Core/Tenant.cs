@@ -1,81 +1,127 @@
 ﻿using Rentify.Backend.Core.Domain.Commons;
+using Rentify.Backend.Core.Domain.Enums;
 
-namespace Rentify.Backend.Core.Domain.Entities.Core
+namespace Rentify.Backend.Core.Domain.Entities.Core;
+
+public sealed class Tenant : BaseEntity
 {
+    public Guid Id { get; private set; }
 
-    public class Tenant : BaseEntity
+    public string Name { get; private set; } = null!;
+
+    public string? LegalName { get; private set; }
+
+    public string? Rnc { get; private set; }
+
+    public BusinessModel BusinessModel { get; private set; }
+
+    // EF
+    private Tenant()
     {
-        public Guid Id { get; private set; }
+    }
 
-        public string Name { get; private set; }
+    private Tenant(
+        Guid id,
+        string name,
+        string? legalName,
+        string? rnc,
+        BusinessModel businessModel,
+        string createdBy)
+    {
+        Id = id;
+        Name = NormalizeName(name);
+        LegalName = string.IsNullOrWhiteSpace(legalName) ? null : legalName.Trim();
+        Rnc = string.IsNullOrWhiteSpace(rnc) ? null : NormalizeRnc(rnc);
+        BusinessModel = businessModel;
 
-        public string Slug { get; private set; }
+        IsActive = true;
+        IsDeleted = false;
+        CreatedDate = DateTime.UtcNow;
+        ModifiedDate = CreatedDate;
+        CreatedBy = createdBy;
+        ModifiedBy = createdBy;
+    }
 
-        public bool IsSuspended { get; private set; }
+    public static Tenant Create(
+        string name,
+        string? legalName,
+        string? rnc,
+        BusinessModel businessModel,
+        string createdBy)
+    {
+        Validate(name, businessModel, createdBy);
 
-        public DateTime? SuspendedAt { get; private set; }
+        return new Tenant(
+            Guid.NewGuid(),
+            name,
+            legalName,
+            rnc,
+            businessModel,
+            createdBy);
+    }
 
-        public TenantSettings Settings { get; private set; }
+    public void Update(
+        string name,
+        string? legalName,
+        string? rnc,
+        BusinessModel businessModel,
+        string modifiedBy)
+    {
+        Validate(name, businessModel, modifiedBy);
 
-        // EF
-        private Tenant()
-        {
-        }
+        Name = NormalizeName(name);
+        LegalName = string.IsNullOrWhiteSpace(legalName) ? null : legalName.Trim();
+        Rnc = string.IsNullOrWhiteSpace(rnc) ? null : NormalizeRnc(rnc);
+        BusinessModel = businessModel;
 
-        private Tenant(
-            Guid id,
-            string name,
-            string slug,
-            string createdBy)
-        {
-            Id = id;
-            Name = name;
-            Slug = slug;
-            IsActive = true;
-            IsSuspended = false;
+        ModifiedBy = modifiedBy;
+        ModifiedDate = DateTime.UtcNow;
+    }
 
-            CreatedDate = DateTime.UtcNow;
-            CreatedBy = createdBy;
-            ModifiedBy = createdBy;
-            ModifiedDate = CreatedDate;
-        }
+    public void Suspend(string modifiedBy)
+    {
+        IsActive = false;
+        ModifiedBy = modifiedBy;
+        ModifiedDate = DateTime.UtcNow;
+    }
 
-        public static Tenant Create(
-            string name,
-            string slug,
-            string createdBy)
-        {
-            Validate(name, slug);
+    public void Activate(string modifiedBy)
+    {
+        IsActive = true;
+        ModifiedBy = modifiedBy;
+        ModifiedDate = DateTime.UtcNow;
+    }
 
-            return new Tenant(
-                Guid.NewGuid(),
-                name.Trim(),
-                slug.Trim().ToLower(),
-                createdBy);
-        }
+    public void Delete(string modifiedBy)
+    {
+        IsDeleted = true;
+        IsActive = false;
+        ModifiedBy = modifiedBy;
+        ModifiedDate = DateTime.UtcNow;
+    }
 
-        public void Suspend(string modifiedBy)
-        {
-            IsSuspended = true;
-            SuspendedAt = DateTime.UtcNow;
-            ModifiedBy = modifiedBy;
-            ModifiedDate = DateTime.UtcNow;
-        }
+    private static void Validate(string name, BusinessModel businessModel, string user)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException("Tenant name is required.");
 
-        public void Activate(string modifiedBy)
-        {
-            IsSuspended = false;
-            SuspendedAt = null;
-            ModifiedBy = modifiedBy;
-            ModifiedDate = DateTime.UtcNow;
-        }
-        private static void Validate(string name, string slug)
-        {
-            if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException("Tenant name is required.");
+        if (name.Trim().Length > 150)
+            throw new ArgumentException("Tenant name is too long.");
 
-            if (string.IsNullOrWhiteSpace(slug))
-                throw new ArgumentException("Tenant slug is required.");
-        }
+        if (!Enum.IsDefined(typeof(BusinessModel), businessModel))
+            throw new ArgumentException("Invalid business model.");
+
+        if (string.IsNullOrWhiteSpace(user))
+            throw new ArgumentException("User is required.");
+    }
+
+    private static string NormalizeName(string name)
+    {
+        return name.Trim();
+    }
+
+    private static string NormalizeRnc(string rnc)
+    {
+        return rnc.Trim().Replace("-", string.Empty);
     }
 }

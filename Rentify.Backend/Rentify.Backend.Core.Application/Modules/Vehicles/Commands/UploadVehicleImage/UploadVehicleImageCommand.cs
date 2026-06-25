@@ -7,6 +7,6 @@ namespace Rentify.Backend.Core.Application.Modules.Vehicles.Commands.UploadVehic
 public sealed record UploadVehicleImageCommand(
     Guid TenantId,
     Guid VehicleId,
-    IFormFile Image,
+    IReadOnlyCollection<IFormFile> Images,
     bool IsPrimary,
-    string CreatedBy) : IRequest<ResultReponse<Guid>>;
+    string CreatedBy) : IRequest<ResultReponse<IReadOnlyCollection<VehicleImageResponse>>>;

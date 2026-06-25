@@ -15,7 +15,7 @@ namespace Rentify.Backend.Core.Application.Modules.Secutiry.Commands.ResetPasswo
                     var response = await sender.Send(command);
 
                     return Results.Ok(response);
-                }).WithTags("Auth");
+                }).WithTags("Authentication");
 
             return app;
         }

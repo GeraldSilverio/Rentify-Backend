@@ -16,11 +16,5 @@ public sealed class VehicleTypeConfiguration : IEntityTypeConfiguration<VehicleT
         builder.Property(x => x.Name)
             .IsRequired()
             .HasMaxLength(100);
-
-        builder.Property(x => x.Description)
-            .HasMaxLength(300);
-
-        builder.HasIndex(x => new { x.TenantId, x.Name })
-            .IsUnique();
     }
 }

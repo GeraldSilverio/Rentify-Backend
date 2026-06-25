@@ -14,8 +14,8 @@ namespace Rentify.Backend.Core.Application.Modules.Secutiry
         public static IEndpointRouteBuilder MapAuthEndpoints(
             this IEndpointRouteBuilder app)
         {
-            var auth = app.MapGroup("/api/v1/auth")
-                .WithTags("Auth");
+            var auth = app.MapGroup("/api/v1/authentication")
+                .WithTags("Authentication");
             auth.MapLogin();
             auth.MapForgotPassword();
             auth.MapResetPassword();

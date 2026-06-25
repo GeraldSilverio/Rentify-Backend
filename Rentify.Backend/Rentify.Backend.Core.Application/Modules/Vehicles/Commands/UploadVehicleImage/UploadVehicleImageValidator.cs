@@ -11,6 +11,7 @@ public sealed class UploadVehicleImageValidator : AbstractValidator<UploadVehicl
         "image/webp"
     ];
 
+    private const int MaxImagesPerRequest = 5;
     private const long MaxImageSizeInBytes = 5 * 1024 * 1024;
 
     public UploadVehicleImageValidator()
@@ -18,17 +19,21 @@ public sealed class UploadVehicleImageValidator : AbstractValidator<UploadVehicl
         RuleFor(x => x.TenantId).NotEmpty();
         RuleFor(x => x.VehicleId).NotEmpty();
         RuleFor(x => x.CreatedBy).NotEmpty();
-        RuleFor(x => x.Image).NotNull().WithMessage("Image is required.");
+        RuleFor(x => x.Images)
+            .NotEmpty()
+            .WithMessage("At least one image is required.")
+            .Must(images => images.Count <= MaxImagesPerRequest)
+            .WithMessage($"A maximum of {MaxImagesPerRequest} images can be uploaded per request.");
 
-        When(x => x.Image is not null, () =>
+        RuleForEach(x => x.Images).ChildRules(image =>
         {
-            RuleFor(x => x.Image.Length)
+            image.RuleFor(x => x.Length)
                 .GreaterThan(0)
                 .WithMessage("Image is required.")
                 .LessThanOrEqualTo(MaxImageSizeInBytes)
                 .WithMessage("Image cannot exceed 5 MB.");
 
-            RuleFor(x => x.Image.ContentType)
+            image.RuleFor(x => x.ContentType)
                 .Must(contentType => AllowedContentTypes.Contains(contentType))
                 .WithMessage("Only JPEG, PNG and WebP images are allowed.");
         });

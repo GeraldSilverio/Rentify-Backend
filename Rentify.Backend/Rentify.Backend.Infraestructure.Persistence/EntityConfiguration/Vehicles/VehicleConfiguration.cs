@@ -60,6 +60,7 @@ public sealed class VehicleConfiguration : IEntityTypeConfiguration<Backend.Core
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.Navigation(x => x.Images)
+            .HasField("_images")
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.HasMany(x => x.UnavailableDates)

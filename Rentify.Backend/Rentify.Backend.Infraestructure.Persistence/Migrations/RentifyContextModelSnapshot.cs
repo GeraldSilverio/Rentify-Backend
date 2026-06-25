@@ -22,106 +22,6 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Brand", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("ModifiedBy")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("Brands", (string)null);
-                });
-
-            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Core.EmailTemplate", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("HtmlBody")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("ModifiedBy")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.Property<string>("Subject")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)");
-
-                    b.Property<Guid?>("TenantId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("TextBody")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TenantId", "Code")
-                        .IsUnique();
-
-                    b.ToTable("EmailTemplates", (string)null);
-                });
-
             modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Core.Subscription", b =>
                 {
                     b.Property<Guid>("Id")
@@ -338,6 +238,9 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<int>("BusinessModel")
+                        .HasColumnType("integer");
+
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -352,8 +255,10 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
-                    b.Property<bool>("IsSuspended")
-                        .HasColumnType("boolean");
+                    b.Property<string>("LegalName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
 
                     b.Property<string>("ModifiedBy")
                         .IsRequired()
@@ -368,17 +273,14 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
 
-                    b.Property<string>("Slug")
+                    b.Property<string>("Rnc")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<DateTime?>("SuspendedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasMaxLength(15)
+                        .HasColumnType("character varying(15)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Slug")
+                    b.HasIndex("Rnc")
                         .IsUnique();
 
                     b.ToTable("Tenants", (string)null);
@@ -449,6 +351,7 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
             modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Core.TenantSettings", b =>
                 {
                     b.Property<Guid>("TenantId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<bool>("AllowOnlineReservations")
@@ -510,6 +413,9 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
+                    b.Property<Guid>("TenantId1")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("TimeZone")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -517,10 +423,12 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
 
                     b.HasKey("TenantId");
 
+                    b.HasIndex("TenantId1");
+
                     b.ToTable("TenantSettings", (string)null);
                 });
 
-            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Customer", b =>
+            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Customers.Customer", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -589,7 +497,7 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                     b.ToTable("Customers", (string)null);
                 });
 
-            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.CustomerDocument", b =>
+            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Customers.CustomerDocument", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -653,7 +561,7 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                     b.ToTable("CustomerDocuments", (string)null);
                 });
 
-            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Invoice", b =>
+            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Payments.Invoice", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -713,7 +621,7 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                     b.ToTable("Invoices", (string)null);
                 });
 
-            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Payment", b =>
+            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Payments.Payment", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -825,7 +733,7 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                     b.ToTable("RentCars", (string)null);
                 });
 
-            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Reservation", b =>
+            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Reservations.Reservation", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -897,7 +805,7 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                     b.ToTable("Reservations", (string)null);
                 });
 
-            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.ReservationPayment", b =>
+            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Reservations.ReservationPayment", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -952,7 +860,7 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                     b.ToTable("ReservationPayments", (string)null);
                 });
 
-            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.ReservationVehicle", b =>
+            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Reservations.ReservationVehicle", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1010,7 +918,7 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                     b.ToTable("ReservationVehicles", (string)null);
                 });
 
-            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Vehicle", b =>
+            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Vehicles.Vehicle", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1094,7 +1002,7 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                     b.ToTable("Vehicles", (string)null);
                 });
 
-            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.VehicleBrand", b =>
+            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Vehicles.VehicleBrand", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1133,7 +1041,7 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                     b.ToTable("VehicleBrands", (string)null);
                 });
 
-            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.VehicleImage", b =>
+            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Vehicles.VehicleImage", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1190,7 +1098,7 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                     b.ToTable("VehicleImages", (string)null);
                 });
 
-            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.VehicleModel", b =>
+            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Vehicles.VehicleModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1232,7 +1140,7 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                     b.ToTable("VehicleModels", (string)null);
                 });
 
-            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.VehicleType", b =>
+            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Vehicles.VehicleType", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1244,10 +1152,6 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(300)
-                        .HasColumnType("character varying(300)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
@@ -1267,18 +1171,12 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("TenantId", "Name")
-                        .IsUnique();
 
                     b.ToTable("VehicleTypes", (string)null);
                 });
 
-            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.VehicleUnavailableDate", b =>
+            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Vehicles.VehicleUnavailableDate", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1363,17 +1261,17 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
             modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Core.TenantSettings", b =>
                 {
                     b.HasOne("Rentify.Backend.Core.Domain.Entities.Core.Tenant", "Tenant")
-                        .WithOne("Settings")
-                        .HasForeignKey("Rentify.Backend.Core.Domain.Entities.Core.TenantSettings", "TenantId")
+                        .WithMany()
+                        .HasForeignKey("TenantId1")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Tenant");
                 });
 
-            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.CustomerDocument", b =>
+            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Customers.CustomerDocument", b =>
                 {
-                    b.HasOne("Rentify.Backend.Core.Domain.Entities.Customer", "Customer")
+                    b.HasOne("Rentify.Backend.Core.Domain.Entities.Customers.Customer", "Customer")
                         .WithMany("Documents")
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1382,20 +1280,20 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                     b.Navigation("Customer");
                 });
 
-            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Invoice", b =>
+            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Payments.Invoice", b =>
                 {
-                    b.HasOne("Rentify.Backend.Core.Domain.Entities.Payment", "Payment")
+                    b.HasOne("Rentify.Backend.Core.Domain.Entities.Payments.Payment", "Payment")
                         .WithOne("Invoice")
-                        .HasForeignKey("Rentify.Backend.Core.Domain.Entities.Invoice", "PaymentId")
+                        .HasForeignKey("Rentify.Backend.Core.Domain.Entities.Payments.Invoice", "PaymentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Payment");
                 });
 
-            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Payment", b =>
+            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Payments.Payment", b =>
                 {
-                    b.HasOne("Rentify.Backend.Core.Domain.Entities.Reservation", "Reservation")
+                    b.HasOne("Rentify.Backend.Core.Domain.Entities.Reservations.Reservation", "Reservation")
                         .WithMany()
                         .HasForeignKey("ReservationId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -1516,9 +1414,9 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Reservation", b =>
+            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Reservations.Reservation", b =>
                 {
-                    b.HasOne("Rentify.Backend.Core.Domain.Entities.Customer", "Customer")
+                    b.HasOne("Rentify.Backend.Core.Domain.Entities.Customers.Customer", "Customer")
                         .WithMany()
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -1527,9 +1425,9 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                     b.Navigation("Customer");
                 });
 
-            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.ReservationPayment", b =>
+            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Reservations.ReservationPayment", b =>
                 {
-                    b.HasOne("Rentify.Backend.Core.Domain.Entities.Reservation", "Reservation")
+                    b.HasOne("Rentify.Backend.Core.Domain.Entities.Reservations.Reservation", "Reservation")
                         .WithMany("Payments")
                         .HasForeignKey("ReservationId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1538,15 +1436,15 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                     b.Navigation("Reservation");
                 });
 
-            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.ReservationVehicle", b =>
+            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Reservations.ReservationVehicle", b =>
                 {
-                    b.HasOne("Rentify.Backend.Core.Domain.Entities.Reservation", "Reservation")
+                    b.HasOne("Rentify.Backend.Core.Domain.Entities.Reservations.Reservation", "Reservation")
                         .WithMany("Vehicles")
                         .HasForeignKey("ReservationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Rentify.Backend.Core.Domain.Entities.Vehicle", "Vehicle")
+                    b.HasOne("Rentify.Backend.Core.Domain.Entities.Vehicles.Vehicle", "Vehicle")
                         .WithMany()
                         .HasForeignKey("VehicleId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -1557,7 +1455,7 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                     b.Navigation("Vehicle");
                 });
 
-            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Vehicle", b =>
+            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Vehicles.Vehicle", b =>
                 {
                     b.HasOne("Rentify.Backend.Core.Domain.Entities.RentCar", "RentCar")
                         .WithMany()
@@ -1565,13 +1463,13 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Rentify.Backend.Core.Domain.Entities.VehicleModel", "VehicleModel")
+                    b.HasOne("Rentify.Backend.Core.Domain.Entities.Vehicles.VehicleModel", "VehicleModel")
                         .WithMany()
                         .HasForeignKey("VehicleModelId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Rentify.Backend.Core.Domain.Entities.VehicleType", "VehicleType")
+                    b.HasOne("Rentify.Backend.Core.Domain.Entities.Vehicles.VehicleType", "VehicleType")
                         .WithMany()
                         .HasForeignKey("VehicleTypeId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -1584,9 +1482,9 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                     b.Navigation("VehicleType");
                 });
 
-            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.VehicleImage", b =>
+            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Vehicles.VehicleImage", b =>
                 {
-                    b.HasOne("Rentify.Backend.Core.Domain.Entities.Vehicle", "Vehicle")
+                    b.HasOne("Rentify.Backend.Core.Domain.Entities.Vehicles.Vehicle", "Vehicle")
                         .WithMany("Images")
                         .HasForeignKey("VehicleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1595,9 +1493,9 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                     b.Navigation("Vehicle");
                 });
 
-            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.VehicleModel", b =>
+            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Vehicles.VehicleModel", b =>
                 {
-                    b.HasOne("Rentify.Backend.Core.Domain.Entities.VehicleBrand", "VehicleBrand")
+                    b.HasOne("Rentify.Backend.Core.Domain.Entities.Vehicles.VehicleBrand", "VehicleBrand")
                         .WithMany("Models")
                         .HasForeignKey("VehicleBrandId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -1606,9 +1504,9 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                     b.Navigation("VehicleBrand");
                 });
 
-            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.VehicleUnavailableDate", b =>
+            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Vehicles.VehicleUnavailableDate", b =>
                 {
-                    b.HasOne("Rentify.Backend.Core.Domain.Entities.Vehicle", "Vehicle")
+                    b.HasOne("Rentify.Backend.Core.Domain.Entities.Vehicles.Vehicle", "Vehicle")
                         .WithMany("UnavailableDates")
                         .HasForeignKey("VehicleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1617,38 +1515,32 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                     b.Navigation("Vehicle");
                 });
 
-            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Core.Tenant", b =>
-                {
-                    b.Navigation("Settings")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Customer", b =>
+            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Customers.Customer", b =>
                 {
                     b.Navigation("Documents");
                 });
 
-            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Payment", b =>
+            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Payments.Payment", b =>
                 {
                     b.Navigation("Invoice")
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Reservation", b =>
+            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Reservations.Reservation", b =>
                 {
                     b.Navigation("Payments");
 
                     b.Navigation("Vehicles");
                 });
 
-            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Vehicle", b =>
+            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Vehicles.Vehicle", b =>
                 {
                     b.Navigation("Images");
 
                     b.Navigation("UnavailableDates");
                 });
 
-            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.VehicleBrand", b =>
+            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Vehicles.VehicleBrand", b =>
                 {
                     b.Navigation("Models");
                 });

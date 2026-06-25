@@ -4,10 +4,6 @@ namespace Rentify.Backend.Core.Application.Modules.Tenants.Contracts.Repositorie
 
 public interface ITenantRepository
 {
-    Task<bool> SlugExistsAsync(
-        string slug,
-        CancellationToken cancellationToken = default);
-
     Task AddAsync(
         Tenant tenant,
         CancellationToken cancellationToken = default);

@@ -5,6 +5,7 @@ using Rentify.Backend.Core.Application.Modules.Tenants.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Tenants.Contracts.Services;
 using Rentify.Backend.Core.Application.Shared.Exceptions;
 using Rentify.Backend.Core.Domain.Entities.Core;
+using Rentify.Backend.Core.Domain.Enums;
 
 namespace Rentify.Backend.Core.Application.Modules.Tenants.Implementations.Services
 {
@@ -21,15 +22,8 @@ namespace Rentify.Backend.Core.Application.Modules.Tenants.Implementations.Servi
         {
             try
             {
-                var slug = SlugGenerator.Generate(registerTenantCommand.RentCarName);
-
-                if (await _tenantRepository.SlugExistsAsync(slug, cancellationToken))
-                {
-                    slug += "-" + Guid.NewGuid()
-                   .ToString()[..6];
-                }
                 
-                var tenant = Tenant.Create(registerTenantCommand.RentCarName, slug, registerTenantCommand.CreatedBy);
+                var tenant = Tenant.Create(registerTenantCommand.RentCarName,default,default,BusinessModel.TraditionalRentCar,registerTenantCommand.CreatedBy);
 
                 await _tenantRepository.AddAsync(
                     tenant,

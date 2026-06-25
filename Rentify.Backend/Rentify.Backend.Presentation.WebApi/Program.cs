@@ -6,12 +6,10 @@ using Rentify.Backend.Core.Application.Modules.Customers;
 using Rentify.Backend.Core.Application.Modules.Dashboard;
 using Rentify.Backend.Core.Application.Modules.Emails;
 using Rentify.Backend.Core.Application.Modules.Payments;
-using Rentify.Backend.Core.Application.Modules.RentCars.Commands.CreateRentCar;
 using Rentify.Backend.Core.Application.Modules.RentCars.Commands.UpdateRentCar;
 using Rentify.Backend.Core.Application.Modules.RentCars.Commands.UploadRentCarLogo;
 using Rentify.Backend.Core.Application.Modules.Reservations;
 using Rentify.Backend.Core.Application.Modules.Secutiry;
-using Rentify.Backend.Core.Application.Modules.Subscriptions;
 using Rentify.Backend.Core.Application.Modules.Tenants.Commands.RegisterTenant;
 using Rentify.Backend.Core.Application.Modules.Vehicles;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.BlockVehicleAvailability;
@@ -85,7 +83,6 @@ app.MapSubscriptionEndpoints();
 var securedEndpoints = app.MapGroup(string.Empty)
     .RequireAuthorization();
 
-securedEndpoints.MapCreateRentCarEndpoints();
 securedEndpoints.MapUpdateRentCarEndpoints();
 securedEndpoints.MapUploadRentCarLogoEndpoints();
 securedEndpoints.MapCreateVehicleEndpoints();
@@ -120,11 +117,5 @@ app.UseErrorHandlingMiddleware();
 
 app.UseHealthChecks("/health");
 app.UseSession();
-
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-});
-
 app.Run();
 

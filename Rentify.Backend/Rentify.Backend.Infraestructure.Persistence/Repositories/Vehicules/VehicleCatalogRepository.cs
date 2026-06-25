@@ -3,7 +3,7 @@ using Rentify.Backend.Core.Application.Modules.Vehicles.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Dtos;
 using Rentify.Backend.Infraestructure.Persistence.Context;
 
-namespace Rentify.Backend.Infraestructure.Persistence.Repositories;
+namespace Rentify.Backend.Infraestructure.Persistence.Repositories.Vehicules;
 
 public sealed class VehicleCatalogRepository : IVehicleCatalogRepository
 {
@@ -35,6 +35,20 @@ public sealed class VehicleCatalogRepository : IVehicleCatalogRepository
             .OrderBy(x => x.Name)
             .Select(x => new VehicleModelResponse(x.Id, x.Name, x.VehicleBrandId, x.VehicleBrand.Name))
             .ToListAsync(cancellationToken);
+    }
+
+        public async Task<bool> VehicleModelExistsAsync(Guid vehicleModelId, CancellationToken cancellationToken = default)
+    {
+        return await _context.VehicleModels.AnyAsync(x => x.Id == vehicleModelId && !x.IsDeleted, cancellationToken);
+    }
+
+    public async Task<bool> VehicleTypeExistsAsync(
+        Guid vehicleTypeId,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.VehicleTypes.AnyAsync(x=>
+            x.Id == vehicleTypeId && !x.IsDeleted,
+            cancellationToken);
     }
 
     public async Task<bool> VehicleBrandExistsAsync(Guid vehicleBrandId, CancellationToken cancellationToken = default)

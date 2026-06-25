@@ -19,7 +19,6 @@ public sealed class Vehicle : BaseEntity
     public string Color { get; private set; } = null!;
     public decimal DailyRate { get; private set; }
     public VehicleStatus Status { get; private set; }
-
     public RentCar RentCar { get; private set; } = null!;
     public VehicleModel VehicleModel { get; private set; } = null!;
     public VehicleType VehicleType { get; private set; } = null!;

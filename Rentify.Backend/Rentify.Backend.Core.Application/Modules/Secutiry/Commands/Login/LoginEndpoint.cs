@@ -22,7 +22,7 @@ namespace Rentify.Backend.Core.Application.Modules.Secutiry.Commands.Login
 
                     return Results.Ok(response);
 
-                }).WithTags("Auth");
+                }).WithTags("Authentication");
 
             return app;
         }

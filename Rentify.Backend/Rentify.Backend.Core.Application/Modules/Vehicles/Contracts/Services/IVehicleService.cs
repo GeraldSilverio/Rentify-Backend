@@ -13,7 +13,7 @@ public interface IVehicleService
     Task<Guid> CreateAsync(CreateVehicleCommand command, CancellationToken cancellationToken = default);
     Task UpdateAsync(UpdateVehicleCommand command, CancellationToken cancellationToken = default);
     Task DeleteAsync(DeleteVehicleCommand command, CancellationToken cancellationToken = default);
-    Task<Guid> UploadImageAsync(UploadVehicleImageCommand command, CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<VehicleImageResponse>> UploadImagesAsync(UploadVehicleImageCommand command, CancellationToken cancellationToken = default);
     Task SetPrimaryImageAsync(SetPrimaryVehicleImageCommand command, CancellationToken cancellationToken = default);
     Task ChangeStatusAsync(ChangeVehicleStatusCommand command, CancellationToken cancellationToken = default);
     Task BlockAvailabilityAsync(BlockVehicleAvailabilityCommand command, CancellationToken cancellationToken = default);

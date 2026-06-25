@@ -17,6 +17,7 @@ using Rentify.Backend.Infraestructure.Persistence.Context;
 using Rentify.Backend.Infrastructure.Persistence.Repositories;
 using Rentify.Backend.Infraestructure.Persistence.Repositories;
 using Rentify.Backend.Infraestructure.Persistence.Repositories.Core;
+using Rentify.Backend.Infraestructure.Persistence.Repositories.Vehicules;
 
 namespace Rentify.Backend.Infraestructure.Persistence
 {

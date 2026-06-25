@@ -10,7 +10,7 @@ namespace Rentify.Backend.Presentation.WebApi.Extensions
             app.UseSwagger();
             app.UseSwaggerUI(options =>
             {
-                options.SwaggerEndpoint("/swagger/v1/swagger.json", "RealEstate API");
+                options.SwaggerEndpoint("/swagger/v1/swagger.json", "Rentify API");
                 options.DefaultModelRendering(ModelRendering.Model);
             });
         }

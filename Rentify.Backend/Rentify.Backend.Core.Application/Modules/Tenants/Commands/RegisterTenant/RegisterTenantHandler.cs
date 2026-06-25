@@ -2,6 +2,8 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Rentify.Backend.Core.Application.Modules.Emails.Commands.SendTemplateEmail;
 using Rentify.Backend.Core.Application.Modules.Emails.Contracts.Services;
+using Rentify.Backend.Core.Application.Modules.RentCars.Contracts.Services;
+using Rentify.Backend.Core.Application.Modules.RentCars.Dtos;
 using Rentify.Backend.Core.Application.Modules.Secutiry;
 using Rentify.Backend.Core.Application.Modules.Secutiry.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Subscriptions.Contracts.Services;
@@ -22,31 +24,34 @@ public sealed class RegisterTenantHandler : IRequestHandler<RegisterTenantComman
     private readonly IAccountService _accountService;
     private readonly IEmailService _emailService;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IRentCarService _rentCarService;
 
     public RegisterTenantHandler(
         ITenantService tenantService,
         ISubscriptionService subscriptionService,
         IAccountService accountService,
         IEmailService emailService,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IRentCarService rentCarService)
     {
         _tenantService = tenantService;
         _subscriptionService = subscriptionService;
         _accountService = accountService;
         _emailService = emailService;
         _unitOfWork = unitOfWork;
+        _rentCarService = rentCarService;
     }
 
     public async Task<ResultReponse<RegisterTenantResponse>> Handle(
         RegisterTenantCommand request,
         CancellationToken cancellationToken)
     {
-        if (await _accountService.ExistsByEmailAsync(request.OwnerEmail))
+        if (await _accountService.ExistsByEmailAsync(request.UserInfomation.ContactInformation.Email))
         {
             throw new ApiException("El correo proporcionado ya esta registrado en Rentify.", StatusCodes.Status400BadRequest);
         }
 
-        if(await _accountService.ExistByUserNameAsync(request.OwnerUserName))
+        if(await _accountService.ExistByUserNameAsync(request.UserInfomation.UserName))
         {
             throw new ApiException("El nombre de usuario proporcionado ya esta registrado en Rentify.", StatusCodes.Status400BadRequest);
         }
@@ -55,14 +60,16 @@ public sealed class RegisterTenantHandler : IRequestHandler<RegisterTenantComman
 
         var subscription = await _subscriptionService.RegisterSubscriptionAsync(tenantId, request, cancellationToken);
 
+        var rentCar = await _rentCarService.CreateRentCarAsync(new CreateRentCarDto(request.RentCarName,"Renta de Autos",tenantId,request.ContactInformation,request.AddressInformation,request.CreatedBy));
+
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         var ownerUserId = await _accountService.CreateUserAsync(new CreateUserCommand(
-            request.OwnerFullName,
-            request.OwnerUserName,
-            request.OwnerEmail,
-            request.OwnerPassword,
-            request.OwnerPhoneNumber,
+            request.UserInfomation.FullName,
+            request.UserInfomation.UserName,
+            request.ContactInformation.Email,
+            request.UserInfomation.Password,
+            request.ContactInformation.PhoneNumber,
             tenantId,
             request.CreatedBy,
             ApplicationRoles.Owner));
@@ -95,11 +102,11 @@ public sealed class RegisterTenantHandler : IRequestHandler<RegisterTenantComman
             await _emailService.SendEmailAsync(new SendTemplateEmailCommand(
                 tenantId,
                 EmailTemplateCodes.OwnerWelcome,
-                request.OwnerEmail,
+                request.UserInfomation.ContactInformation.Email,
                 new Dictionary<string, string>
                 {
-                    ["OwnerFullName"] = request.OwnerFullName,
-                    ["OwnerEmail"] = request.OwnerEmail,
+                    ["OwnerFullName"] = request.UserInfomation.FullName,
+                    ["OwnerEmail"] = request.UserInfomation.ContactInformation.Email,
                     ["TenantName"] = request.RentCarName,
                     ["SubscriptionPlanName"] = FormatPlanName(request.SubscriptionPlanCode),
                     ["SubscriptionStatus"] = subscription.Status.ToString(),

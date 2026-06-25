@@ -20,6 +20,7 @@ namespace Rentify.Backend.Core.Application.Modules.Vehicles.Implementations.Serv
 public sealed class VehicleService : IVehicleService
 {
     private const string VehicleImagesFolder = "vehicles";
+    private const int MaxImagesPerVehicle = 5;
 
     private readonly IVehicleRepository _vehicleRepository;
     private readonly IRentCarRepository _rentCarRepository;
@@ -41,12 +42,6 @@ public sealed class VehicleService : IVehicleService
     public async Task<Guid> CreateAsync(CreateVehicleCommand command, CancellationToken cancellationToken = default)
     {
         RentCar rentCar = await GetRentCarOrThrowAsync(command.RentCarId, command.TenantId, cancellationToken);
-
-        if (!await _vehicleRepository.VehicleModelExistsAsync(command.VehicleModelId, cancellationToken))
-            throw new ApiException("Vehicle model not found.", StatusCodes.Status404NotFound);
-
-        if (!await _vehicleRepository.VehicleTypeExistsAsync(command.TenantId, command.VehicleTypeId, cancellationToken))
-            throw new ApiException("Vehicle type not found.", StatusCodes.Status404NotFound);
 
         if (await _vehicleRepository.PlateNumberExistsAsync(command.TenantId, command.PlateNumber, cancellationToken: cancellationToken))
             throw new ApiException($"Vehicle with plate number '{command.PlateNumber}' already exists for this tenant.", StatusCodes.Status400BadRequest);
@@ -76,12 +71,6 @@ public sealed class VehicleService : IVehicleService
     {
         Vehicle vehicle = await GetVehicleOrThrowAsync(command.TenantId, command.VehicleId, cancellationToken);
 
-        if (!await _vehicleRepository.VehicleModelExistsAsync(command.VehicleModelId, cancellationToken))
-            throw new ApiException("Vehicle model not found.", StatusCodes.Status404NotFound);
-
-        if (!await _vehicleRepository.VehicleTypeExistsAsync(command.TenantId, command.VehicleTypeId, cancellationToken))
-            throw new ApiException("Vehicle type not found.", StatusCodes.Status404NotFound);
-
         if (await _vehicleRepository.PlateNumberExistsAsync(command.TenantId, command.PlateNumber, command.VehicleId, cancellationToken))
             throw new ApiException($"Vehicle with plate number '{command.PlateNumber}' already exists for this tenant.", StatusCodes.Status400BadRequest);
 
@@ -109,36 +98,71 @@ public sealed class VehicleService : IVehicleService
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<Guid> UploadImageAsync(
+    public async Task<IReadOnlyCollection<VehicleImageResponse>> UploadImagesAsync(
         UploadVehicleImageCommand command,
         CancellationToken cancellationToken = default)
     {
         Vehicle vehicle = await GetVehicleWithImagesOrThrowAsync(command.TenantId, command.VehicleId, cancellationToken);
 
-        StoredFileResult storedFile;
+        int existingImagesCount = vehicle.Images.Count(image => !image.IsDeleted);
+        if (existingImagesCount + command.Images.Count > MaxImagesPerVehicle)
+        {
+            throw new ApiException(
+                $"A vehicle can have a maximum of {MaxImagesPerVehicle} images.",
+                StatusCodes.Status400BadRequest);
+        }
+
+        var uploadedFiles = new List<StoredFileResult>();
 
         try
         {
-            storedFile = await _fileStorageService.UploadAsync(command.Image, VehicleImagesFolder, cancellationToken);
+            foreach (IFormFile file in command.Images)
+            {
+                uploadedFiles.Add(await _fileStorageService.UploadAsync(file, VehicleImagesFolder, cancellationToken));
+            }
         }
         catch (Exception ex)
         {
+            await DeleteUploadedFilesAsync(uploadedFiles);
             throw new ApiException($"Vehicle image upload failed: {ex.Message}", StatusCodes.Status502BadGateway);
         }
 
-        VehicleImage image = vehicle.AddImage(storedFile.Url, storedFile.PublicId, command.IsPrimary, command.CreatedBy);
+        var images = new List<VehicleImage>(uploadedFiles.Count);
+
+        for (int index = 0; index < uploadedFiles.Count; index++)
+        {
+            StoredFileResult storedFile = uploadedFiles[index];
+
+            // A batch has one primary intent. The first new image receives it;
+            // Vehicle.AddImage preserves the invariant for the full collection.
+            bool isPrimary = command.IsPrimary && index == 0;
+            images.Add(vehicle.AddImage(storedFile.Url, storedFile.PublicId, isPrimary, command.CreatedBy));
+        }
+
+        // The aggregate is tracked and owns the relationship; AddRange makes the
+        // state of the new children explicit without attaching or updating the vehicle.
+        await _vehicleRepository.AddImagesAsync(images, cancellationToken);
 
         try
         {
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
+        catch (ConcurrencyException)
+        {
+            await DeleteUploadedFilesAsync(uploadedFiles);
+            throw new ApiException(
+                "Vehicle was changed or deleted while its images were being uploaded. Please retry.",
+                StatusCodes.Status409Conflict);
+        }
         catch
         {
-            await _fileStorageService.DeleteAsync(storedFile.PublicId, cancellationToken);
+            await DeleteUploadedFilesAsync(uploadedFiles);
             throw;
         }
 
-        return image.Id;
+        return images
+            .Select(image => new VehicleImageResponse(image.Id, image.Url, image.IsPrimary))
+            .ToList();
     }
 
     public async Task SetPrimaryImageAsync(
@@ -204,5 +228,20 @@ public sealed class VehicleService : IVehicleService
             throw new ApiException("Rent car profile not found for this tenant.", StatusCodes.Status404NotFound);
 
         return rentCar;
+    }
+
+    private async Task DeleteUploadedFilesAsync(IEnumerable<StoredFileResult> uploadedFiles)
+    {
+        foreach (StoredFileResult uploadedFile in uploadedFiles)
+        {
+            try
+            {
+                await _fileStorageService.DeleteAsync(uploadedFile.PublicId, CancellationToken.None);
+            }
+            catch
+            {
+                // Preserve the original failure; cleanup can be retried operationally.
+            }
+        }
     }
 }

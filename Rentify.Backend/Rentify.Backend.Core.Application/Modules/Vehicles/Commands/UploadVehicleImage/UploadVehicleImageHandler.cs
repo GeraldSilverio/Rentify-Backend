@@ -4,7 +4,7 @@ using Rentify.Backend.Core.Application.Shared.Response;
 
 namespace Rentify.Backend.Core.Application.Modules.Vehicles.Commands.UploadVehicleImage;
 
-public sealed class UploadVehicleImageHandler : IRequestHandler<UploadVehicleImageCommand, ResultReponse<Guid>>
+public sealed class UploadVehicleImageHandler : IRequestHandler<UploadVehicleImageCommand, ResultReponse<IReadOnlyCollection<VehicleImageResponse>>>
 {
     private readonly IVehicleService _vehicleService;
 
@@ -13,12 +13,12 @@ public sealed class UploadVehicleImageHandler : IRequestHandler<UploadVehicleIma
         _vehicleService = vehicleService;
     }
 
-    public async Task<ResultReponse<Guid>> Handle(
+    public async Task<ResultReponse<IReadOnlyCollection<VehicleImageResponse>>> Handle(
         UploadVehicleImageCommand request,
         CancellationToken cancellationToken)
     {
-        Guid imageId = await _vehicleService.UploadImageAsync(request, cancellationToken);
+        IReadOnlyCollection<VehicleImageResponse> images = await _vehicleService.UploadImagesAsync(request, cancellationToken);
 
-        return ResultReponse<Guid>.Success(imageId);
+        return ResultReponse<IReadOnlyCollection<VehicleImageResponse>>.Success(images);
     }
 }
