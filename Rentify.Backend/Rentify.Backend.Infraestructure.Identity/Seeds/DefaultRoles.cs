@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Identity;
-using Rentify.Backend.Core.Application.Shared.Constants;
+using Rentify.Backend.Core.Application.Modules.Shared.Constants;
 
 namespace Rentify.Backend.Infraestructure.Identity.Seeds
 {
@@ -17,6 +17,8 @@ namespace Rentify.Backend.Infraestructure.Identity.Seeds
         {
             await CreateRoleIfNotExistsAsync(roleManager, ApplicationRoles.User);
             await CreateRoleIfNotExistsAsync(roleManager, ApplicationRoles.Owner);
+            await CreateRoleIfNotExistsAsync(roleManager, ApplicationRoles.Admin);
+            await CreateRoleIfNotExistsAsync(roleManager, ApplicationRoles.SuperAdmin);
         }
 
         private static async Task CreateRoleIfNotExistsAsync(

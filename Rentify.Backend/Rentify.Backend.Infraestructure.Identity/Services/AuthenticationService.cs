@@ -14,7 +14,7 @@ using Rentify.Backend.Core.Application.Modules.Secutiry.Commands.ResetPassword;
 using Rentify.Backend.Core.Application.Modules.Secutiry.Commands.RevokeRefreshToken;
 using Rentify.Backend.Core.Application.Modules.Secutiry.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Secutiry.Dtos.Response;
-using Rentify.Backend.Core.Application.Shared.Exceptions;
+using Rentify.Backend.Core.Application.Modules.Shared.Exceptions;
 using Rentify.Backend.Core.Domain.Settings;
 using Rentify.Backend.Infraestructure.Identity.Context;
 using Rentify.Backend.Infraestructure.Identity.Contracts.Services;

@@ -4,7 +4,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Rentify.Backend.Core.Application.Modules.Emails.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Emails.Dtos;
-using Rentify.Backend.Core.Application.Shared.Exceptions;
+using Rentify.Backend.Core.Application.Modules.Shared.Exceptions;
 using Rentify.Backend.Core.Domain.Enums;
 
 namespace Rentify.Backend.Infraestructure.Shared.Emailing;

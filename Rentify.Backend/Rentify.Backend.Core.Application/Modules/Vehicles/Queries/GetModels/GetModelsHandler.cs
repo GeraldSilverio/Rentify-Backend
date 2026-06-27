@@ -1,8 +1,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Rentify.Backend.Core.Application.Modules.Shared.Response;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Dtos;
-using Rentify.Backend.Core.Application.Shared.Response;
 
 namespace Rentify.Backend.Core.Application.Modules.Vehicles.Queries.GetModels;
 

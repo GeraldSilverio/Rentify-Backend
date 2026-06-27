@@ -1,7 +1,7 @@
 using MediatR;
 using Rentify.Backend.Core.Application.Modules.Emails.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Emails.Dtos;
-using Rentify.Backend.Core.Application.Shared.Response;
+using Rentify.Backend.Core.Application.Modules.Shared.Response;
 
 namespace Rentify.Backend.Core.Application.Modules.Emails.Queries.ListEmailTemplates
 {

@@ -1,7 +1,7 @@
 ﻿using Hangfire;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Rentify.Backend.Core.Application.Shared.Contracts;
+using Rentify.Backend.Core.Application.Modules.Shared.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Linq;

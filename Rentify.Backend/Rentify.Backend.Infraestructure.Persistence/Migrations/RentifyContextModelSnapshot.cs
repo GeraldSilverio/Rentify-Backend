@@ -350,33 +350,35 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
 
             modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Core.TenantSettings", b =>
                 {
-                    b.Property<Guid>("TenantId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<bool>("AllowOnlineReservations")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("CreatedBy")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Currency")
+                    b.Property<string>("CurrencyCode")
                         .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("character varying(10)");
 
-                    b.Property<bool>("EnableEmailNotifications")
+                    b.Property<bool>("EnableDriverFleet")
                         .HasColumnType("boolean");
 
-                    b.Property<bool>("EnableNotifications")
+                    b.Property<bool>("EnableLateFees")
                         .HasColumnType("boolean");
 
-                    b.Property<bool>("EnableSmsNotifications")
+                    b.Property<bool>("EnableMaintenance")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("EnablePublicCatalog")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("EnableReservations")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsActive")
@@ -385,35 +387,14 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("Language")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("character varying(10)");
-
-                    b.Property<string>("LogoUrl")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
                     b.Property<string>("ModifiedBy")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("PrimaryColor")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
-
-                    b.Property<string>("SecondaryColor")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
-
-                    b.Property<Guid>("TenantId1")
+                    b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("TimeZone")
@@ -421,9 +402,10 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.HasKey("TenantId");
+                    b.HasKey("Id");
 
-                    b.HasIndex("TenantId1");
+                    b.HasIndex("TenantId")
+                        .IsUnique();
 
                     b.ToTable("TenantSettings", (string)null);
                 });
@@ -755,6 +737,64 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                     b.HasIndex("TenantId", "ReservationId");
 
                     b.ToTable("Payments", (string)null);
+                });
+
+            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Payments.PaymentPolicy", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("CutoffDayOfWeek")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("GraceDays")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("LateFeeEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("PaymentFrequency")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ReminderStartDayOfWeek")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("PaymentPolicies");
                 });
 
             modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Reservations.Reservation", b =>
@@ -1280,9 +1320,9 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
             modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Core.TenantSettings", b =>
                 {
                     b.HasOne("Rentify.Backend.Core.Domain.Entities.Core.Tenant", "Tenant")
-                        .WithMany()
-                        .HasForeignKey("TenantId1")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .WithOne()
+                        .HasForeignKey("Rentify.Backend.Core.Domain.Entities.Core.TenantSettings", "TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Tenant");
@@ -1319,6 +1359,17 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("Reservation");
+                });
+
+            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Payments.PaymentPolicy", b =>
+                {
+                    b.HasOne("Rentify.Backend.Core.Domain.Entities.Core.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Reservations.Reservation", b =>

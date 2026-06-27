@@ -1,12 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Rentify.Backend.Core.Application.Modules.Emails.Commands.SendTemplateEmail;
-using Rentify.Backend.Core.Application.Modules.Emails.Contracts.Services;
-using Rentify.Backend.Core.Application.Modules.Secutiry;
-using Rentify.Backend.Core.Application.Modules.Tenants.Events;
-using Rentify.Backend.Core.Application.Shared.Constants;
-using Rentify.Backend.Core.Application.Shared.Contracts;
-using Rentify.Backend.Core.Application.Shared.Helpers;
+using Rentify.Backend.Core.Application.Modules.Shared.Contracts;
 using Rentify.Backend.Core.Domain.Entities.Events;
 using Rentify.Backend.Core.Domain.Enums;
 using Rentify.Backend.Infraestructure.Persistence.Context;

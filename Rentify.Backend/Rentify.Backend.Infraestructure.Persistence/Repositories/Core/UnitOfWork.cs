@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using Rentify.Backend.Core.Application.Shared.Exceptions;
-using Rentify.Backend.Core.Application.Shared.UnitOfWork;
+using Rentify.Backend.Core.Application.Modules.Shared.Exceptions;
+using Rentify.Backend.Core.Application.Modules.Shared.UnitOfWork;
 using Rentify.Backend.Infraestructure.Persistence.Context;
 
 namespace Rentify.Backend.Infrastructure.Persistence.Repositories;

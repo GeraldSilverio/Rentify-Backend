@@ -1,7 +1,6 @@
 using MediatR;
-using Rentify.Backend.Core.Application.Common.Response;
+using Rentify.Backend.Core.Application.Modules.Shared.Response;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Dtos;
-using Rentify.Backend.Core.Application.Shared.Response;
 using Rentify.Backend.Core.Domain.Enums;
 
 namespace Rentify.Backend.Core.Application.Modules.Vehicles.Queries.GetVehicles;

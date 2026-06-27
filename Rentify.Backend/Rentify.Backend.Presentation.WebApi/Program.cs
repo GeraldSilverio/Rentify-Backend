@@ -8,7 +8,7 @@ using Rentify.Backend.Core.Application.Modules.Emails;
 using Rentify.Backend.Core.Application.Modules.Payments;
 using Rentify.Backend.Core.Application.Modules.Reservations;
 using Rentify.Backend.Core.Application.Modules.Secutiry;
-using Rentify.Backend.Core.Application.Modules.Tenants.Commands.RegisterTenant;
+using Rentify.Backend.Core.Application.Modules.Shared.Context;
 using Rentify.Backend.Core.Application.Modules.Vehicles;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.BlockVehicleAvailability;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.ChangeVehicleStatus;
@@ -23,7 +23,9 @@ using Rentify.Backend.Infraestructure.Identity.Seeds;
 using Rentify.Backend.Infraestructure.Persistence;
 using Rentify.Backend.Infraestructure.Shared;
 using Rentify.Backend.Presentation.Endpoints;
+using Rentify.Backend.Presentation.WebApi.Endpoints.Tenants;
 using Rentify.Backend.Presentation.WebApi.Extensions;
+using Rentify.Backend.Presentation.WebApi.Services;
 using Rentify.Backend.Shared;
 using Rentify.Backend.Shared.Configuration;
 using System.Text.Json.Serialization;
@@ -50,6 +52,9 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 {
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentTenantService, CurrentTenantService>();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 //Dependecias de las capas.
 builder.Services.AddIdentityInfrastructure(builder.Configuration);
 builder.Services.AddPersistence(builder.Configuration);
@@ -79,6 +84,8 @@ using (var scope = app.Services.CreateScope())
 app.MapRegisterTenant();
 app.MapAuthEndpoints();
 app.MapSubscriptionEndpoints();
+app.MapTenantEndpoints();
+app.MapAdminTenantEndpoints();
 
 var securedEndpoints = app.MapGroup(string.Empty)
     .RequireAuthorization();

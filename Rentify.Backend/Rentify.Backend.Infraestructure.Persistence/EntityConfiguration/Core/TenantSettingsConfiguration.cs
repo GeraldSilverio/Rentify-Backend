@@ -10,54 +10,40 @@ public sealed class TenantSettingsConfiguration : IEntityTypeConfiguration<Tenan
     {
         builder.ToTable("TenantSettings");
 
-        builder.HasKey(x => x.TenantId);
+        builder.HasKey(x => x.Id);
 
-        builder.Property(x => x.Currency)
-            .IsRequired()
-            .HasMaxLength(10);
+        builder.Property(x => x.TenantId)
+            .IsRequired();
+
+        builder.Property(x => x.CurrencyCode)
+            .HasMaxLength(10)
+            .IsRequired();
 
         builder.Property(x => x.TimeZone)
-            .IsRequired()
-            .HasMaxLength(100);
-
-        builder.Property(x => x.Language)
-            .IsRequired()
-            .HasMaxLength(10);
-
-        builder.Property(x => x.AllowOnlineReservations)
+            .HasMaxLength(100)
             .IsRequired();
 
-        builder.Property(x => x.EnableNotifications)
+        builder.Property(x => x.EnableReservations)
             .IsRequired();
 
-        builder.Property(x => x.EnableSmsNotifications)
+        builder.Property(x => x.EnableDriverFleet)
             .IsRequired();
 
-        builder.Property(x => x.EnableEmailNotifications)
+        builder.Property(x => x.EnableMaintenance)
             .IsRequired();
 
-        builder.Property(x => x.LogoUrl)
-            .HasMaxLength(500);
-
-        builder.Property(x => x.PrimaryColor)
-            .HasMaxLength(20);
-
-        builder.Property(x => x.SecondaryColor)
-            .HasMaxLength(20);
-
-        // Audit
-        builder.Property(x => x.CreatedBy)
-            .IsRequired()
-            .HasMaxLength(100);
-
-        builder.Property(x => x.ModifiedBy)
-            .IsRequired()
-            .HasMaxLength(100);
-
-        builder.Property(x => x.CreatedDate)
+        builder.Property(x => x.EnableLateFees)
             .IsRequired();
 
-        builder.Property(x => x.ModifiedDate)
+        builder.Property(x => x.EnablePublicCatalog)
             .IsRequired();
+
+        builder.HasOne(x => x.Tenant)
+            .WithOne()
+            .HasForeignKey<TenantSettings>(x => x.TenantId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasIndex(x => x.TenantId)
+            .IsUnique();
     }
 }

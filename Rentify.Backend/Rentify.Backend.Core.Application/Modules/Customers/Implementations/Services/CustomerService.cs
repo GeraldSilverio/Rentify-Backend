@@ -5,10 +5,9 @@ using Rentify.Backend.Core.Application.Modules.Customers.Commands.UpdateCustomer
 using Rentify.Backend.Core.Application.Modules.Customers.Commands.UploadCustomerDocument;
 using Rentify.Backend.Core.Application.Modules.Customers.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Customers.Contracts.Services;
-using Rentify.Backend.Core.Application.Shared.Exceptions;
-using Rentify.Backend.Core.Application.Shared.Storage;
-using Rentify.Backend.Core.Application.Shared.UnitOfWork;
-using Rentify.Backend.Core.Domain.Entities;
+using Rentify.Backend.Core.Application.Modules.Shared.Exceptions;
+using Rentify.Backend.Core.Application.Modules.Shared.Storage;
+using Rentify.Backend.Core.Application.Modules.Shared.UnitOfWork;
 using Rentify.Backend.Core.Domain.Entities.Customers;
 
 namespace Rentify.Backend.Core.Application.Modules.Customers.Implementations.Services;

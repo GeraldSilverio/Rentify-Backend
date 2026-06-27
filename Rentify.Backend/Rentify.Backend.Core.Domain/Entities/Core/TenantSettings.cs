@@ -1,85 +1,135 @@
 ﻿using Rentify.Backend.Core.Domain.Commons;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Rentify.Backend.Core.Domain.Enums;
 
 namespace Rentify.Backend.Core.Domain.Entities.Core
 {
-    public class TenantSettings : BaseEntity
+    public sealed class TenantSettings : BaseEntity
     {
+        public Guid Id { get; private set; }
+
         public Guid TenantId { get; private set; }
 
-        public string Currency { get; private set; }
+        public string CurrencyCode { get; private set; } = null!;
 
-        public string TimeZone { get; private set; }
+        public string TimeZone { get; private set; } = null!;
 
-        public string Language { get; private set; }
+        public bool EnableReservations { get; private set; }
 
-        public bool AllowOnlineReservations { get; private set; }
+        public bool EnableDriverFleet { get; private set; }
 
-        public bool EnableNotifications { get; private set; }
+        public bool EnableMaintenance { get; private set; }
 
-        public bool EnableSmsNotifications { get; private set; }
+        public bool EnableLateFees { get; private set; }
 
-        public bool EnableEmailNotifications { get; private set; }
+        public bool EnablePublicCatalog { get; private set; }
 
-        public string LogoUrl { get; private set; }
+        public Tenant Tenant { get; private set; } = null!;
 
-        public string PrimaryColor { get; private set; }
-
-        public string SecondaryColor { get; private set; }
-
-        public Tenant Tenant { get; private set; }
-
-        // EF
         private TenantSettings()
         {
         }
 
         private TenantSettings(
+            Guid id,
             Guid tenantId,
+            string currencyCode,
+            string timeZone,
+            bool enableReservations,
+            bool enableDriverFleet,
+            bool enableMaintenance,
+            bool enableLateFees,
+            bool enablePublicCatalog,
             string createdBy)
         {
+            Id = id;
             TenantId = tenantId;
+            CurrencyCode = currencyCode;
+            TimeZone = timeZone;
+            EnableReservations = enableReservations;
+            EnableDriverFleet = enableDriverFleet;
+            EnableMaintenance = enableMaintenance;
+            EnableLateFees = enableLateFees;
+            EnablePublicCatalog = enablePublicCatalog;
 
-            Currency = "DOP";
-            TimeZone = "America/Santo_Domingo";
-            Language = "es";
-
-            AllowOnlineReservations = true;
-            EnableNotifications = true;
-            EnableSmsNotifications = false;
-            EnableEmailNotifications = true;
-
-            PrimaryColor = "#000000";
-            SecondaryColor = "#FFFFFF";
-
-            CreatedDate = DateTime.UtcNow;
+            IsActive = true;
+            IsDeleted = false;
             CreatedBy = createdBy;
             ModifiedBy = createdBy;
+            CreatedDate = DateTime.UtcNow;
             ModifiedDate = CreatedDate;
         }
 
-        public static TenantSettings Create(
+        public static TenantSettings CreateDefault(
             Guid tenantId,
+            BusinessModel businessModel,
             string createdBy)
         {
+            if (tenantId == Guid.Empty)
+                throw new ArgumentException("Tenant Id is required.");
+
+            if (!Enum.IsDefined(typeof(BusinessModel), businessModel))
+                throw new ArgumentException("Invalid business model.");
+
+            if (string.IsNullOrWhiteSpace(createdBy))
+                throw new ArgumentException("CreatedBy is required.");
+
+            bool enableReservations =
+                businessModel is BusinessModel.TraditionalRentCar or BusinessModel.Mixed;
+
+            bool enableDriverFleet =
+                businessModel is BusinessModel.DriverFleetRental or BusinessModel.Mixed;
+
+            bool enablePublicCatalog =
+                businessModel is BusinessModel.TraditionalRentCar or BusinessModel.Mixed;
+
+            bool enableLateFees =
+                businessModel is BusinessModel.DriverFleetRental or BusinessModel.Mixed;
+
             return new TenantSettings(
+                Guid.NewGuid(),
                 tenantId,
+                "DOP",
+                "America/Santo_Domingo",
+                enableReservations,
+                enableDriverFleet,
+                enableMaintenance: true,
+                enableLateFees,
+                enablePublicCatalog,
                 createdBy);
         }
 
-        public void UpdateBranding(
-            string logoUrl,
-            string primaryColor,
-            string secondaryColor,
+        public void Update(
+            string currencyCode,
+            string timeZone,
+            bool enableReservations,
+            bool enableDriverFleet,
+            bool enableMaintenance,
+            bool enableLateFees,
+            bool enablePublicCatalog,
             string modifiedBy)
         {
-            LogoUrl = logoUrl;
-            PrimaryColor = primaryColor;
-            SecondaryColor = secondaryColor;
+            if (string.IsNullOrWhiteSpace(currencyCode))
+                throw new ArgumentException("Currency code is required.");
+
+            if (currencyCode.Trim().Length > 10)
+                throw new ArgumentException("Currency code is too long.");
+
+            if (string.IsNullOrWhiteSpace(timeZone))
+                throw new ArgumentException("Time zone is required.");
+
+            if (timeZone.Trim().Length > 100)
+                throw new ArgumentException("Time zone is too long.");
+
+            if (string.IsNullOrWhiteSpace(modifiedBy))
+                throw new ArgumentException("ModifiedBy is required.");
+
+            CurrencyCode = currencyCode.Trim().ToUpperInvariant();
+            TimeZone = timeZone.Trim();
+            EnableReservations = enableReservations;
+            EnableDriverFleet = enableDriverFleet;
+            EnableMaintenance = enableMaintenance;
+            EnableLateFees = enableLateFees;
+            EnablePublicCatalog = enablePublicCatalog;
 
             ModifiedBy = modifiedBy;
             ModifiedDate = DateTime.UtcNow;

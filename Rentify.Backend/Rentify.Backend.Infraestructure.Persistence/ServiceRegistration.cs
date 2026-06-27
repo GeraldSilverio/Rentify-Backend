@@ -10,13 +10,14 @@ using Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Repositori
 using Rentify.Backend.Core.Application.Modules.Subscriptions.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Tenants.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Contracts.Repositories;
-using Rentify.Backend.Core.Application.Shared.Helpers;
-using Rentify.Backend.Core.Application.Shared.UnitOfWork;
 using Rentify.Backend.Infraestructure.Persistence.Context;
 using Rentify.Backend.Infrastructure.Persistence.Repositories;
 using Rentify.Backend.Infraestructure.Persistence.Repositories;
 using Rentify.Backend.Infraestructure.Persistence.Repositories.Core;
 using Rentify.Backend.Infraestructure.Persistence.Repositories.Vehicules;
+using Rentify.Backend.Core.Application.Modules.Shared.Helpers;
+using Rentify.Backend.Core.Application.Modules.Shared.UnitOfWork;
+using Rentify.Backend.Core.Application.Modules.Core.Contracts.Repositories;
 
 namespace Rentify.Backend.Infraestructure.Persistence
 {
@@ -46,6 +47,7 @@ namespace Rentify.Backend.Infraestructure.Persistence
 
             //Inyecciones de dependencias.
             services.AddScoped<ITenantRepository, TenantRepository>();
+            services.AddScoped<ITenantReadRepository, TenantReadRepository>();
             services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
             services.AddScoped<ISystemEmailTemplateRepository, SystemEmailTemplateRepository>();
             services.AddScoped<ITenantEmailConfigurationRepository, TenantEmailConfigurationRepository>();
@@ -58,6 +60,8 @@ namespace Rentify.Backend.Infraestructure.Persistence
             services.AddScoped<IReservationRepository, ReservationRepository>();
             services.AddScoped<IPaymentRepository, PaymentRepository>();
             services.AddScoped<IDashboardRepository, DashboardRepository>();
+            services.AddScoped<ITenantSettingRepository, TenantSettingRepository>();
+            services.AddScoped<IPaymentPolicyRepository, PaymentPolicyRepository>();
 
         }
     }

@@ -74,6 +74,7 @@ namespace Rentify.Backend.Infraestructure.Persistence.Context
         public DbSet<ReservationPayment> ReservationPayments { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
+        public DbSet<PaymentPolicy> PaymentPolicies => Set<PaymentPolicy>();
         public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
     }
 }

@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using Rentify.Backend.Core.Application.Common.Response;
+using Rentify.Backend.Core.Application.Modules.Shared.Response;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Dtos;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Queries.GetVehicles;

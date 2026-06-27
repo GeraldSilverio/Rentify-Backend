@@ -1,10 +1,10 @@
 ﻿using Rentify.Backend.Core.Application.Modules.Emails.Commands.SendTemplateEmail;
 using Rentify.Backend.Core.Application.Modules.Emails.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Secutiry;
+using Rentify.Backend.Core.Application.Modules.Shared.Constants;
+using Rentify.Backend.Core.Application.Modules.Shared.Contracts;
+using Rentify.Backend.Core.Application.Modules.Shared.Helpers;
 using Rentify.Backend.Core.Application.Modules.Tenants.Events;
-using Rentify.Backend.Core.Application.Shared.Constants;
-using Rentify.Backend.Core.Application.Shared.Contracts;
-using Rentify.Backend.Core.Application.Shared.Helpers;
 using Rentify.Backend.Core.Domain.Enums;
 using System.Text.Json;
 
@@ -50,9 +50,7 @@ namespace Rentify.Backend.Infraestructure.Shared.Services.OutBox
                     ["SubscriptionStatus"] = data.SubscriptionStatus,
                     ["SubscriptionStartDate"] = FormatDate(data.SubscriptionStartsAt),
                     ["SubscriptionExpiresAt"] = FormatDate(data.SubscriptionExpiresAt),
-                    ["TrialEndsAt"] = data.TrialEndsAt.HasValue
-                        ? FormatDate(data.TrialEndsAt.Value)
-                        : string.Empty,
+                    ["TrialEndsAt"] = data.TrialEndsAt.HasValue ? FormatDate(data.TrialEndsAt.Value) : string.Empty,
                     ["DashboardUrl"] = ReadFromConfiguration.GetValueFromConfig("RENTIFY_DASHBOARD_URL"),
                     ["SupportEmail"] = ReadFromConfiguration.GetValueFromConfig("SUPPORT_EMAIL")
                 }),

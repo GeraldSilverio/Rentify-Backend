@@ -1,7 +1,7 @@
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Http;
-using Rentify.Backend.Core.Application.Shared.Storage;
+using Rentify.Backend.Core.Application.Modules.Shared.Storage;
 
 namespace Rentify.Backend.Shared.Storage;
 

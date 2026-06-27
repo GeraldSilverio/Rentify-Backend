@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Rentify.Backend.Core.Application.Modules.Secutiry.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Secutiry.Dtos.Response;
-using Rentify.Backend.Core.Application.Shared.Response;
+using Rentify.Backend.Core.Application.Modules.Shared.Response;
 using System;
 using System.Collections.Generic;
 using System.Linq;

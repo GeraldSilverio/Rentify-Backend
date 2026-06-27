@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Rentify.Backend.Core.Application.Modules.Subscriptions.Contracts.Repositories;
-using Rentify.Backend.Core.Application.Shared.Exceptions;
+using Rentify.Backend.Core.Application.Modules.Shared.Exceptions;
 using Rentify.Backend.Core.Domain.Entities.Core;
 using Rentify.Backend.Core.Domain.Enums;
 using Rentify.Backend.Infraestructure.Persistence.Context;

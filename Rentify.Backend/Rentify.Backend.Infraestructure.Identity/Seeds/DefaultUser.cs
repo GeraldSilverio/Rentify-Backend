@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Identity;
-using Rentify.Backend.Core.Application.Shared.Constants;
+using Rentify.Backend.Core.Application.Modules.Shared.Constants;
 using Rentify.Backend.Infraestructure.Identity.Entities;
 
 namespace Rentify.Backend.Infraestructure.Identity.Seeds
@@ -38,7 +38,7 @@ namespace Rentify.Backend.Infraestructure.Identity.Seeds
                         await userManager.CreateAsync(user, "123UserC#@");
 
                         // Assign the 'User' role to the new user
-                        await userManager.AddToRoleAsync(user, ApplicationRoles.User);
+                        await userManager.AddToRoleAsync(user, ApplicationRoles.SuperAdmin);
                     }
                 }
             }

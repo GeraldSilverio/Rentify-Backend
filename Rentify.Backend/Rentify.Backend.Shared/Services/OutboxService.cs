@@ -1,4 +1,4 @@
-﻿using Rentify.Backend.Core.Application.Shared.Contracts;
+﻿using Rentify.Backend.Core.Application.Modules.Shared.Contracts;
 using Rentify.Backend.Core.Domain.Entities.Events;
 using Rentify.Backend.Infraestructure.Persistence.Context;
 using System;

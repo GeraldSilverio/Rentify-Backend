@@ -1,9 +1,7 @@
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using Rentify.Backend.Core.Application.Common.Behaviors;
 using Rentify.Backend.Core.Application.Modules.Tenants.Contracts.Services;
-using Rentify.Backend.Core.Application.Modules.Tenants.Implementations.Services;
 using System.Reflection;
 using Rentify.Backend.Core.Application.Modules.Emails.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Emails.Implementations.Services;
@@ -17,6 +15,10 @@ using Rentify.Backend.Core.Application.Modules.Subscriptions.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Subscriptions.Implementations;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Implementations.Services;
+using Rentify.Backend.Core.Application.Modules.Shared.Behaviors;
+using Rentify.Backend.Core.Application.Modules.Tenants.Services;
+using Rentify.Backend.Core.Application.Modules.Core.Contracts.Services;
+using Rentify.Backend.Core.Application.Modules.Core.Services;
 
 namespace Rentify.Backend.Core.Application;
 
@@ -56,6 +58,7 @@ public static class ServiceRegistration
         services.AddScoped<IReservationService, ReservationService>();
         services.AddScoped<IPaymentService, PaymentService>();
         services.AddScoped<ITenantService,TenantService>();
-
+        services.AddScoped<ITenantSettingService,TenantSettingService>();
+        services.AddScoped<IPaymentPolicyService,PaymentPolicyService>();
     }
 }

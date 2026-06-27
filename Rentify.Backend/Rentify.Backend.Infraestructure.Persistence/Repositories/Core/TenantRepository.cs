@@ -21,4 +21,12 @@ public sealed class TenantRepository : ITenantRepository
             tenant,
             cancellationToken);
     }
+
+    public async Task<Tenant?> GetByIdAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.Tenants
+            .FirstOrDefaultAsync(x => x.Id == tenantId && !x.IsDeleted, cancellationToken);
+    }
 }

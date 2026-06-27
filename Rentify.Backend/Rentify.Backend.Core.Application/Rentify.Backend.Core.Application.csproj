@@ -26,6 +26,7 @@
 
     <ItemGroup>
       <Folder Include="Modules\Secutiry\Dtos\Request\" />
+      <Folder Include="Modules\Core\Queries\GetTenantById\" />
     </ItemGroup>
 
 </Project>

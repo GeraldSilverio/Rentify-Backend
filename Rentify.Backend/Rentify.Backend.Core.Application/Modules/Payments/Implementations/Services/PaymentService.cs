@@ -3,8 +3,8 @@ using Rentify.Backend.Core.Application.Modules.Payments.Commands.RegisterPayment
 using Rentify.Backend.Core.Application.Modules.Payments.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Payments.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Repositories;
-using Rentify.Backend.Core.Application.Shared.Exceptions;
-using Rentify.Backend.Core.Application.Shared.UnitOfWork;
+using Rentify.Backend.Core.Application.Modules.Shared.Exceptions;
+using Rentify.Backend.Core.Application.Modules.Shared.UnitOfWork;
 using Rentify.Backend.Core.Domain.Entities;
 using Rentify.Backend.Core.Domain.Entities.Payments;
 using Rentify.Backend.Core.Domain.Entities.Reservations;

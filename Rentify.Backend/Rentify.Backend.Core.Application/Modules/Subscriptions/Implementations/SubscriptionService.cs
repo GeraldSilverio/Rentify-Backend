@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Http;
+using Rentify.Backend.Core.Application.Modules.Shared.UnitOfWork;
 using Rentify.Backend.Core.Application.Modules.Subscriptions.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Subscriptions.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Tenants.Commands.RegisterTenant;
-using Rentify.Backend.Core.Application.Shared.Exceptions;
-using Rentify.Backend.Core.Application.Shared.UnitOfWork;
+using Rentify.Backend.Core.Application.Modules.Shared.Exceptions;
 using Rentify.Backend.Core.Domain.Entities.Core;
 using Rentify.Backend.Core.Domain.Enums;
 

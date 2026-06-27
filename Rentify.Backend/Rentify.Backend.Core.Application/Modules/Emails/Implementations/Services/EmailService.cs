@@ -7,9 +7,9 @@ using Rentify.Backend.Core.Application.Modules.Emails.Commands.UpdateEmailTempla
 using Rentify.Backend.Core.Application.Modules.Emails.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Emails.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Emails.Dtos;
-using Rentify.Backend.Core.Application.Shared.Exceptions;
-using Rentify.Backend.Core.Application.Shared.Helpers;
-using Rentify.Backend.Core.Application.Shared.UnitOfWork;
+using Rentify.Backend.Core.Application.Modules.Shared.Exceptions;
+using Rentify.Backend.Core.Application.Modules.Shared.Helpers;
+using Rentify.Backend.Core.Application.Modules.Shared.UnitOfWork;
 using Rentify.Backend.Core.Domain.Entities.Core;
 using Rentify.Backend.Core.Domain.Enums;
 

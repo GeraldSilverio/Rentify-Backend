@@ -1,6 +1,6 @@
 using MediatR;
+using Rentify.Backend.Core.Application.Modules.Shared.Response;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Contracts.Services;
-using Rentify.Backend.Core.Application.Shared.Response;
 
 namespace Rentify.Backend.Core.Application.Modules.Vehicles.Commands.DeleteVehicle;
 

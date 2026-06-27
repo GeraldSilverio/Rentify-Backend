@@ -1,6 +1,6 @@
 using MediatR;
 using Rentify.Backend.Core.Application.Modules.Secutiry.Dtos.Response;
-using Rentify.Backend.Core.Application.Shared.Response;
+using Rentify.Backend.Core.Application.Modules.Shared.Response;
 
 namespace Rentify.Backend.Core.Application.Modules.Secutiry.Commands.RefreshToken
 {

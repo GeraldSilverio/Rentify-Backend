@@ -1,9 +1,9 @@
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Rentify.Backend.Core.Application.Modules.Shared.Response;
 using Rentify.Backend.Core.Application.Modules.Subscriptions.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Subscriptions.Dtos;
-using Rentify.Backend.Core.Application.Shared.Exceptions;
-using Rentify.Backend.Core.Application.Shared.Response;
+using Rentify.Backend.Core.Application.Modules.Shared.Exceptions;
 
 namespace Rentify.Backend.Core.Application.Modules.Subscriptions.Queries.GetCurrentSubscription
 {

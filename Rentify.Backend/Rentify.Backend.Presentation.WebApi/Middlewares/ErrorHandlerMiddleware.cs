@@ -1,5 +1,5 @@
-﻿using Rentify.Backend.Core.Application.Shared.Exceptions;
-using Rentify.Backend.Core.Application.Shared.Response;
+﻿using Rentify.Backend.Core.Application.Modules.Shared.Exceptions;
+using Rentify.Backend.Core.Application.Modules.Shared.Response;
 using System.Net;
 using System.Text.Json;
 

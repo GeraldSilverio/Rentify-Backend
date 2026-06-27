@@ -1,4 +1,7 @@
 using Microsoft.AspNetCore.Http;
+using Rentify.Backend.Core.Application.Modules.Shared.Exceptions;
+using Rentify.Backend.Core.Application.Modules.Shared.Storage;
+using Rentify.Backend.Core.Application.Modules.Shared.UnitOfWork;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.BlockVehicleAvailability;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.ChangeVehicleStatus;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.CreateVehicle;
@@ -8,9 +11,6 @@ using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.UpdateVehicle;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.UploadVehicleImage;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Contracts.Services;
-using Rentify.Backend.Core.Application.Shared.Exceptions;
-using Rentify.Backend.Core.Application.Shared.Storage;
-using Rentify.Backend.Core.Application.Shared.UnitOfWork;
 using Rentify.Backend.Core.Domain.Entities.Vehicles;
 
 namespace Rentify.Backend.Core.Application.Modules.Vehicles.Implementations.Services;
