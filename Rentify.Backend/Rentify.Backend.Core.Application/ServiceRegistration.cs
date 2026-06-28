@@ -17,8 +17,6 @@ using Rentify.Backend.Core.Application.Modules.Vehicles.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Implementations.Services;
 using Rentify.Backend.Core.Application.Modules.Shared.Behaviors;
 using Rentify.Backend.Core.Application.Modules.Tenants.Services;
-using Rentify.Backend.Core.Application.Modules.Core.Contracts.Services;
-using Rentify.Backend.Core.Application.Modules.Core.Services;
 
 namespace Rentify.Backend.Core.Application;
 

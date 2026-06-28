@@ -1,6 +1,6 @@
 ﻿using Rentify.Backend.Core.Domain.Entities.Payments;
 
-namespace Rentify.Backend.Core.Application.Modules.Core.Contracts.Repositories
+namespace Rentify.Backend.Core.Application.Modules.Tenants.Contracts.Repositories
 {
     public interface IPaymentPolicyRepository
     {

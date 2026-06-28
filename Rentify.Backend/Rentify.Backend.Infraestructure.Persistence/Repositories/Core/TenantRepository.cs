@@ -29,4 +29,18 @@ public sealed class TenantRepository : ITenantRepository
         return await _context.Tenants
             .FirstOrDefaultAsync(x => x.Id == tenantId && !x.IsDeleted, cancellationToken);
     }
+
+    public async Task<bool> RncExistsForAnotherTenantAsync(
+        Guid tenantId,
+        string normalizedRnc,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.Tenants
+            .AsNoTracking()
+            .AnyAsync(
+                x => x.Id != tenantId
+                     && !x.IsDeleted
+                     && x.Rnc == normalizedRnc,
+                cancellationToken);
+    }
 }

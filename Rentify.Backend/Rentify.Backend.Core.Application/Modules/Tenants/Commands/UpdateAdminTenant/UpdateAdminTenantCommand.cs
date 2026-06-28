@@ -10,5 +10,5 @@ public sealed record UpdateAdminTenantCommand(
     string Name,
     string? LegalName,
     string? Rnc,
-    BusinessModel BusinessModel,
+    BusinessModel? BusinessModel,
     string ModifiedBy) : IRequest<ResultReponse<AdminTenantDetailResponse>>;

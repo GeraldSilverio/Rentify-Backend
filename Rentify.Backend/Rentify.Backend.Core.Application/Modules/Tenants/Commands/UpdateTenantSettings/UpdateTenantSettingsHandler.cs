@@ -106,6 +106,5 @@ public sealed class UpdateTenantSettingsHandler
         if (subscription?.SubscriptionPlan.MaintenanceModuleEnabled != true)
             throw new ApiException("The current subscription plan does not include the maintenance module.", StatusCodes.Status400BadRequest);
 
-        // TODO: Validate DriverFleetModuleEnabled, PaymentsModuleEnabled, LateFeesEnabled and ReservationsModuleEnabled when those plan flags exist.
     }
 }

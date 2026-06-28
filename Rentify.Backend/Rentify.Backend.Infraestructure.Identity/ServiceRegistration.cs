@@ -77,6 +77,7 @@ namespace Rentify.Backend.Infraestructure.Identity
 
                 options.Events = new JwtBearerEvents()
                 {
+
                     OnAuthenticationFailed = c =>
                     {
                         c.NoResult();

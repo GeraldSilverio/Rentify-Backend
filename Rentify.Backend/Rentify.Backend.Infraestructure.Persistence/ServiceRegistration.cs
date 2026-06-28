@@ -17,7 +17,6 @@ using Rentify.Backend.Infraestructure.Persistence.Repositories.Core;
 using Rentify.Backend.Infraestructure.Persistence.Repositories.Vehicules;
 using Rentify.Backend.Core.Application.Modules.Shared.Helpers;
 using Rentify.Backend.Core.Application.Modules.Shared.UnitOfWork;
-using Rentify.Backend.Core.Application.Modules.Core.Contracts.Repositories;
 
 namespace Rentify.Backend.Infraestructure.Persistence
 {

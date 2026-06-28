@@ -11,4 +11,9 @@ public interface ITenantRepository
     Task<Tenant?> GetByIdAsync(
         Guid tenantId,
         CancellationToken cancellationToken = default);
+
+    Task<bool> RncExistsForAnotherTenantAsync(
+        Guid tenantId,
+        string normalizedRnc,
+        CancellationToken cancellationToken = default);
 }

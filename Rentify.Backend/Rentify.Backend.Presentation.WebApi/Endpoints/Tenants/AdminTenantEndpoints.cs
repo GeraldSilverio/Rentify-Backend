@@ -16,6 +16,7 @@ public static class AdminTenantEndpoints
         group.MapUpdateAdminTenantEndpoint();
         group.MapDeactivateAdminTenantEndpoint();
         group.MapActivateAdminTenantEndpoint();
+        group.MapExtendTenantTrialEndpoint();
 
         return app;
     }

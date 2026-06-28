@@ -53,6 +53,9 @@ public sealed class RegisterTenantValidator
             .GreaterThanOrEqualTo(0)
             .LessThanOrEqualTo(90);
 
-        RuleFor(x => x.BusinessModel).NotNull().NotEmpty().WithMessage("BusinessModel is required");
+        RuleFor(x => x.BusinessModel)
+            .NotNull()
+            .NotEmpty().WithMessage("BusinessModel is required")
+            .IsInEnum().WithMessage("BusinessModel must be a valid value.");
     }
 }

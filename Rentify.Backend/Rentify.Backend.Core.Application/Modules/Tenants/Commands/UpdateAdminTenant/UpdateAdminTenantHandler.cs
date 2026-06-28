@@ -37,11 +37,25 @@ public sealed class UpdateAdminTenantHandler
         Tenant tenant = await _tenantRepository.GetByIdAsync(request.TenantId, cancellationToken)
             ?? throw new ApiException("Tenant not found.", StatusCodes.Status404NotFound);
 
+        string? normalizedRnc = NormalizeRncOrNull(request.Rnc);
+
+        if (normalizedRnc is not null &&
+            await _tenantRepository.RncExistsForAnotherTenantAsync(request.TenantId, normalizedRnc, cancellationToken))
+        {
+            _logger.LogWarning(
+                "Admin tenant update rejected because RNC is already in use. TenantId: {TenantId}, Rnc: {Rnc}, ModifiedBy: {ModifiedBy}",
+                request.TenantId,
+                normalizedRnc,
+                request.ModifiedBy);
+
+            throw new ApiException("Este RNC ya está en uso por otra empresa.", StatusCodes.Status400BadRequest);
+        }
+
         tenant.Update(
             request.Name,
             request.LegalName,
-            request.Rnc,
-            request.BusinessModel,
+            normalizedRnc,
+            request.BusinessModel!.Value,
             request.ModifiedBy);
 
         // TODO: Synchronize TenantSettings and PaymentPolicy when changing BusinessModel if a dedicated flow is required.
@@ -67,5 +81,13 @@ public sealed class UpdateAdminTenantHandler
         TenantUsageResponse usage = await _tenantReadRepository.GetUsageAsync(tenantId, cancellationToken);
 
         return new AdminTenantDetailResponse(profile, usage);
+    }
+
+    private static string? NormalizeRncOrNull(string? rnc)
+    {
+        if (string.IsNullOrWhiteSpace(rnc))
+            return null;
+
+        return rnc.Trim().Replace("-", string.Empty).Replace(" ", string.Empty);
     }
 }

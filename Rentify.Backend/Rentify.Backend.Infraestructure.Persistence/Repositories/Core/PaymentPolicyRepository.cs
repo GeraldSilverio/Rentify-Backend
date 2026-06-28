@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using Rentify.Backend.Core.Application.Modules.Core.Contracts.Repositories;
+using Rentify.Backend.Core.Application.Modules.Tenants.Contracts.Repositories;
 using Rentify.Backend.Core.Domain.Entities.Payments;
 using Rentify.Backend.Infraestructure.Persistence.Context;
 

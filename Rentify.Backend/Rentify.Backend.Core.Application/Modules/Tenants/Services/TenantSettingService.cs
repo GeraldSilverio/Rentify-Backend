@@ -1,8 +1,8 @@
-﻿using Rentify.Backend.Core.Application.Modules.Core.Contracts.Services;
-using Rentify.Backend.Core.Application.Modules.Tenants.Contracts.Repositories;
+﻿using Rentify.Backend.Core.Application.Modules.Tenants.Contracts.Repositories;
+using Rentify.Backend.Core.Application.Modules.Tenants.Contracts.Services;
 using Rentify.Backend.Core.Domain.Entities.Core;
 
-namespace Rentify.Backend.Core.Application.Modules.Core.Services
+namespace Rentify.Backend.Core.Application.Modules.Tenants.Services
 {
     public class TenantSettingService(ITenantSettingRepository tenantSettingRepository) : ITenantSettingService
     {

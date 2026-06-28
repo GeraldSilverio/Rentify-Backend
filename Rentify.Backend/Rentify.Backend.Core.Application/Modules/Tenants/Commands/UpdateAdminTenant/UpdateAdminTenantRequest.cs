@@ -6,4 +6,4 @@ public sealed record UpdateAdminTenantRequest(
     string Name,
     string? LegalName,
     string? Rnc,
-    BusinessModel BusinessModel);
+    BusinessModel? BusinessModel);

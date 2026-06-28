@@ -22,6 +22,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\Rentify.Backend.Infraestructure.Identity\Rentify.Backend.Infraestructure.Identity.csproj" />
 		<ProjectReference Include="..\Rentify.Backend.Infraestructure.Persistence\Rentify.Backend.Infraestructure.Persistence.csproj" />
+		<ProjectReference Include="..\Rentify.Backend.Infraestructure.Shared\Rentify.Backend.Infraestructure.Shared.csproj" />
 		<ProjectReference Include="..\Rentify.Backend.Shared\Rentify.Backend.Infraestructure.Shared.csproj" />
 	</ItemGroup>
 

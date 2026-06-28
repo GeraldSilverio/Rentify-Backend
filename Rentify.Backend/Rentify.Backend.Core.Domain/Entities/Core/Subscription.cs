@@ -108,6 +108,35 @@ namespace Rentify.Backend.Core.Domain.Entities.Core
             ModifiedDate = DateTime.UtcNow;
         }
 
+        public void ExtendTrial(int daysToAdd, string modifiedBy)
+        {
+            if (daysToAdd <= 0)
+                throw new ArgumentException("Days to add must be greater than zero.");
+
+            if (daysToAdd > 90)
+                throw new ArgumentException("Days to add cannot be greater than 90.");
+
+            if (string.IsNullOrWhiteSpace(modifiedBy))
+                throw new ArgumentException("ModifiedBy is required.");
+
+            DateTime now = DateTime.UtcNow;
+            DateTime baseDate = TrialEndsAt.HasValue && TrialEndsAt.Value > now
+                ? TrialEndsAt.Value
+                : now;
+
+            TrialEndsAt = baseDate.AddDays(daysToAdd);
+            IsTrial = true;
+
+            if (Status is not SubscriptionStatus.Cancelled and not SubscriptionStatus.Expired)
+                Status = SubscriptionStatus.Trialing;
+
+            if (ExpiresAt < TrialEndsAt.Value)
+                ExpiresAt = TrialEndsAt.Value;
+
+            ModifiedBy = modifiedBy;
+            ModifiedDate = now;
+        }
+
         public void ValidateStatus(string modifiedBy)
         {
             var now = DateTime.UtcNow;
