@@ -6,6 +6,7 @@ namespace Rentify.Backend.Core.Domain.Entities.Vehicles;
 public sealed class Vehicle : BaseEntity
 {
     private readonly List<VehicleImage> _images = [];
+    private readonly List<VehicleRate> _rates = [];
     private readonly List<VehicleUnavailableDate> _unavailableDates = [];
 
     public Guid Id { get; private set; }
@@ -21,12 +22,17 @@ public sealed class Vehicle : BaseEntity
     public VehicleStatus Status { get; private set; }
 
     // Temporary compatibility for modules that still depend on the old pricing field.
-    public decimal DailyRate => 0m;
+    public decimal DailyRate => _rates
+        .Where(x => !x.IsDeleted && x.IsActive && x.RentalType == RentalType.Daily)
+        .OrderByDescending(x => x.CreatedDate)
+        .Select(x => x.Price)
+        .FirstOrDefault();
 
     public VehicleBrand VehicleBrand { get; private set; } = null!;
     public VehicleModel VehicleModel { get; private set; } = null!;
     public VehicleType VehicleType { get; private set; } = null!;
     public IReadOnlyCollection<VehicleImage> Images => _images.AsReadOnly();
+    public IReadOnlyCollection<VehicleRate> Rates => _rates.AsReadOnly();
     public IReadOnlyCollection<VehicleUnavailableDate> UnavailableDates => _unavailableDates.AsReadOnly();
 
     private Vehicle()
@@ -175,6 +181,57 @@ public sealed class Vehicle : BaseEntity
                 .FirstOrDefault();
 
             nextPrimary?.MarkAsPrimary(modifiedBy);
+        }
+
+        ModifiedBy = modifiedBy;
+        ModifiedDate = DateTime.UtcNow;
+    }
+
+    public void ReplaceRates(
+        IReadOnlyCollection<(RentalType RentalType, decimal Price)> rates,
+        string modifiedBy)
+    {
+        if (rates.Count == 0)
+            throw new ArgumentException("Vehicle must have at least one rate.");
+
+        if (string.IsNullOrWhiteSpace(modifiedBy))
+            throw new ArgumentException("ModifiedBy is required.");
+
+        RentalType[] duplicatedRentalTypes = rates
+            .GroupBy(x => x.RentalType)
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Key)
+            .ToArray();
+
+        if (duplicatedRentalTypes.Length > 0)
+            throw new ArgumentException("Vehicle rates cannot contain duplicated rental types.");
+
+        foreach ((RentalType rentalType, decimal price) in rates)
+        {
+            if (!Enum.IsDefined(typeof(RentalType), rentalType))
+                throw new ArgumentException("Rental type is invalid.");
+
+            if (price <= 0)
+                throw new ArgumentException("Vehicle rate price must be greater than zero.");
+        }
+
+        RentalType[] requestedRentalTypes = rates
+            .Select(x => x.RentalType)
+            .ToArray();
+
+        foreach (VehicleRate rate in _rates.Where(x => !x.IsDeleted && !requestedRentalTypes.Contains(x.RentalType)))
+        {
+            rate.Delete(modifiedBy);
+        }
+
+        foreach ((RentalType rentalType, decimal price) in rates)
+        {
+            VehicleRate? existingRate = _rates.FirstOrDefault(x => !x.IsDeleted && x.RentalType == rentalType);
+
+            if (existingRate is null)
+                _rates.Add(VehicleRate.Create(TenantId, Id, rentalType, price, modifiedBy));
+            else
+                existingRate.Update(price, modifiedBy);
         }
 
         ModifiedBy = modifiedBy;

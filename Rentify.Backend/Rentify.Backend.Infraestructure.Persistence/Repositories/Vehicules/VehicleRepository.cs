@@ -4,6 +4,7 @@ using Rentify.Backend.Core.Application.Modules.Vehicles.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Dtos;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Queries.GetVehicles;
 using Rentify.Backend.Core.Domain.Entities.Vehicles;
+using Rentify.Backend.Core.Domain.Enums;
 using Rentify.Backend.Infraestructure.Persistence.Context;
 
 namespace Rentify.Backend.Infraestructure.Persistence.Repositories;
@@ -82,7 +83,11 @@ public sealed class VehicleRepository : IVehicleRepository
                 vehicle.PlateNumber,
                 vehicle.Vin,
                 vehicle.Color,
-                0m,
+                vehicle.Rates
+                    .Where(rate => !rate.IsDeleted && rate.IsActive && rate.RentalType == RentalType.Daily)
+                    .OrderByDescending(rate => rate.CreatedDate)
+                    .Select(rate => rate.Price)
+                    .FirstOrDefault(),
                 vehicle.Status,
                 vehicle.IsActive,
                 vehicle.Images
@@ -121,6 +126,7 @@ public sealed class VehicleRepository : IVehicleRepository
     public async Task<Vehicle?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
     {
         return await _context.Vehicles
+            .Include(x => x.Rates)
             .Include(x => x.UnavailableDates)
             .FirstOrDefaultAsync(x => x.TenantId == tenantId && x.Id == id && !x.IsDeleted, cancellationToken);
     }
@@ -129,6 +135,7 @@ public sealed class VehicleRepository : IVehicleRepository
     {
         return await _context.Vehicles
             .AsTracking()
+            .Include(x => x.Rates)
             .Include(x => x.Images)
             .FirstOrDefaultAsync(x => x.TenantId == tenantId && x.Id == id && !x.IsDeleted, cancellationToken);
     }

@@ -76,6 +76,15 @@ public sealed class VehicleConfiguration : IEntityTypeConfiguration<Backend.Core
             .HasField("_images")
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
+        builder.HasMany(x => x.Rates)
+            .WithOne(x => x.Vehicle)
+            .HasForeignKey(x => x.VehicleId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(x => x.Rates)
+            .HasField("_rates")
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
         builder.HasMany(x => x.UnavailableDates)
             .WithOne(x => x.Vehicle)
             .HasForeignKey(x => x.VehicleId)

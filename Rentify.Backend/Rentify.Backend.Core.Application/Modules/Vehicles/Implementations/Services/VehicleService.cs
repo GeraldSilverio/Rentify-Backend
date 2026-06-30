@@ -12,6 +12,7 @@ using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.UploadVehicleIm
 using Rentify.Backend.Core.Application.Modules.Vehicles.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Contracts.Services;
 using Rentify.Backend.Core.Domain.Entities.Vehicles;
+using Rentify.Backend.Core.Domain.Enums;
 
 namespace Rentify.Backend.Core.Application.Modules.Vehicles.Implementations.Services;
 
@@ -55,6 +56,10 @@ public sealed class VehicleService : IVehicleService
             command.CurrentMileage,
             command.CreatedBy);
 
+        vehicle.ReplaceRates(
+            [(RentalType.Daily, command.DailyRate)],
+            command.CreatedBy);
+
         await _vehicleRepository.AddAsync(vehicle, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
@@ -80,6 +85,10 @@ public sealed class VehicleService : IVehicleService
             command.Vin,
             command.Color,
             command.CurrentMileage,
+            command.ModifiedBy);
+
+        vehicle.ReplaceRates(
+            [(RentalType.Daily, command.DailyRate)],
             command.ModifiedBy);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
