@@ -56,7 +56,7 @@ public sealed class ReservationService : IReservationService
             Vehicle vehicle = await _vehicleRepository.GetByIdAsync(command.TenantId, vehicleId, cancellationToken)
                               ?? throw new ApiException("Vehicle not found.", StatusCodes.Status404NotFound);
 
-            if (vehicle.Status is VehicleStatus.Maintenance or VehicleStatus.Unavailable)
+            if (vehicle.Status is VehicleStatus.Maintenance or VehicleStatus.OutOfService)
                 throw new ApiException($"Vehicle '{vehicle.PlateNumber}' is not available.", StatusCodes.Status400BadRequest);
 
             if (!vehicle.IsAvailableFor(command.StartDate, command.EndDate))

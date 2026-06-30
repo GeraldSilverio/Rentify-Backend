@@ -201,9 +201,19 @@ public sealed class Vehicle : BaseEntity
         ChangeStatus(VehicleStatus.Reserved, modifiedBy);
     }
 
+    public void MarkAsRented(string modifiedBy)
+    {
+        ChangeStatus(VehicleStatus.Rented, modifiedBy);
+    }
+
     public void MarkAsMaintenance(string modifiedBy)
     {
         ChangeStatus(VehicleStatus.Maintenance, modifiedBy);
+    }
+
+    public void MarkAsOutOfService(string modifiedBy)
+    {
+        ChangeStatus(VehicleStatus.OutOfService, modifiedBy);
     }
 
     public void Activate(string modifiedBy)
@@ -234,7 +244,7 @@ public sealed class Vehicle : BaseEntity
             throw new ArgumentException("Vehicle already has an unavailable range that overlaps these dates.");
 
         _unavailableDates.Add(VehicleUnavailableDate.Create(TenantId, Id, startDate, endDate, reason, createdBy));
-        Status = VehicleStatus.Unavailable;
+        Status = VehicleStatus.OutOfService;
         ModifiedBy = createdBy;
         ModifiedDate = DateTime.UtcNow;
     }
