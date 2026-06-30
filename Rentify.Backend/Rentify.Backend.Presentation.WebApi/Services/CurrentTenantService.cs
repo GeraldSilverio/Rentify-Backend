@@ -14,14 +14,25 @@ public sealed class CurrentTenantService : ICurrentTenantService
         _httpContextAccessor = httpContextAccessor;
     }
 
+    public Guid TenantId => GetTenantId();
+
+    public bool HasTenant => TryGetTenantId(out _);
+
     public Guid GetTenantId()
     {
-        string? tenantId = _httpContextAccessor.HttpContext?.User
-            .FindFirst(ApplicationClaimTypes.TenantId)?.Value;
-
-        if (!Guid.TryParse(tenantId, out Guid parsedTenantId) || parsedTenantId == Guid.Empty)
+        if (!TryGetTenantId(out Guid parsedTenantId))
             throw new ApiException("Tenant claim is missing or invalid.", StatusCodes.Status401Unauthorized);
 
         return parsedTenantId;
+    }
+
+    private bool TryGetTenantId(out Guid tenantId)
+    {
+        string? rawTenantId = _httpContextAccessor.HttpContext?.User
+            .FindFirst(ApplicationClaimTypes.TenantId)?.Value
+            ?? _httpContextAccessor.HttpContext?.User.FindFirst("TenantId")?.Value
+            ?? _httpContextAccessor.HttpContext?.User.FindFirst("tenant_id")?.Value;
+
+        return Guid.TryParse(rawTenantId, out tenantId) && tenantId != Guid.Empty;
     }
 }

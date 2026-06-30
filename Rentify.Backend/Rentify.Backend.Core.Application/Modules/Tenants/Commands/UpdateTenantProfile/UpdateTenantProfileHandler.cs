@@ -5,6 +5,7 @@ using Rentify.Backend.Core.Application.Modules.Shared.Exceptions;
 using Rentify.Backend.Core.Application.Modules.Shared.Response;
 using Rentify.Backend.Core.Application.Modules.Shared.UnitOfWork;
 using Rentify.Backend.Core.Application.Modules.Tenants.Contracts.Repositories;
+using Rentify.Backend.Core.Application.Modules.Tenants.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Tenants.Dtos;
 using Rentify.Backend.Core.Domain.Entities.Core;
 
@@ -15,17 +16,20 @@ public sealed class UpdateTenantProfileHandler
 {
     private readonly ITenantRepository _tenantRepository;
     private readonly ITenantReadRepository _tenantReadRepository;
+    private readonly ITenantUniquenessService _tenantUniquenessService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<UpdateTenantProfileHandler> _logger;
 
     public UpdateTenantProfileHandler(
         ITenantRepository tenantRepository,
         ITenantReadRepository tenantReadRepository,
+        ITenantUniquenessService tenantUniquenessService,
         IUnitOfWork unitOfWork,
         ILogger<UpdateTenantProfileHandler> logger)
     {
         _tenantRepository = tenantRepository;
         _tenantReadRepository = tenantReadRepository;
+        _tenantUniquenessService = tenantUniquenessService;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -36,6 +40,11 @@ public sealed class UpdateTenantProfileHandler
     {
         Tenant tenant = await _tenantRepository.GetByIdAsync(request.TenantId, cancellationToken)
             ?? throw new ApiException("Tenant not found.", StatusCodes.Status404NotFound);
+
+        await _tenantUniquenessService.EnsureRncIsUniqueAsync(
+            request.Rnc,
+            request.TenantId,
+            cancellationToken);
 
         tenant.Update(
             request.Name,

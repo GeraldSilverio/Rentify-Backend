@@ -9,9 +9,12 @@ public sealed class UpdateTenantPaymentPolicyValidator : AbstractValidator<Updat
     {
         RuleFor(x => x.TenantId).NotEmpty();
         RuleFor(x => x.Name).NotEmpty().MaximumLength(100);
-        RuleFor(x => x.PaymentFrequency).IsInEnum();
-        RuleFor(x => x.CutoffDayOfWeek).IsInEnum();
-        RuleFor(x => x.ReminderStartDayOfWeek).IsInEnum();
+        RuleFor(x => x.PaymentFrequency)
+            .IsInEnum();
+        RuleFor(x => x.CutoffDayOfWeek)
+            .IsInEnum();
+        RuleFor(x => x.ReminderStartDayOfWeek)
+            .IsInEnum();
         RuleFor(x => x.GraceDays).InclusiveBetween(0, 15);
         RuleFor(x => x.ModifiedBy).NotEmpty();
 

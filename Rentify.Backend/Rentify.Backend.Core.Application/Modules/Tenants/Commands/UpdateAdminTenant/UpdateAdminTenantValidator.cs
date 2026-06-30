@@ -1,5 +1,5 @@
 using FluentValidation;
-using System.Text.RegularExpressions;
+using Rentify.Backend.Core.Application.Modules.Tenants.Validation;
 
 namespace Rentify.Backend.Core.Application.Modules.Tenants.Commands.UpdateAdminTenant;
 
@@ -20,7 +20,7 @@ public sealed class UpdateAdminTenantValidator : AbstractValidator<UpdateAdminTe
         RuleFor(x => x.Rnc)
             .Must(rnc => rnc is null || !string.IsNullOrWhiteSpace(rnc))
             .WithMessage("RNC cannot be empty.")
-            .Must(rnc => rnc is null || IsValidNormalizedRnc(NormalizeRnc(rnc)))
+            .Must(TenantRncRules.IsValidDominicanRnc)
             .WithMessage("RNC must contain 9 or 11 digits.")
             .When(x => x.Rnc is not null);
 
@@ -29,15 +29,5 @@ public sealed class UpdateAdminTenantValidator : AbstractValidator<UpdateAdminTe
             .IsInEnum();
 
         RuleFor(x => x.ModifiedBy).NotEmpty();
-    }
-
-    private static string NormalizeRnc(string rnc)
-    {
-        return rnc.Trim().Replace("-", string.Empty).Replace(" ", string.Empty);
-    }
-
-    private static bool IsValidNormalizedRnc(string rnc)
-    {
-        return (rnc.Length == 9 || rnc.Length == 11) && Regex.IsMatch(rnc, "^[0-9]+$");
     }
 }

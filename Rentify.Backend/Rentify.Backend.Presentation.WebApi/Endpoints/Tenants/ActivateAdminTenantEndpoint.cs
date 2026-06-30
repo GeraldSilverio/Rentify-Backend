@@ -15,7 +15,7 @@ public static class ActivateAdminTenantEndpoint
             CancellationToken cancellationToken) =>
         {
             var response = await sender.Send(
-                new ActivateAdminTenantCommand(tenantId, currentUserService.GetUserId()),
+                new ActivateAdminTenantCommand(tenantId, currentUserService.ModifiedBy),
                 cancellationToken);
 
             return Results.Ok(response);

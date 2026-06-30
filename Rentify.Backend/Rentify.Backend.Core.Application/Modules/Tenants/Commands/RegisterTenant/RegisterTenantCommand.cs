@@ -8,8 +8,8 @@ namespace Rentify.Backend.Core.Application.Modules.Tenants.Commands.RegisterTena
 
 public sealed record RegisterTenantCommand(
     string Name,
-    string LegalName,
-    string Rnc,
+    string? LegalName,
+    string? Rnc,
     BusinessModel BusinessModel,
     UserInfomationDto UserInformation,
     AddressInformationDto AddressInformation,

@@ -22,7 +22,7 @@ public static class UpdateAdminTenantEndpoint
                     request.LegalName,
                     request.Rnc,
                     request.BusinessModel,
-                    currentUserService.GetUserId()),
+                    currentUserService.ModifiedBy),
                 cancellationToken);
 
             return Results.Ok(response);

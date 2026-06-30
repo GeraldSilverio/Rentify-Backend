@@ -15,7 +15,7 @@ public static class DeactivateAdminTenantEndpoint
             CancellationToken cancellationToken) =>
         {
             var response = await sender.Send(
-                new DeactivateAdminTenantCommand(tenantId, currentUserService.GetUserId()),
+                new DeactivateAdminTenantCommand(tenantId, currentUserService.ModifiedBy),
                 cancellationToken);
 
             return Results.Ok(response);

@@ -24,7 +24,7 @@ public static class UpdateTenantPaymentPolicyEndpoint
                     request.GraceDays,
                     request.ReminderStartDayOfWeek,
                     request.LateFeeEnabled,
-                    currentUserService.GetUserId()),
+                    currentUserService.ModifiedBy),
                 cancellationToken);
 
             return Results.Ok(response);

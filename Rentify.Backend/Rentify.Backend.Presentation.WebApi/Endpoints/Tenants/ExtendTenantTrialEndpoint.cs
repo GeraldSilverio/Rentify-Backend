@@ -19,7 +19,7 @@ public static class ExtendTenantTrialEndpoint
                 new ExtendTenantTrialCommand(
                     tenantId,
                     request.DaysToAdd,
-                    currentUserService.GetUserId()),
+                    currentUserService.ModifiedBy),
                 cancellationToken);
 
             return Results.Ok(response);

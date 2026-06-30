@@ -25,7 +25,7 @@ public static class UpdateTenantSettingsEndpoint
                     request.EnableMaintenance,
                     request.EnableLateFees,
                     request.EnablePublicCatalog,
-                    currentUserService.GetUserId()),
+                    currentUserService.ModifiedBy),
                 cancellationToken);
 
             return Results.Ok(response);

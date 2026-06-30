@@ -5,7 +5,9 @@ using Rentify.Backend.Core.Application.Modules.Shared.Exceptions;
 using Rentify.Backend.Core.Application.Modules.Shared.Response;
 using Rentify.Backend.Core.Application.Modules.Shared.UnitOfWork;
 using Rentify.Backend.Core.Application.Modules.Tenants.Contracts.Repositories;
+using Rentify.Backend.Core.Application.Modules.Tenants.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Tenants.Dtos;
+using Rentify.Backend.Core.Application.Modules.Tenants.Validation;
 using Rentify.Backend.Core.Domain.Entities.Core;
 
 namespace Rentify.Backend.Core.Application.Modules.Tenants.Commands.UpdateAdminTenant;
@@ -15,17 +17,20 @@ public sealed class UpdateAdminTenantHandler
 {
     private readonly ITenantRepository _tenantRepository;
     private readonly ITenantReadRepository _tenantReadRepository;
+    private readonly ITenantUniquenessService _tenantUniquenessService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<UpdateAdminTenantHandler> _logger;
 
     public UpdateAdminTenantHandler(
         ITenantRepository tenantRepository,
         ITenantReadRepository tenantReadRepository,
+        ITenantUniquenessService tenantUniquenessService,
         IUnitOfWork unitOfWork,
         ILogger<UpdateAdminTenantHandler> logger)
     {
         _tenantRepository = tenantRepository;
         _tenantReadRepository = tenantReadRepository;
+        _tenantUniquenessService = tenantUniquenessService;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -37,24 +42,15 @@ public sealed class UpdateAdminTenantHandler
         Tenant tenant = await _tenantRepository.GetByIdAsync(request.TenantId, cancellationToken)
             ?? throw new ApiException("Tenant not found.", StatusCodes.Status404NotFound);
 
-        string? normalizedRnc = NormalizeRncOrNull(request.Rnc);
-
-        if (normalizedRnc is not null &&
-            await _tenantRepository.RncExistsForAnotherTenantAsync(request.TenantId, normalizedRnc, cancellationToken))
-        {
-            _logger.LogWarning(
-                "Admin tenant update rejected because RNC is already in use. TenantId: {TenantId}, Rnc: {Rnc}, ModifiedBy: {ModifiedBy}",
-                request.TenantId,
-                normalizedRnc,
-                request.ModifiedBy);
-
-            throw new ApiException("Este RNC ya está en uso por otra empresa.", StatusCodes.Status400BadRequest);
-        }
+        await _tenantUniquenessService.EnsureRncIsUniqueAsync(
+            request.Rnc,
+            request.TenantId,
+            cancellationToken);
 
         tenant.Update(
             request.Name,
             request.LegalName,
-            normalizedRnc,
+            TenantRncRules.NormalizeOrNull(request.Rnc),
             request.BusinessModel!.Value,
             request.ModifiedBy);
 
@@ -81,13 +77,5 @@ public sealed class UpdateAdminTenantHandler
         TenantUsageResponse usage = await _tenantReadRepository.GetUsageAsync(tenantId, cancellationToken);
 
         return new AdminTenantDetailResponse(profile, usage);
-    }
-
-    private static string? NormalizeRncOrNull(string? rnc)
-    {
-        if (string.IsNullOrWhiteSpace(rnc))
-            return null;
-
-        return rnc.Trim().Replace("-", string.Empty).Replace(" ", string.Empty);
     }
 }

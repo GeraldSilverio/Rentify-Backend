@@ -25,7 +25,17 @@ namespace Rentify.Backend.Core.Application.Modules.Tenants.Services
         private readonly IAccountService _accountService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IOutboxService _outboxService;
-        public TenantService(ITenantRepository tenantRepository, ISubscriptionService subscriptionService, IAccountService accountService, IUnitOfWork unitOfWork, IOutboxService outboxService, ITenantSettingService tenantSettingService, IPaymentPolicyService paymentPolicyService)
+        private readonly ITenantUniquenessService _tenantUniquenessService;
+
+        public TenantService(
+            ITenantRepository tenantRepository,
+            ISubscriptionService subscriptionService,
+            IAccountService accountService,
+            IUnitOfWork unitOfWork,
+            IOutboxService outboxService,
+            ITenantSettingService tenantSettingService,
+            IPaymentPolicyService paymentPolicyService,
+            ITenantUniquenessService tenantUniquenessService)
         {
             _tenantRepository = tenantRepository;
             _subscriptionService = subscriptionService;
@@ -34,10 +44,13 @@ namespace Rentify.Backend.Core.Application.Modules.Tenants.Services
             _outboxService = outboxService;
             _tenantSettingService = tenantSettingService;
             _paymentPolicyService = paymentPolicyService;
+            _tenantUniquenessService = tenantUniquenessService;
         }
 
         public async Task<RegisterTenantResponse> CreateTenantAsync(RegisterTenantCommand request, CancellationToken cancellationToken)
         {
+            await _tenantUniquenessService.EnsureRncIsUniqueAsync(request.Rnc, cancellationToken: cancellationToken);
+
             Tenant tenant = Tenant.Create(request.Name, request.LegalName, request.Rnc, request.BusinessModel, request.CreatedBy);
 
             await _tenantRepository.AddAsync(tenant, cancellationToken);

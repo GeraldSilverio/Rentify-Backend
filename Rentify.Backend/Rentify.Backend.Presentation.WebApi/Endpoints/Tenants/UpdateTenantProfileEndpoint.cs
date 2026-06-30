@@ -21,7 +21,7 @@ public static class UpdateTenantProfileEndpoint
                     request.Name,
                     request.LegalName,
                     request.Rnc,
-                    currentUserService.GetUserId()),
+                    currentUserService.ModifiedBy),
                 cancellationToken);
 
             return Results.Ok(response);
