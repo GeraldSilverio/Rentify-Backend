@@ -56,6 +56,9 @@ public static class ServiceRegistration
         services.AddScoped<IReservationService, ReservationService>();
         services.AddScoped<IPaymentService, PaymentService>();
         services.AddScoped<ITenantService,TenantService>();
+        services.AddScoped<ITenantAccessService, TenantAccessService>();
+        services.AddScoped<ICurrentSubscriptionService, CurrentSubscriptionService>();
+        services.AddScoped<ITenantUsageService, TenantUsageService>();
         services.AddScoped<ITenantUniquenessService, TenantUniquenessService>();
         services.AddScoped<ITenantSettingService,TenantSettingService>();
         services.AddScoped<IPaymentPolicyService,PaymentPolicyService>();

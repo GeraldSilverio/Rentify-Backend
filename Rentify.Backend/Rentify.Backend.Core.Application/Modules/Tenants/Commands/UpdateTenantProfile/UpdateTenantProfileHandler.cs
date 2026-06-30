@@ -14,21 +14,21 @@ namespace Rentify.Backend.Core.Application.Modules.Tenants.Commands.UpdateTenant
 public sealed class UpdateTenantProfileHandler
     : IRequestHandler<UpdateTenantProfileCommand, ResultReponse<TenantProfileResponse>>
 {
-    private readonly ITenantRepository _tenantRepository;
     private readonly ITenantReadRepository _tenantReadRepository;
+    private readonly ITenantAccessService _tenantAccessService;
     private readonly ITenantUniquenessService _tenantUniquenessService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<UpdateTenantProfileHandler> _logger;
 
     public UpdateTenantProfileHandler(
-        ITenantRepository tenantRepository,
         ITenantReadRepository tenantReadRepository,
+        ITenantAccessService tenantAccessService,
         ITenantUniquenessService tenantUniquenessService,
         IUnitOfWork unitOfWork,
         ILogger<UpdateTenantProfileHandler> logger)
     {
-        _tenantRepository = tenantRepository;
         _tenantReadRepository = tenantReadRepository;
+        _tenantAccessService = tenantAccessService;
         _tenantUniquenessService = tenantUniquenessService;
         _unitOfWork = unitOfWork;
         _logger = logger;
@@ -38,8 +38,7 @@ public sealed class UpdateTenantProfileHandler
         UpdateTenantProfileCommand request,
         CancellationToken cancellationToken)
     {
-        Tenant tenant = await _tenantRepository.GetByIdAsync(request.TenantId, cancellationToken)
-            ?? throw new ApiException("Tenant not found.", StatusCodes.Status404NotFound);
+        Tenant tenant = await _tenantAccessService.GetActiveTenantAsync(request.TenantId, cancellationToken);
 
         await _tenantUniquenessService.EnsureRncIsUniqueAsync(
             request.Rnc,

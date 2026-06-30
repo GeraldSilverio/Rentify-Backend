@@ -5,6 +5,7 @@ using Rentify.Backend.Core.Application.Modules.Shared.Exceptions;
 using Rentify.Backend.Core.Application.Modules.Shared.Response;
 using Rentify.Backend.Core.Application.Modules.Shared.UnitOfWork;
 using Rentify.Backend.Core.Application.Modules.Tenants.Contracts.Repositories;
+using Rentify.Backend.Core.Application.Modules.Tenants.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Tenants.Dtos;
 using Rentify.Backend.Core.Domain.Entities.Core;
 using Rentify.Backend.Core.Domain.Entities.Payments;
@@ -17,6 +18,7 @@ public sealed class UpdateTenantPaymentPolicyHandler
     private readonly IPaymentPolicyRepository _paymentPolicyRepository;
     private readonly ITenantSettingRepository _tenantSettingRepository;
     private readonly ITenantReadRepository _tenantReadRepository;
+    private readonly ITenantAccessService _tenantAccessService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<UpdateTenantPaymentPolicyHandler> _logger;
 
@@ -24,12 +26,14 @@ public sealed class UpdateTenantPaymentPolicyHandler
         IPaymentPolicyRepository paymentPolicyRepository,
         ITenantSettingRepository tenantSettingRepository,
         ITenantReadRepository tenantReadRepository,
+        ITenantAccessService tenantAccessService,
         IUnitOfWork unitOfWork,
         ILogger<UpdateTenantPaymentPolicyHandler> logger)
     {
         _paymentPolicyRepository = paymentPolicyRepository;
         _tenantSettingRepository = tenantSettingRepository;
         _tenantReadRepository = tenantReadRepository;
+        _tenantAccessService = tenantAccessService;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -38,6 +42,8 @@ public sealed class UpdateTenantPaymentPolicyHandler
         UpdateTenantPaymentPolicyCommand request,
         CancellationToken cancellationToken)
     {
+        await _tenantAccessService.EnsureTenantIsActiveAsync(request.TenantId, cancellationToken);
+
         PaymentPolicy paymentPolicy = await _paymentPolicyRepository.GetDefaultByTenantIdAsync(request.TenantId, cancellationToken)
             ?? throw new ApiException("Default payment policy not found.", StatusCodes.Status404NotFound);
 

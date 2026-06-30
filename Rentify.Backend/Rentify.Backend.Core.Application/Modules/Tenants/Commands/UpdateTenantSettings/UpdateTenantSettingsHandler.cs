@@ -4,8 +4,8 @@ using Microsoft.Extensions.Logging;
 using Rentify.Backend.Core.Application.Modules.Shared.Exceptions;
 using Rentify.Backend.Core.Application.Modules.Shared.Response;
 using Rentify.Backend.Core.Application.Modules.Shared.UnitOfWork;
-using Rentify.Backend.Core.Application.Modules.Subscriptions.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Tenants.Contracts.Repositories;
+using Rentify.Backend.Core.Application.Modules.Tenants.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Tenants.Dtos;
 using Rentify.Backend.Core.Domain.Entities.Core;
 using Rentify.Backend.Core.Domain.Enums;
@@ -15,25 +15,25 @@ namespace Rentify.Backend.Core.Application.Modules.Tenants.Commands.UpdateTenant
 public sealed class UpdateTenantSettingsHandler
     : IRequestHandler<UpdateTenantSettingsCommand, ResultReponse<TenantSettingsResponse>>
 {
-    private readonly ITenantRepository _tenantRepository;
     private readonly ITenantSettingRepository _tenantSettingRepository;
-    private readonly ISubscriptionRepository _subscriptionRepository;
     private readonly ITenantReadRepository _tenantReadRepository;
+    private readonly ITenantAccessService _tenantAccessService;
+    private readonly ICurrentSubscriptionService _currentSubscriptionService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<UpdateTenantSettingsHandler> _logger;
 
     public UpdateTenantSettingsHandler(
-        ITenantRepository tenantRepository,
         ITenantSettingRepository tenantSettingRepository,
-        ISubscriptionRepository subscriptionRepository,
         ITenantReadRepository tenantReadRepository,
+        ITenantAccessService tenantAccessService,
+        ICurrentSubscriptionService currentSubscriptionService,
         IUnitOfWork unitOfWork,
         ILogger<UpdateTenantSettingsHandler> logger)
     {
-        _tenantRepository = tenantRepository;
         _tenantSettingRepository = tenantSettingRepository;
-        _subscriptionRepository = subscriptionRepository;
         _tenantReadRepository = tenantReadRepository;
+        _tenantAccessService = tenantAccessService;
+        _currentSubscriptionService = currentSubscriptionService;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -42,8 +42,7 @@ public sealed class UpdateTenantSettingsHandler
         UpdateTenantSettingsCommand request,
         CancellationToken cancellationToken)
     {
-        Tenant tenant = await _tenantRepository.GetByIdAsync(request.TenantId, cancellationToken)
-            ?? throw new ApiException("Tenant not found.", StatusCodes.Status404NotFound);
+        Tenant tenant = await _tenantAccessService.GetActiveTenantAsync(request.TenantId, cancellationToken);
 
         TenantSettings settings = await _tenantSettingRepository.GetByTenantIdAsync(request.TenantId, cancellationToken)
             ?? throw new ApiException("Tenant settings not found.", StatusCodes.Status404NotFound);
@@ -101,9 +100,9 @@ public sealed class UpdateTenantSettingsHandler
         if (!request.EnableMaintenance)
             return;
 
-        Subscription? subscription = await _subscriptionRepository.GetCurrentByTenantIdAsync(request.TenantId, cancellationToken);
+        Subscription subscription = await _currentSubscriptionService.GetCurrentSubscriptionAsync(request.TenantId, cancellationToken);
 
-        if (subscription?.SubscriptionPlan.MaintenanceModuleEnabled != true)
+        if (!subscription.SubscriptionPlan.MaintenanceModuleEnabled)
             throw new ApiException("The current subscription plan does not include the maintenance module.", StatusCodes.Status400BadRequest);
 
     }

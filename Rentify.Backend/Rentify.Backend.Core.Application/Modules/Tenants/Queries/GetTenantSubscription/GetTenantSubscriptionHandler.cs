@@ -1,8 +1,6 @@
 using MediatR;
-using Microsoft.AspNetCore.Http;
-using Rentify.Backend.Core.Application.Modules.Shared.Exceptions;
 using Rentify.Backend.Core.Application.Modules.Shared.Response;
-using Rentify.Backend.Core.Application.Modules.Tenants.Contracts.Repositories;
+using Rentify.Backend.Core.Application.Modules.Tenants.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Tenants.Dtos;
 
 namespace Rentify.Backend.Core.Application.Modules.Tenants.Queries.GetTenantSubscription;
@@ -10,22 +8,19 @@ namespace Rentify.Backend.Core.Application.Modules.Tenants.Queries.GetTenantSubs
 public sealed class GetTenantSubscriptionHandler
     : IRequestHandler<GetTenantSubscriptionQuery, ResultReponse<TenantSubscriptionResponse>>
 {
-    private readonly ITenantReadRepository _tenantReadRepository;
+    private readonly ICurrentSubscriptionService _currentSubscriptionService;
 
-    public GetTenantSubscriptionHandler(ITenantReadRepository tenantReadRepository)
+    public GetTenantSubscriptionHandler(ICurrentSubscriptionService currentSubscriptionService)
     {
-        _tenantReadRepository = tenantReadRepository;
+        _currentSubscriptionService = currentSubscriptionService;
     }
 
     public async Task<ResultReponse<TenantSubscriptionResponse>> Handle(
         GetTenantSubscriptionQuery request,
         CancellationToken cancellationToken)
     {
-        TenantSubscriptionResponse? subscription = await _tenantReadRepository
-            .GetCurrentSubscriptionAsync(request.TenantId, cancellationToken);
-
-        if (subscription is null)
-            throw new ApiException("Subscription not found.", StatusCodes.Status404NotFound);
+        TenantSubscriptionResponse subscription = await _currentSubscriptionService
+            .GetCurrentSubscriptionResponseAsync(request.TenantId, cancellationToken);
 
         return ResultReponse<TenantSubscriptionResponse>.Success(subscription);
     }
