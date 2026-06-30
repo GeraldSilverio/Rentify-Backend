@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Rentify.Backend.Core.Domain.Entities;
 
 namespace Rentify.Backend.Infraestructure.Persistence.EntityConfiguration.Vehicles;
 
@@ -12,6 +11,18 @@ public sealed class VehicleConfiguration : IEntityTypeConfiguration<Backend.Core
 
         builder.HasKey(x => x.Id);
 
+        builder.Property(x => x.TenantId)
+            .IsRequired();
+
+        builder.Property(x => x.VehicleBrandId)
+            .IsRequired();
+
+        builder.Property(x => x.VehicleModelId)
+            .IsRequired();
+
+        builder.Property(x => x.VehicleTypeId)
+            .IsRequired();
+
         builder.Property(x => x.PlateNumber)
             .IsRequired()
             .HasMaxLength(20);
@@ -20,8 +31,7 @@ public sealed class VehicleConfiguration : IEntityTypeConfiguration<Backend.Core
             .IsUnique();
 
         builder.Property(x => x.Vin)
-            .IsRequired()
-            .HasMaxLength(17);
+            .HasMaxLength(50);
 
         builder.HasIndex(x => new { x.TenantId, x.Vin })
             .IsUnique();
@@ -30,14 +40,22 @@ public sealed class VehicleConfiguration : IEntityTypeConfiguration<Backend.Core
             .IsRequired()
             .HasMaxLength(50);
 
-        builder.Property(x => x.DailyRate)
-            .HasPrecision(18, 2);
-
         builder.Property(x => x.Status)
             .HasConversion<string>()
             .HasMaxLength(30);
 
         builder.HasIndex(x => new { x.TenantId, x.Status });
+
+        builder.HasIndex(x => new { x.TenantId, x.VehicleBrandId });
+        builder.HasIndex(x => new { x.TenantId, x.VehicleModelId });
+        builder.HasIndex(x => new { x.TenantId, x.VehicleTypeId });
+
+        builder.Ignore(x => x.DailyRate);
+
+        builder.HasOne(x => x.VehicleBrand)
+            .WithMany()
+            .HasForeignKey(x => x.VehicleBrandId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(x => x.VehicleModel)
             .WithMany()

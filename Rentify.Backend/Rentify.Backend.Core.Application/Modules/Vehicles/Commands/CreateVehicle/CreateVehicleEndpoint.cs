@@ -18,6 +18,7 @@ public static class CreateVehicleEndpoint
             var command = new CreateVehicleCommand(
                 tenantId,
                 request.RentCarId,
+                request.VehicleBrandId,
                 request.VehicleModelId,
                 request.VehicleTypeId,
                 request.Year,
@@ -25,6 +26,7 @@ public static class CreateVehicleEndpoint
                 request.Vin,
                 request.Color,
                 request.DailyRate,
+                request.CurrentMileage,
                 request.CreatedBy);
 
             var response = await sender.Send(command, cancellationToken);

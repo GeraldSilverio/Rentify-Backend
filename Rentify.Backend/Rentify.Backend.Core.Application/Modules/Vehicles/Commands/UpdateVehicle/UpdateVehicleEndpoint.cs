@@ -19,6 +19,7 @@ public static class UpdateVehicleEndpoint
             var response = await sender.Send(new UpdateVehicleCommand(
                 tenantId,
                 vehicleId,
+                request.VehicleBrandId,
                 request.VehicleModelId,
                 request.VehicleTypeId,
                 request.Year,
@@ -26,6 +27,7 @@ public static class UpdateVehicleEndpoint
                 request.Vin,
                 request.Color,
                 request.DailyRate,
+                request.CurrentMileage,
                 request.ModifiedBy), cancellationToken);
 
             return Results.Ok(response);

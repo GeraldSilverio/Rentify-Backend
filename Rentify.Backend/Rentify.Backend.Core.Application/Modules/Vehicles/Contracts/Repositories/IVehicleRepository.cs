@@ -14,5 +14,5 @@ public interface IVehicleRepository
     Task<Vehicle?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default);
     Task<Vehicle?> GetByIdWithImagesAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default);
     Task<bool> PlateNumberExistsAsync(Guid tenantId, string plateNumber, Guid? excludedVehicleId = null, CancellationToken cancellationToken = default);
-    Task<bool> VinExistsAsync(Guid tenantId, string vin, Guid? excludedVehicleId = null, CancellationToken cancellationToken = default);
+    Task<bool> VinExistsAsync(Guid tenantId, string? vin, Guid? excludedVehicleId = null, CancellationToken cancellationToken = default);
 }

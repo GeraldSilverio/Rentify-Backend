@@ -40,28 +40,22 @@ public sealed class VehicleRepository : IVehicleRepository
             string searchPattern = $"%{query.Search.Trim()}%";
             vehiclesQuery = vehiclesQuery.Where(vehicle =>
                 EF.Functions.ILike(vehicle.PlateNumber, searchPattern)
-                || EF.Functions.ILike(vehicle.Vin, searchPattern)
+                || (vehicle.Vin != null && EF.Functions.ILike(vehicle.Vin, searchPattern))
                 || EF.Functions.ILike(vehicle.VehicleModel.Name, searchPattern)
-                || EF.Functions.ILike(vehicle.VehicleModel.VehicleBrand.Name, searchPattern));
+                || EF.Functions.ILike(vehicle.VehicleBrand.Name, searchPattern));
         }
 
         if (query.VehicleTypeId.HasValue)
             vehiclesQuery = vehiclesQuery.Where(vehicle => vehicle.VehicleTypeId == query.VehicleTypeId.Value);
 
         if (query.VehicleBrandId.HasValue)
-            vehiclesQuery = vehiclesQuery.Where(vehicle => vehicle.VehicleModel.VehicleBrandId == query.VehicleBrandId.Value);
+            vehiclesQuery = vehiclesQuery.Where(vehicle => vehicle.VehicleBrandId == query.VehicleBrandId.Value);
 
         if (query.VehicleModelId.HasValue)
             vehiclesQuery = vehiclesQuery.Where(vehicle => vehicle.VehicleModelId == query.VehicleModelId.Value);
 
         if (query.Status.HasValue)
             vehiclesQuery = vehiclesQuery.Where(vehicle => vehicle.Status == query.Status.Value);
-
-        if (query.MinDailyRate.HasValue)
-            vehiclesQuery = vehiclesQuery.Where(vehicle => vehicle.DailyRate >= query.MinDailyRate.Value);
-
-        if (query.MaxDailyRate.HasValue)
-            vehiclesQuery = vehiclesQuery.Where(vehicle => vehicle.DailyRate <= query.MaxDailyRate.Value);
 
         if (query.OnlyActive.HasValue)
             vehiclesQuery = vehiclesQuery.Where(vehicle => vehicle.IsActive == query.OnlyActive.Value);
@@ -80,15 +74,15 @@ public sealed class VehicleRepository : IVehicleRepository
                 vehicle.TenantId,
                 vehicle.VehicleModelId,
                 vehicle.VehicleModel.Name,
-                vehicle.VehicleModel.VehicleBrandId,
-                vehicle.VehicleModel.VehicleBrand.Name,
+                vehicle.VehicleBrandId,
+                vehicle.VehicleBrand.Name,
                 vehicle.VehicleTypeId,
                 vehicle.VehicleType.Name,
                 vehicle.Year,
                 vehicle.PlateNumber,
                 vehicle.Vin,
                 vehicle.Color,
-                vehicle.DailyRate,
+                0m,
                 vehicle.Status,
                 vehicle.IsActive,
                 vehicle.Images
@@ -159,10 +153,13 @@ public sealed class VehicleRepository : IVehicleRepository
 
     public async Task<bool> VinExistsAsync(
         Guid tenantId,
-        string vin,
+        string? vin,
         Guid? excludedVehicleId = null,
         CancellationToken cancellationToken = default)
     {
+        if (string.IsNullOrWhiteSpace(vin))
+            return false;
+
         string normalizedVin = vin.Trim().ToUpperInvariant();
 
         return await _context.Vehicles.AnyAsync(

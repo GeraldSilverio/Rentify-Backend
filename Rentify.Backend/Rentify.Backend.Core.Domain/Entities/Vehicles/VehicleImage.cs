@@ -82,4 +82,13 @@ public sealed class VehicleImage : BaseEntity
         ModifiedBy = modifiedBy;
         ModifiedDate = DateTime.UtcNow;
     }
+
+    public void Delete(string modifiedBy)
+    {
+        IsDeleted = true;
+        IsActive = false;
+        IsPrimary = false;
+        ModifiedBy = modifiedBy;
+        ModifiedDate = DateTime.UtcNow;
+    }
 }

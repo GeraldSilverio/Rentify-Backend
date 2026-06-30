@@ -8,6 +8,7 @@ public sealed class CreateVehicleValidator : AbstractValidator<CreateVehicleComm
     {
         RuleFor(x => x.TenantId).NotEmpty().WithMessage("Tenant Id is required.");
         RuleFor(x => x.RentCarId).NotEmpty().WithMessage("Rent car Id is required.");
+        RuleFor(x => x.VehicleBrandId).NotEmpty().WithMessage("Vehicle brand Id is required.");
         RuleFor(x => x.VehicleModelId).NotEmpty().WithMessage("Vehicle model Id is required.");
         RuleFor(x => x.VehicleTypeId).NotEmpty().WithMessage("Vehicle type Id is required.");
         RuleFor(x => x.Year)
@@ -15,14 +16,13 @@ public sealed class CreateVehicleValidator : AbstractValidator<CreateVehicleComm
             .WithMessage("Vehicle year is invalid.");
         RuleFor(x => x.PlateNumber).NotEmpty().WithMessage("Plate number is required.").MaximumLength(20);
         RuleFor(x => x.Vin)
-            .NotEmpty()
-            .WithMessage("VIN is required.")
-            .Length(17)
-            .WithMessage("VIN must contain 17 characters.")
-            .Matches("^[A-HJ-NPR-Z0-9]{17}$")
-            .WithMessage("VIN contains invalid characters.");
+            .MaximumLength(50)
+            .When(x => !string.IsNullOrWhiteSpace(x.Vin));
         RuleFor(x => x.Color).NotEmpty().WithMessage("Color is required.").MaximumLength(50);
         RuleFor(x => x.DailyRate).GreaterThan(0).WithMessage("Daily rate must be greater than zero.");
+        RuleFor(x => x.CurrentMileage)
+            .GreaterThanOrEqualTo(0)
+            .When(x => x.CurrentMileage.HasValue);
         RuleFor(x => x.CreatedBy).NotEmpty().WithMessage("Created by is required.");
     }
 }

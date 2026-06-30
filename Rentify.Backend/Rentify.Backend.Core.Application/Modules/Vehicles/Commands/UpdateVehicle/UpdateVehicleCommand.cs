@@ -6,11 +6,13 @@ namespace Rentify.Backend.Core.Application.Modules.Vehicles.Commands.UpdateVehic
 public sealed record UpdateVehicleCommand(
     Guid TenantId,
     Guid VehicleId,
+    Guid VehicleBrandId,
     Guid VehicleModelId,
     Guid VehicleTypeId,
     int Year,
     string PlateNumber,
-    string Vin,
+    string? Vin,
     string Color,
     decimal DailyRate,
+    int? CurrentMileage,
     string ModifiedBy) : IRequest<ResultReponse<Guid>>;

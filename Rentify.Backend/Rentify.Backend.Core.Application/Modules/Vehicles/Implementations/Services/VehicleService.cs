@@ -45,13 +45,14 @@ public sealed class VehicleService : IVehicleService
 
         Vehicle vehicle = Vehicle.Create(
             command.TenantId,
+            command.VehicleBrandId,
             command.VehicleModelId,
             command.VehicleTypeId,
             command.Year,
             command.PlateNumber,
             command.Vin,
             command.Color,
-            command.DailyRate,
+            command.CurrentMileage,
             command.CreatedBy);
 
         await _vehicleRepository.AddAsync(vehicle, cancellationToken);
@@ -71,13 +72,14 @@ public sealed class VehicleService : IVehicleService
             throw new ApiException($"Vehicle with VIN '{command.Vin}' already exists for this tenant.", StatusCodes.Status400BadRequest);
 
         vehicle.Update(
+            command.VehicleBrandId,
             command.VehicleModelId,
             command.VehicleTypeId,
             command.Year,
             command.PlateNumber,
             command.Vin,
             command.Color,
-            command.DailyRate,
+            command.CurrentMileage,
             command.ModifiedBy);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
