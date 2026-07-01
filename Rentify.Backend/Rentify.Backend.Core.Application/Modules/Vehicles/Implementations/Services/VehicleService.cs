@@ -12,6 +12,7 @@ using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.UpdateVehicle;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.UploadVehicleImage;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Contracts.Services;
+using Rentify.Backend.Core.Application.Modules.Vehicles.Dtos;
 using Rentify.Backend.Core.Domain.Entities.Vehicles;
 using Rentify.Backend.Core.Domain.Enums;
 
@@ -23,6 +24,7 @@ public sealed class VehicleService : IVehicleService
     private const int MaxImagesPerVehicle = 5;
 
     private readonly IVehicleRepository _vehicleRepository;
+    private readonly IVehicleCatalogRepository _vehicleCatalogRepository;
     private readonly IFileStorageService _fileStorageService;
     private readonly ITenantAccessService _tenantAccessService;
     private readonly ICurrentSubscriptionService _currentSubscriptionService;
@@ -30,12 +32,14 @@ public sealed class VehicleService : IVehicleService
 
     public VehicleService(
         IVehicleRepository vehicleRepository,
+        IVehicleCatalogRepository vehicleCatalogRepository,
         IFileStorageService fileStorageService,
         ITenantAccessService tenantAccessService,
         ICurrentSubscriptionService currentSubscriptionService,
         IUnitOfWork unitOfWork)
     {
         _vehicleRepository = vehicleRepository;
+        _vehicleCatalogRepository = vehicleCatalogRepository;
         _fileStorageService = fileStorageService;
         _tenantAccessService = tenantAccessService;
         _currentSubscriptionService = currentSubscriptionService;
@@ -240,6 +244,55 @@ public sealed class VehicleService : IVehicleService
             throw new ApiException(ex.Message, StatusCodes.Status404NotFound);
         }
 
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyCollection<VehicleFeatureResponse>> GetFeaturesAsync(
+        Guid tenantId,
+        Guid vehicleId,
+        CancellationToken cancellationToken = default)
+    {
+        await EnsureTenantCanUseVehiclesAsync(tenantId, cancellationToken);
+
+        Vehicle vehicle = await _vehicleRepository.GetByIdWithFeaturesAsync(tenantId, vehicleId, cancellationToken)
+                          ?? throw new ApiException("Vehicle not found.", StatusCodes.Status404NotFound);
+
+        return vehicle.FeatureAssignments
+            .Where(x => !x.IsDeleted && x.VehicleFeature is { IsDeleted: false })
+            .OrderBy(x => x.VehicleFeature.Category)
+            .ThenBy(x => x.VehicleFeature.Name)
+            .Select(x => new VehicleFeatureResponse(
+                x.VehicleFeature.Id,
+                x.VehicleFeature.Name,
+                x.VehicleFeature.Category,
+                x.VehicleFeature.IsActive))
+            .ToList();
+    }
+
+    public async Task ReplaceFeaturesAsync(
+        Guid tenantId,
+        Guid vehicleId,
+        IReadOnlyCollection<Guid> featureIds,
+        string modifiedBy,
+        CancellationToken cancellationToken = default)
+    {
+        await EnsureTenantCanUseVehiclesAsync(tenantId, cancellationToken);
+
+        Guid[] distinctFeatureIds = featureIds.Distinct().ToArray();
+        if (distinctFeatureIds.Length != featureIds.Count)
+            throw new ApiException("Vehicle features cannot contain duplicated values.", StatusCodes.Status400BadRequest);
+
+        IReadOnlyCollection<Guid> activeFeatureIds = await _vehicleCatalogRepository.GetActiveFeatureIdsAsync(
+            distinctFeatureIds,
+            cancellationToken);
+
+        if (activeFeatureIds.Count != distinctFeatureIds.Length)
+            throw new ApiException("One or more vehicle features do not exist or are inactive.", StatusCodes.Status400BadRequest);
+
+        Vehicle vehicle = await _vehicleRepository.GetByIdWithFeaturesAsync(tenantId, vehicleId, cancellationToken)
+                          ?? throw new ApiException("Vehicle not found.", StatusCodes.Status404NotFound);
+
+        vehicle.ReplaceFeatures(distinctFeatureIds, modifiedBy);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 

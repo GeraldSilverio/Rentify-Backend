@@ -7,6 +7,7 @@ public sealed class Vehicle : BaseEntity
 {
     private readonly List<VehicleImage> _images = [];
     private readonly List<VehicleRate> _rates = [];
+    private readonly List<VehicleFeatureAssignment> _featureAssignments = [];
     private readonly List<VehicleUnavailableDate> _unavailableDates = [];
 
     public Guid Id { get; private set; }
@@ -33,6 +34,7 @@ public sealed class Vehicle : BaseEntity
     public VehicleType VehicleType { get; private set; } = null!;
     public IReadOnlyCollection<VehicleImage> Images => _images.AsReadOnly();
     public IReadOnlyCollection<VehicleRate> Rates => _rates.AsReadOnly();
+    public IReadOnlyCollection<VehicleFeatureAssignment> FeatureAssignments => _featureAssignments.AsReadOnly();
     public IReadOnlyCollection<VehicleUnavailableDate> UnavailableDates => _unavailableDates.AsReadOnly();
 
     private Vehicle()
@@ -232,6 +234,42 @@ public sealed class Vehicle : BaseEntity
                 _rates.Add(VehicleRate.Create(TenantId, Id, rentalType, price, modifiedBy));
             else
                 existingRate.Update(price, modifiedBy);
+        }
+
+        ModifiedBy = modifiedBy;
+        ModifiedDate = DateTime.UtcNow;
+    }
+
+    public void ReplaceFeatures(
+        IReadOnlyCollection<Guid> featureIds,
+        string modifiedBy)
+    {
+        if (string.IsNullOrWhiteSpace(modifiedBy))
+            throw new ArgumentException("ModifiedBy is required.");
+
+        Guid[] distinctFeatureIds = featureIds
+            .Where(id => id != Guid.Empty)
+            .Distinct()
+            .ToArray();
+
+        if (distinctFeatureIds.Length != featureIds.Count)
+            throw new ArgumentException("Vehicle features cannot contain duplicates or empty identifiers.");
+
+        foreach (VehicleFeatureAssignment assignment in _featureAssignments
+                     .Where(x => !x.IsDeleted && !distinctFeatureIds.Contains(x.VehicleFeatureId)))
+        {
+            assignment.Delete(modifiedBy);
+        }
+
+        foreach (Guid featureId in distinctFeatureIds)
+        {
+            VehicleFeatureAssignment? assignment = _featureAssignments
+                .FirstOrDefault(x => x.VehicleFeatureId == featureId);
+
+            if (assignment is null)
+                _featureAssignments.Add(VehicleFeatureAssignment.Create(TenantId, Id, featureId, modifiedBy));
+            else if (assignment.IsDeleted)
+                assignment.Activate(modifiedBy);
         }
 
         ModifiedBy = modifiedBy;

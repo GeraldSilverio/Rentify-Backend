@@ -40,6 +40,8 @@ namespace Rentify.Backend.Infraestructure.Persistence.Context
             modelBuilder.ApplyConfiguration(new VehicleTypeConfiguration());
             modelBuilder.ApplyConfiguration(new VehicleImageConfiguration());
             modelBuilder.ApplyConfiguration(new VehicleRateConfiguration());
+            modelBuilder.ApplyConfiguration(new VehicleFeatureConfiguration());
+            modelBuilder.ApplyConfiguration(new VehicleFeatureAssignmentConfiguration());
             modelBuilder.ApplyConfiguration(new VehicleConfiguration());
             modelBuilder.ApplyConfiguration(new VehicleUnavailableDateConfiguration());
             modelBuilder.ApplyConfiguration(new CustomerConfiguration());
@@ -68,6 +70,8 @@ namespace Rentify.Backend.Infraestructure.Persistence.Context
         public DbSet<Vehicle> Vehicles { get; set; }
         public DbSet<VehicleImage> VehicleImages { get; set; }
         public DbSet<VehicleRate> VehicleRates { get; set; }
+        public DbSet<VehicleFeature> VehicleFeatures { get; set; }
+        public DbSet<VehicleFeatureAssignment> VehicleFeatureAssignments { get; set; }
         public DbSet<VehicleUnavailableDate> VehicleUnavailableDates { get; set; }
         public DbSet<Customer> Customers { get; set; }
         public DbSet<CustomerDocument> CustomerDocuments { get; set; }

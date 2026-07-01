@@ -140,7 +140,14 @@ public sealed class VehicleRepository : IVehicleRepository
             .FirstOrDefaultAsync(x => x.TenantId == tenantId && x.Id == id && !x.IsDeleted, cancellationToken);
     }
 
-
+    public async Task<Vehicle?> GetByIdWithFeaturesAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
+    {
+        return await _context.Vehicles
+            .AsTracking()
+            .Include(x => x.FeatureAssignments)
+            .ThenInclude(x => x.VehicleFeature)
+            .FirstOrDefaultAsync(x => x.TenantId == tenantId && x.Id == id && !x.IsDeleted, cancellationToken);
+    }
 
     public async Task<bool> PlateNumberExistsAsync(
         Guid tenantId,
