@@ -12,7 +12,6 @@ using Rentify.Backend.Infraestructure.Persistence.EntityConfiguration.Events;
 using Rentify.Backend.Infraestructure.Persistence.EntityConfiguration.Payments;
 using Rentify.Backend.Infraestructure.Persistence.EntityConfiguration.Reservation;
 using Rentify.Backend.Infraestructure.Persistence.EntityConfiguration.Reservations;
-using Rentify.Backend.Infraestructure.Persistence.EntityConfiguration.Vehicle;
 using Rentify.Backend.Infraestructure.Persistence.EntityConfiguration.Vehicles;
 
 namespace Rentify.Backend.Infraestructure.Persistence.Context

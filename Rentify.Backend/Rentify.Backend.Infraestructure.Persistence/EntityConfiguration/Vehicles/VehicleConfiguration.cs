@@ -28,21 +28,23 @@ public sealed class VehicleConfiguration : IEntityTypeConfiguration<Backend.Core
             .HasMaxLength(20);
 
         builder.HasIndex(x => new { x.TenantId, x.PlateNumber })
-            .IsUnique();
+            .IsUnique()
+            .HasFilter("\"IsDeleted\" = false");
 
         builder.Property(x => x.Vin)
             .HasMaxLength(50);
 
         builder.HasIndex(x => new { x.TenantId, x.Vin })
-            .IsUnique();
+            .IsUnique()
+            .HasFilter("\"IsDeleted\" = false AND \"Vin\" IS NOT NULL");
 
         builder.Property(x => x.Color)
             .IsRequired()
             .HasMaxLength(50);
 
         builder.Property(x => x.Status)
-            .HasConversion<string>()
-            .HasMaxLength(30);
+            .HasConversion<int>()
+            .IsRequired();
 
         builder.HasIndex(x => new { x.TenantId, x.Status });
 
@@ -100,6 +102,7 @@ public sealed class VehicleConfiguration : IEntityTypeConfiguration<Backend.Core
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.Navigation(x => x.UnavailableDates)
+            .HasField("_unavailableDates")
             .UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

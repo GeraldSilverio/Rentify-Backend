@@ -1,9 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Rentify.Backend.Core.Domain.Entities;
 using Rentify.Backend.Core.Domain.Entities.Vehicles;
 
-namespace Rentify.Backend.Infraestructure.Persistence.EntityConfiguration.Vehicle;
+namespace Rentify.Backend.Infraestructure.Persistence.EntityConfiguration.Vehicles;
 
 public sealed class VehicleBrandConfiguration : IEntityTypeConfiguration<VehicleBrand>
 {
@@ -18,7 +17,8 @@ public sealed class VehicleBrandConfiguration : IEntityTypeConfiguration<Vehicle
             .HasMaxLength(100);
 
         builder.HasIndex(x => x.Name)
-            .IsUnique();
+            .IsUnique()
+            .HasFilter("\"IsDeleted\" = false");
 
         builder.HasMany(x => x.Models)
             .WithOne(x => x.VehicleBrand)

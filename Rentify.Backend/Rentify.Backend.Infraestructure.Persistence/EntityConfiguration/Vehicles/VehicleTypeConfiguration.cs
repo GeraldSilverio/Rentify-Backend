@@ -1,9 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Rentify.Backend.Core.Domain.Entities;
 using Rentify.Backend.Core.Domain.Entities.Vehicles;
 
-namespace Rentify.Backend.Infraestructure.Persistence.EntityConfiguration.Vehicle;
+namespace Rentify.Backend.Infraestructure.Persistence.EntityConfiguration.Vehicles;
 
 public sealed class VehicleTypeConfiguration : IEntityTypeConfiguration<VehicleType>
 {
@@ -16,5 +15,9 @@ public sealed class VehicleTypeConfiguration : IEntityTypeConfiguration<VehicleT
         builder.Property(x => x.Name)
             .IsRequired()
             .HasMaxLength(100);
+
+        builder.HasIndex(x => x.Name)
+            .IsUnique()
+            .HasFilter("\"IsDeleted\" = false");
     }
 }

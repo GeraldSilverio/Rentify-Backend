@@ -21,6 +21,7 @@ public sealed class VehicleFeatureConfiguration : IEntityTypeConfiguration<Vehic
             .HasMaxLength(100);
 
         builder.HasIndex(x => x.Name)
-            .IsUnique();
+            .IsUnique()
+            .HasFilter("\"IsDeleted\" = false");
     }
 }

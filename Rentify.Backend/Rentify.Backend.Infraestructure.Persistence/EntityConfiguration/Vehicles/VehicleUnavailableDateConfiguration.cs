@@ -1,9 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Rentify.Backend.Core.Domain.Entities;
 using Rentify.Backend.Core.Domain.Entities.Vehicles;
 
-namespace Rentify.Backend.Infraestructure.Persistence.EntityConfiguration.Vehicle;
+namespace Rentify.Backend.Infraestructure.Persistence.EntityConfiguration.Vehicles;
 
 public sealed class VehicleUnavailableDateConfiguration : IEntityTypeConfiguration<VehicleUnavailableDate>
 {
