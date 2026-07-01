@@ -19,7 +19,6 @@ public sealed class UpdateVehicleValidator : AbstractValidator<UpdateVehicleComm
             .MaximumLength(50)
             .When(x => !string.IsNullOrWhiteSpace(x.Vin));
         RuleFor(x => x.Color).NotEmpty().MaximumLength(50);
-        RuleFor(x => x.DailyRate).GreaterThan(0);
         RuleFor(x => x.CurrentMileage)
             .GreaterThanOrEqualTo(0)
             .When(x => x.CurrentMileage.HasValue);

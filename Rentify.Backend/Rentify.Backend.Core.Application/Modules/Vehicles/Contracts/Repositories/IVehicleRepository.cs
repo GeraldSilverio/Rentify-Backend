@@ -11,6 +11,7 @@ public interface IVehicleRepository
     Task AddAsync(Vehicle vehicle, CancellationToken cancellationToken = default);
     Task AddImagesAsync(IEnumerable<VehicleImage> images, CancellationToken cancellationToken = default);
     Task<PaginatedResponse<VehicleListItemResponse>> GetPagedAsync(GetVehiclesQuery query, CancellationToken cancellationToken = default);
+    Task<VehicleDetailResponse?> GetDetailAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default);
     Task<Vehicle?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default);
     Task<Vehicle?> GetByIdWithImagesAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default);
     Task<Vehicle?> GetByIdWithFeaturesAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default);

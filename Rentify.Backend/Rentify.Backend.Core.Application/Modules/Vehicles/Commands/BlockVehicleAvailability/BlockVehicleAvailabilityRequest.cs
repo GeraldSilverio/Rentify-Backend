@@ -3,5 +3,4 @@ namespace Rentify.Backend.Core.Application.Modules.Vehicles.Commands.BlockVehicl
 public sealed record BlockVehicleAvailabilityRequest(
     DateOnly StartDate,
     DateOnly EndDate,
-    string? Reason,
-    string CreatedBy);
+    string? Reason);

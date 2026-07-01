@@ -14,6 +14,7 @@ public sealed record GetVehiclesQuery(
     Guid? VehicleBrandId = null,
     Guid? VehicleModelId = null,
     VehicleStatus? Status = null,
+    int? Year = null,
     decimal? MinDailyRate = null,
     decimal? MaxDailyRate = null,
     bool? OnlyActive = true) : IRequest<ResultReponse<PaginatedResponse<VehicleListItemResponse>>>;

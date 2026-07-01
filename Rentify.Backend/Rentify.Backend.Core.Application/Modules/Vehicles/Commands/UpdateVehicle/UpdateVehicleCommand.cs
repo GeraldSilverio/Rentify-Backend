@@ -13,6 +13,5 @@ public sealed record UpdateVehicleCommand(
     string PlateNumber,
     string? Vin,
     string Color,
-    decimal DailyRate,
     int? CurrentMileage,
     string ModifiedBy) : IRequest<ResultReponse<Guid>>;

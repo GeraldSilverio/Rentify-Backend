@@ -58,6 +58,27 @@ public sealed class VehicleRepository : IVehicleRepository
         if (query.Status.HasValue)
             vehiclesQuery = vehiclesQuery.Where(vehicle => vehicle.Status == query.Status.Value);
 
+        if (query.Year.HasValue)
+            vehiclesQuery = vehiclesQuery.Where(vehicle => vehicle.Year == query.Year.Value);
+
+        if (query.MinDailyRate.HasValue)
+        {
+            vehiclesQuery = vehiclesQuery.Where(vehicle => vehicle.Rates
+                .Any(rate => !rate.IsDeleted
+                             && rate.IsActive
+                             && rate.RentalType == RentalType.Daily
+                             && rate.Price >= query.MinDailyRate.Value));
+        }
+
+        if (query.MaxDailyRate.HasValue)
+        {
+            vehiclesQuery = vehiclesQuery.Where(vehicle => vehicle.Rates
+                .Any(rate => !rate.IsDeleted
+                             && rate.IsActive
+                             && rate.RentalType == RentalType.Daily
+                             && rate.Price <= query.MaxDailyRate.Value));
+        }
+
         if (query.OnlyActive.HasValue)
             vehiclesQuery = vehiclesQuery.Where(vehicle => vehicle.IsActive == query.OnlyActive.Value);
 
@@ -73,36 +94,30 @@ public sealed class VehicleRepository : IVehicleRepository
             .Select(vehicle => new VehicleListItemResponse(
                 vehicle.Id,
                 vehicle.TenantId,
-                vehicle.VehicleModelId,
-                vehicle.VehicleModel.Name,
                 vehicle.VehicleBrandId,
                 vehicle.VehicleBrand.Name,
+                vehicle.VehicleModelId,
+                vehicle.VehicleModel.Name,
                 vehicle.VehicleTypeId,
                 vehicle.VehicleType.Name,
                 vehicle.Year,
                 vehicle.PlateNumber,
                 vehicle.Vin,
                 vehicle.Color,
-                vehicle.Rates
-                    .Where(rate => !rate.IsDeleted && rate.IsActive && rate.RentalType == RentalType.Daily)
-                    .OrderByDescending(rate => rate.CreatedDate)
-                    .Select(rate => rate.Price)
-                    .FirstOrDefault(),
+                vehicle.CurrentMileage,
                 vehicle.Status,
                 vehicle.IsActive,
                 vehicle.Images
-                    .Where(image => !image.IsDeleted)
-                    .OrderByDescending(image => image.IsPrimary)
-                    .ThenBy(image => image.CreatedDate)
-                    .Select(image => new VehicleImageListResponse(
-                        image.Id,
-                        image.Url,
-                        image.PublicId,
-                        image.IsPrimary,
-                        image.CreatedDate))
+                    .Where(image => !image.IsDeleted && image.IsPrimary)
+                    .Select(image => image.Url)
+                    .FirstOrDefault(),
+                vehicle.Rates
+                    .Where(rate => !rate.IsDeleted && rate.IsActive)
+                    .OrderBy(rate => rate.RentalType)
+                    .Select(rate => new VehicleRateResponse(rate.RentalType, rate.Price))
                     .ToList(),
-                vehicle.CreatedDate,
-                vehicle.ModifiedDate))
+                vehicle.FeatureAssignments.Count(feature => !feature.IsDeleted),
+                vehicle.CreatedDate))
             .ToListAsync(cancellationToken);
 
         if (vehicles.Count == 0)
@@ -121,6 +136,62 @@ public sealed class VehicleRepository : IVehicleRepository
             query.PageSize,
             totalCount,
             totalPages);
+    }
+
+    public async Task<VehicleDetailResponse?> GetDetailAsync(
+        Guid tenantId,
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.Vehicles
+            .AsNoTracking()
+            .Where(vehicle => vehicle.TenantId == tenantId && vehicle.Id == id && !vehicle.IsDeleted)
+            .Select(vehicle => new VehicleDetailResponse(
+                vehicle.Id,
+                vehicle.TenantId,
+                vehicle.VehicleBrandId,
+                vehicle.VehicleBrand.Name,
+                vehicle.VehicleModelId,
+                vehicle.VehicleModel.Name,
+                vehicle.VehicleTypeId,
+                vehicle.VehicleType.Name,
+                vehicle.Year,
+                vehicle.PlateNumber,
+                vehicle.Vin,
+                vehicle.Color,
+                vehicle.CurrentMileage,
+                vehicle.Status,
+                vehicle.IsActive,
+                vehicle.Rates
+                    .Where(rate => !rate.IsDeleted)
+                    .OrderBy(rate => rate.RentalType)
+                    .Select(rate => new VehicleRateResponse(rate.RentalType, rate.Price))
+                    .ToList(),
+                vehicle.Images
+                    .Where(image => !image.IsDeleted)
+                    .OrderByDescending(image => image.IsPrimary)
+                    .ThenBy(image => image.CreatedDate)
+                    .Select(image => new VehicleImageListResponse(
+                        image.Id,
+                        image.Url,
+                        image.PublicId,
+                        image.IsPrimary,
+                        image.CreatedDate))
+                    .ToList(),
+                vehicle.FeatureAssignments
+                    .Where(feature => !feature.IsDeleted
+                                      && !feature.VehicleFeature.IsDeleted)
+                    .OrderBy(feature => feature.VehicleFeature.Category)
+                    .ThenBy(feature => feature.VehicleFeature.Name)
+                    .Select(feature => new VehicleFeatureResponse(
+                        feature.VehicleFeature.Id,
+                        feature.VehicleFeature.Name,
+                        feature.VehicleFeature.Category,
+                        feature.VehicleFeature.IsActive))
+                    .ToList(),
+                vehicle.CreatedDate,
+                vehicle.ModifiedDate))
+            .FirstOrDefaultAsync(cancellationToken);
     }
 
     public async Task<Vehicle?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)

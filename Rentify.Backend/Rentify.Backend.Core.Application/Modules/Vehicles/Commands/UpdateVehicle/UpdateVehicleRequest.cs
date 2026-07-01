@@ -8,6 +8,4 @@ public sealed record UpdateVehicleRequest(
     string PlateNumber,
     string? Vin,
     string Color,
-    decimal DailyRate,
-    int? CurrentMileage,
-    string ModifiedBy);
+    int? CurrentMileage);

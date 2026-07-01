@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Rentify.Backend.Core.Application.Modules.Shared.Context;
 
 namespace Rentify.Backend.Core.Application.Modules.Vehicles.Commands.UpdateVehicle;
 
@@ -9,15 +10,16 @@ public static class UpdateVehicleEndpoint
 {
     public static IEndpointRouteBuilder MapUpdateVehicleEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapPut("/api/v1/tenants/{tenantId:guid}/vehicles/{vehicleId:guid}", async (
-            Guid tenantId,
+        app.MapPut("/api/v1/vehicles/{vehicleId:guid}", async (
             Guid vehicleId,
             UpdateVehicleRequest request,
+            ICurrentTenantService currentTenantService,
+            ICurrentUserService currentUserService,
             ISender sender,
             CancellationToken cancellationToken) =>
         {
             var response = await sender.Send(new UpdateVehicleCommand(
-                tenantId,
+                currentTenantService.GetTenantId(),
                 vehicleId,
                 request.VehicleBrandId,
                 request.VehicleModelId,
@@ -26,9 +28,8 @@ public static class UpdateVehicleEndpoint
                 request.PlateNumber,
                 request.Vin,
                 request.Color,
-                request.DailyRate,
                 request.CurrentMileage,
-                request.ModifiedBy), cancellationToken);
+                currentUserService.ModifiedBy), cancellationToken);
 
             return Results.Ok(response);
         })

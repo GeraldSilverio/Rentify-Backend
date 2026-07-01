@@ -118,6 +118,13 @@ public sealed class VehicleService : IVehicleService
 
     public async Task UpdateAsync(UpdateVehicleCommand command, CancellationToken cancellationToken = default)
     {
+        await EnsureTenantCanUseVehiclesAsync(command.TenantId, cancellationToken);
+        await EnsureCatalogsCanBeUsedAsync(
+            command.VehicleBrandId,
+            command.VehicleModelId,
+            command.VehicleTypeId,
+            cancellationToken);
+
         Vehicle vehicle = await GetVehicleOrThrowAsync(command.TenantId, command.VehicleId, cancellationToken);
 
         if (await _vehicleRepository.PlateNumberExistsAsync(command.TenantId, command.PlateNumber, command.VehicleId, cancellationToken))
@@ -137,15 +144,13 @@ public sealed class VehicleService : IVehicleService
             command.CurrentMileage,
             command.ModifiedBy);
 
-        vehicle.ReplaceRates(
-            [(RentalType.Daily, command.DailyRate)],
-            command.ModifiedBy);
-
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 
     public async Task DeleteAsync(DeleteVehicleCommand command, CancellationToken cancellationToken = default)
     {
+        await EnsureTenantCanUseVehiclesAsync(command.TenantId, cancellationToken);
+
         Vehicle vehicle = await GetVehicleOrThrowAsync(command.TenantId, command.VehicleId, cancellationToken);
 
         vehicle.Delete(command.ModifiedBy);
@@ -337,14 +342,37 @@ public sealed class VehicleService : IVehicleService
 
     public async Task ChangeStatusAsync(ChangeVehicleStatusCommand command, CancellationToken cancellationToken = default)
     {
+        await EnsureTenantCanUseVehiclesAsync(command.TenantId, cancellationToken);
+
         Vehicle vehicle = await GetVehicleOrThrowAsync(command.TenantId, command.VehicleId, cancellationToken);
 
         vehicle.ChangeStatus(command.Status, command.ModifiedBy);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 
+    public async Task ChangeActivationAsync(
+        Guid tenantId,
+        Guid vehicleId,
+        bool isActive,
+        string modifiedBy,
+        CancellationToken cancellationToken = default)
+    {
+        await EnsureTenantCanUseVehiclesAsync(tenantId, cancellationToken);
+
+        Vehicle vehicle = await GetVehicleOrThrowAsync(tenantId, vehicleId, cancellationToken);
+
+        if (isActive)
+            vehicle.Activate(modifiedBy);
+        else
+            vehicle.Deactivate(modifiedBy);
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+    }
+
     public async Task BlockAvailabilityAsync(BlockVehicleAvailabilityCommand command, CancellationToken cancellationToken = default)
     {
+        await EnsureTenantCanUseVehiclesAsync(command.TenantId, cancellationToken);
+
         Vehicle vehicle = await GetVehicleOrThrowAsync(command.TenantId, command.VehicleId, cancellationToken);
 
         try

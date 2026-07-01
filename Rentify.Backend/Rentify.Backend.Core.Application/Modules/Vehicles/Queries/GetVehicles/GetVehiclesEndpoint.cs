@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Rentify.Backend.Core.Application.Modules.Shared.Context;
 using Rentify.Backend.Core.Domain.Enums;
 
 namespace Rentify.Backend.Core.Application.Modules.Vehicles.Queries.GetVehicles;
@@ -10,8 +11,8 @@ public static class GetVehiclesEndpoint
 {
     public static IEndpointRouteBuilder MapGetVehiclesEndpoint(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/api/v1/tenants/{tenantId:guid}/vehicles", async (
-            Guid tenantId,
+        app.MapGet("/api/v1/vehicles", async (
+            ICurrentTenantService currentTenantService,
             ISender sender,
             CancellationToken cancellationToken,
             int pageNumber = 1,
@@ -21,12 +22,13 @@ public static class GetVehiclesEndpoint
             Guid? vehicleBrandId = null,
             Guid? vehicleModelId = null,
             VehicleStatus? status = null,
+            int? year = null,
             decimal? minDailyRate = null,
             decimal? maxDailyRate = null,
             bool? onlyActive = true) =>
         {
             var response = await sender.Send(new GetVehiclesQuery(
-                tenantId,
+                currentTenantService.GetTenantId(),
                 pageNumber,
                 pageSize,
                 search,
@@ -34,6 +36,7 @@ public static class GetVehiclesEndpoint
                 vehicleBrandId,
                 vehicleModelId,
                 status,
+                year,
                 minDailyRate,
                 maxDailyRate,
                 onlyActive), cancellationToken);

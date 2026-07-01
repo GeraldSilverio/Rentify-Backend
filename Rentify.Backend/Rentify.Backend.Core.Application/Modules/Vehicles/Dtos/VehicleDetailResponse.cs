@@ -2,7 +2,7 @@ using Rentify.Backend.Core.Domain.Enums;
 
 namespace Rentify.Backend.Core.Application.Modules.Vehicles.Dtos;
 
-public sealed record VehicleListItemResponse(
+public sealed record VehicleDetailResponse(
     Guid Id,
     Guid TenantId,
     Guid VehicleBrandId,
@@ -18,7 +18,8 @@ public sealed record VehicleListItemResponse(
     int? CurrentMileage,
     VehicleStatus Status,
     bool IsActive,
-    string? PrimaryImageUrl,
     IReadOnlyList<VehicleRateResponse> Rates,
-    int FeaturesCount,
-    DateTime CreatedDate);
+    IReadOnlyList<VehicleImageListResponse> Images,
+    IReadOnlyList<VehicleFeatureResponse> Features,
+    DateTime CreatedDate,
+    DateTime ModifiedDate);

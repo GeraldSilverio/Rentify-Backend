@@ -21,5 +21,6 @@ public interface IVehicleService
     Task<IReadOnlyCollection<VehicleFeatureResponse>> GetFeaturesAsync(Guid tenantId, Guid vehicleId, CancellationToken cancellationToken = default);
     Task ReplaceFeaturesAsync(Guid tenantId, Guid vehicleId, IReadOnlyCollection<Guid> featureIds, string modifiedBy, CancellationToken cancellationToken = default);
     Task ChangeStatusAsync(ChangeVehicleStatusCommand command, CancellationToken cancellationToken = default);
+    Task ChangeActivationAsync(Guid tenantId, Guid vehicleId, bool isActive, string modifiedBy, CancellationToken cancellationToken = default);
     Task BlockAvailabilityAsync(BlockVehicleAvailabilityCommand command, CancellationToken cancellationToken = default);
 }

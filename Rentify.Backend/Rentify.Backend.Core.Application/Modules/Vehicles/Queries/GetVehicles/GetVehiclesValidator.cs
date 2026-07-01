@@ -10,6 +10,10 @@ public sealed class GetVehiclesValidator : AbstractValidator<GetVehiclesQuery>
         RuleFor(x => x.PageNumber).GreaterThan(0);
         RuleFor(x => x.PageSize).InclusiveBetween(1, 100);
         RuleFor(x => x.Search).MaximumLength(100).When(x => x.Search is not null);
+        RuleFor(x => x.Year)
+            .InclusiveBetween(1980, DateTime.UtcNow.Year + 1)
+            .When(x => x.Year.HasValue)
+            .WithMessage("Vehicle year is invalid.");
         RuleFor(x => x.MinDailyRate).GreaterThanOrEqualTo(0).When(x => x.MinDailyRate.HasValue);
         RuleFor(x => x.MaxDailyRate).GreaterThanOrEqualTo(0).When(x => x.MaxDailyRate.HasValue);
         RuleFor(x => x)

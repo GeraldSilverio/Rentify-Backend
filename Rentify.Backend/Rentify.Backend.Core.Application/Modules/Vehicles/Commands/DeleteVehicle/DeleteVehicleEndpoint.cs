@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Rentify.Backend.Core.Application.Modules.Shared.Context;
 
 namespace Rentify.Backend.Core.Application.Modules.Vehicles.Commands.DeleteVehicle;
 
@@ -9,14 +10,19 @@ public static class DeleteVehicleEndpoint
 {
     public static IEndpointRouteBuilder MapDeleteVehicleEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapDelete("/api/v1/tenants/{tenantId:guid}/vehicles/{vehicleId:guid}", async (
-            Guid tenantId,
+        app.MapDelete("/api/v1/vehicles/{vehicleId:guid}", async (
             Guid vehicleId,
-            string modifiedBy,
+            ICurrentTenantService currentTenantService,
+            ICurrentUserService currentUserService,
             ISender sender,
             CancellationToken cancellationToken) =>
         {
-            var response = await sender.Send(new DeleteVehicleCommand(tenantId, vehicleId, modifiedBy), cancellationToken);
+            var response = await sender.Send(
+                new DeleteVehicleCommand(
+                    currentTenantService.GetTenantId(),
+                    vehicleId,
+                    currentUserService.ModifiedBy),
+                cancellationToken);
 
             return Results.Ok(response);
         })
