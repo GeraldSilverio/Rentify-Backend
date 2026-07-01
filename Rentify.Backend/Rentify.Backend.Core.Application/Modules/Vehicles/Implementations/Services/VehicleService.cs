@@ -28,6 +28,7 @@ public sealed class VehicleService : IVehicleService
     private readonly IFileStorageService _fileStorageService;
     private readonly ITenantAccessService _tenantAccessService;
     private readonly ICurrentSubscriptionService _currentSubscriptionService;
+    private readonly ITenantUsageService _tenantUsageService;
     private readonly IUnitOfWork _unitOfWork;
 
     public VehicleService(
@@ -36,6 +37,7 @@ public sealed class VehicleService : IVehicleService
         IFileStorageService fileStorageService,
         ITenantAccessService tenantAccessService,
         ICurrentSubscriptionService currentSubscriptionService,
+        ITenantUsageService tenantUsageService,
         IUnitOfWork unitOfWork)
     {
         _vehicleRepository = vehicleRepository;
@@ -43,17 +45,27 @@ public sealed class VehicleService : IVehicleService
         _fileStorageService = fileStorageService;
         _tenantAccessService = tenantAccessService;
         _currentSubscriptionService = currentSubscriptionService;
+        _tenantUsageService = tenantUsageService;
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<Guid> CreateAsync(CreateVehicleCommand command, CancellationToken cancellationToken = default)
+    public async Task<CreateVehicleResponse> CreateAsync(CreateVehicleCommand command, CancellationToken cancellationToken = default)
     {
+        await EnsureTenantCanUseVehiclesAsync(command.TenantId, cancellationToken);
+        await _tenantUsageService.EnsureCanCreateVehicleAsync(command.TenantId, cancellationToken);
+        await EnsureCatalogsCanBeUsedAsync(
+            command.VehicleBrandId,
+            command.VehicleModelId,
+            command.VehicleTypeId,
+            cancellationToken);
+
+        await EnsureFeaturesCanBeUsedAsync(command.FeatureIds, cancellationToken);
+
         if (await _vehicleRepository.PlateNumberExistsAsync(command.TenantId, command.PlateNumber, cancellationToken: cancellationToken))
             throw new ApiException($"Vehicle with plate number '{command.PlateNumber}' already exists for this tenant.", StatusCodes.Status400BadRequest);
 
         if (await _vehicleRepository.VinExistsAsync(command.TenantId, command.Vin, cancellationToken: cancellationToken))
-            throw new ApiException($"Vehicle with VI" +
-                $"N '{command.Vin}' already exists for this tenant.", StatusCodes.Status400BadRequest);
+            throw new ApiException($"Vehicle with VIN '{command.Vin}' already exists for this tenant.", StatusCodes.Status400BadRequest);
 
         Vehicle vehicle = Vehicle.Create(
             command.TenantId,
@@ -68,13 +80,40 @@ public sealed class VehicleService : IVehicleService
             command.CreatedBy);
 
         vehicle.ReplaceRates(
-            [(RentalType.Daily, command.DailyRate)],
+            command.Rates
+                .Select(rate => (rate.RentalType, rate.Price))
+                .ToArray(),
             command.CreatedBy);
+
+        if (command.FeatureIds.Count > 0)
+            vehicle.ReplaceFeatures(command.FeatureIds, command.CreatedBy);
 
         await _vehicleRepository.AddAsync(vehicle, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return vehicle.Id;
+        return new CreateVehicleResponse(
+            vehicle.Id,
+            vehicle.TenantId,
+            vehicle.VehicleBrandId,
+            vehicle.VehicleModelId,
+            vehicle.VehicleTypeId,
+            vehicle.Year,
+            vehicle.PlateNumber,
+            vehicle.Vin,
+            vehicle.Color,
+            vehicle.CurrentMileage,
+            vehicle.Rates
+                .Where(rate => !rate.IsDeleted)
+                .OrderBy(rate => rate.RentalType)
+                .Select(rate => new CreateVehicleRateResponse(rate.RentalType, rate.Price))
+                .ToList(),
+            vehicle.FeatureAssignments
+                .Where(feature => !feature.IsDeleted)
+                .Select(feature => feature.VehicleFeatureId)
+                .ToList(),
+            vehicle.Status,
+            vehicle.IsActive,
+            vehicle.CreatedDate);
     }
 
     public async Task UpdateAsync(UpdateVehicleCommand command, CancellationToken cancellationToken = default)
@@ -330,6 +369,53 @@ public sealed class VehicleService : IVehicleService
     {
         await _tenantAccessService.EnsureTenantIsActiveAsync(tenantId, cancellationToken);
         _ = await _currentSubscriptionService.GetCurrentSubscriptionAsync(tenantId, cancellationToken);
+    }
+
+    private async Task EnsureCatalogsCanBeUsedAsync(
+        Guid vehicleBrandId,
+        Guid vehicleModelId,
+        Guid vehicleTypeId,
+        CancellationToken cancellationToken)
+    {
+        VehicleBrand brand = await _vehicleCatalogRepository.GetBrandByIdAsync(vehicleBrandId, cancellationToken)
+                             ?? throw new ApiException("Vehicle brand not found.", StatusCodes.Status400BadRequest);
+
+        if (!brand.IsActive)
+            throw new ApiException("Vehicle brand is inactive.", StatusCodes.Status400BadRequest);
+
+        VehicleModel model = await _vehicleCatalogRepository.GetModelByIdAsync(vehicleModelId, cancellationToken)
+                             ?? throw new ApiException("Vehicle model not found.", StatusCodes.Status400BadRequest);
+
+        if (!model.IsActive)
+            throw new ApiException("Vehicle model is inactive.", StatusCodes.Status400BadRequest);
+
+        if (model.VehicleBrandId != vehicleBrandId)
+            throw new ApiException("Vehicle model does not belong to the selected brand.", StatusCodes.Status400BadRequest);
+
+        VehicleType type = await _vehicleCatalogRepository.GetTypeByIdAsync(vehicleTypeId, cancellationToken)
+                           ?? throw new ApiException("Vehicle type not found.", StatusCodes.Status400BadRequest);
+
+        if (!type.IsActive)
+            throw new ApiException("Vehicle type is inactive.", StatusCodes.Status400BadRequest);
+    }
+
+    private async Task EnsureFeaturesCanBeUsedAsync(
+        IReadOnlyCollection<Guid> featureIds,
+        CancellationToken cancellationToken)
+    {
+        if (featureIds.Count == 0)
+            return;
+
+        Guid[] distinctFeatureIds = featureIds.Distinct().ToArray();
+        if (distinctFeatureIds.Length != featureIds.Count)
+            throw new ApiException("Vehicle features cannot contain duplicated values.", StatusCodes.Status400BadRequest);
+
+        IReadOnlyCollection<Guid> activeFeatureIds = await _vehicleCatalogRepository.GetActiveFeatureIdsAsync(
+            distinctFeatureIds,
+            cancellationToken);
+
+        if (activeFeatureIds.Count != distinctFeatureIds.Length)
+            throw new ApiException("One or more vehicle features do not exist or are inactive.", StatusCodes.Status400BadRequest);
     }
 
     private async Task<Vehicle> GetVehicleWithImagesOrThrowAsync(Guid tenantId, Guid vehicleId, CancellationToken cancellationToken)

@@ -4,7 +4,7 @@ using Rentify.Backend.Core.Application.Modules.Vehicles.Contracts.Services;
 
 namespace Rentify.Backend.Core.Application.Modules.Vehicles.Commands.CreateVehicle;
 
-public sealed class CreateVehicleHandler : IRequestHandler<CreateVehicleCommand, ResultReponse<Guid>>
+public sealed class CreateVehicleHandler : IRequestHandler<CreateVehicleCommand, ResultReponse<CreateVehicleResponse>>
 {
     private readonly IVehicleService _vehicleService;
 
@@ -13,10 +13,10 @@ public sealed class CreateVehicleHandler : IRequestHandler<CreateVehicleCommand,
         _vehicleService = vehicleService;
     }
 
-    public async Task<ResultReponse<Guid>> Handle(CreateVehicleCommand request, CancellationToken cancellationToken)
+    public async Task<ResultReponse<CreateVehicleResponse>> Handle(CreateVehicleCommand request, CancellationToken cancellationToken)
     {
-        Guid vehicleId = await _vehicleService.CreateAsync(request, cancellationToken);
+        CreateVehicleResponse response = await _vehicleService.CreateAsync(request, cancellationToken);
 
-        return ResultReponse<Guid>.Success(vehicleId);
+        return ResultReponse<CreateVehicleResponse>.Success(response);
     }
 }

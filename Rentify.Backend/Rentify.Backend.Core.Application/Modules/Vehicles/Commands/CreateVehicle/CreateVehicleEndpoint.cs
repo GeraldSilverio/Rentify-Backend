@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Rentify.Backend.Core.Application.Modules.Shared.Context;
 
 namespace Rentify.Backend.Core.Application.Modules.Vehicles.Commands.CreateVehicle;
 
@@ -9,15 +10,15 @@ public static class CreateVehicleEndpoint
 {
     public static IEndpointRouteBuilder MapCreateVehicleEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapPost("/api/v1/tenants/{tenantId:guid}/vehicles", async (
-            Guid tenantId,
+        app.MapPost("/api/v1/vehicles", async (
             CreateVehicleRequest request,
+            ICurrentTenantService currentTenantService,
+            ICurrentUserService currentUserService,
             ISender sender,
             CancellationToken cancellationToken) =>
         {
             var command = new CreateVehicleCommand(
-                tenantId,
-                request.RentCarId,
+                currentTenantService.GetTenantId(),
                 request.VehicleBrandId,
                 request.VehicleModelId,
                 request.VehicleTypeId,
@@ -25,13 +26,14 @@ public static class CreateVehicleEndpoint
                 request.PlateNumber,
                 request.Vin,
                 request.Color,
-                request.DailyRate,
                 request.CurrentMileage,
-                request.CreatedBy);
+                request.Rates,
+                request.FeatureIds ?? Array.Empty<Guid>(),
+                currentUserService.ModifiedBy);
 
             var response = await sender.Send(command, cancellationToken);
 
-            return Results.Created($"/api/v1/tenants/{tenantId}/vehicles/{response.Value}", response);
+            return Results.Created($"/api/v1/vehicles/{response.Value?.Id}", response);
         })
         .WithTags("Vehicles");
 

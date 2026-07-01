@@ -11,7 +11,7 @@ namespace Rentify.Backend.Core.Application.Modules.Vehicles.Contracts.Services;
 
 public interface IVehicleService
 {
-    Task<Guid> CreateAsync(CreateVehicleCommand command, CancellationToken cancellationToken = default);
+    Task<CreateVehicleResponse> CreateAsync(CreateVehicleCommand command, CancellationToken cancellationToken = default);
     Task UpdateAsync(UpdateVehicleCommand command, CancellationToken cancellationToken = default);
     Task DeleteAsync(DeleteVehicleCommand command, CancellationToken cancellationToken = default);
     Task<IReadOnlyCollection<VehicleImageResponse>> GetImagesAsync(Guid tenantId, Guid vehicleId, CancellationToken cancellationToken = default);

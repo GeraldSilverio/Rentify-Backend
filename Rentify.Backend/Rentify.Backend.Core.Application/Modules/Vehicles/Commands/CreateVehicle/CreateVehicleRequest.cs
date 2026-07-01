@@ -1,7 +1,6 @@
 namespace Rentify.Backend.Core.Application.Modules.Vehicles.Commands.CreateVehicle;
 
 public sealed record CreateVehicleRequest(
-    Guid RentCarId,
     Guid VehicleBrandId,
     Guid VehicleModelId,
     Guid VehicleTypeId,
@@ -9,6 +8,6 @@ public sealed record CreateVehicleRequest(
     string PlateNumber,
     string? Vin,
     string Color,
-    decimal DailyRate,
     int? CurrentMileage,
-    string CreatedBy);
+    IReadOnlyCollection<CreateVehicleRateRequest> Rates,
+    IReadOnlyCollection<Guid>? FeatureIds = null);
