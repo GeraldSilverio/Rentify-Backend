@@ -20,7 +20,15 @@ public sealed class GetModelsHandler
         GetModelsQuery request,
         CancellationToken cancellationToken)
     {
-        bool brandExists = await _vehicleCatalogRepository.VehicleBrandExistsAsync(request.VehicleBrandId, cancellationToken);
+        if (!request.VehicleBrandId.HasValue)
+        {
+            IReadOnlyCollection<VehicleModelResponse> allModels =
+                await _vehicleCatalogRepository.GetVehicleModelsAsync(request.OnlyActive, cancellationToken);
+
+            return ResultReponse<IReadOnlyCollection<VehicleModelResponse>>.Success(allModels);
+        }
+
+        bool brandExists = await _vehicleCatalogRepository.VehicleBrandExistsAsync(request.VehicleBrandId.Value, cancellationToken);
         if (!brandExists)
         {
             return ResultReponse<IReadOnlyCollection<VehicleModelResponse>>.Failure(
@@ -28,7 +36,7 @@ public sealed class GetModelsHandler
         }
 
         IReadOnlyCollection<VehicleModelResponse> models =
-            await _vehicleCatalogRepository.GetVehicleModelsByBrandAsync(request.VehicleBrandId, cancellationToken);
+            await _vehicleCatalogRepository.GetVehicleModelsByBrandAsync(request.VehicleBrandId.Value, cancellationToken);
 
         return ResultReponse<IReadOnlyCollection<VehicleModelResponse>>.Success(models);
     }

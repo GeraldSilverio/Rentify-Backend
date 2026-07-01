@@ -39,4 +39,49 @@ public sealed class VehicleModel : BaseEntity
 
         return new VehicleModel(Guid.NewGuid(), vehicleBrandId, name.Trim(), createdBy);
     }
+
+    public void Update(Guid vehicleBrandId, string name, string modifiedBy)
+    {
+        Validate(vehicleBrandId, name, modifiedBy);
+        VehicleBrandId = vehicleBrandId;
+        Name = name.Trim();
+        ModifiedBy = modifiedBy;
+        ModifiedDate = DateTime.UtcNow;
+    }
+
+    public void Activate(string modifiedBy)
+    {
+        ValidateUser(modifiedBy);
+        IsActive = true;
+        ModifiedBy = modifiedBy;
+        ModifiedDate = DateTime.UtcNow;
+    }
+
+    public void Deactivate(string modifiedBy)
+    {
+        ValidateUser(modifiedBy);
+        IsActive = false;
+        ModifiedBy = modifiedBy;
+        ModifiedDate = DateTime.UtcNow;
+    }
+
+    private static void Validate(Guid vehicleBrandId, string name, string user)
+    {
+        if (vehicleBrandId == Guid.Empty)
+            throw new ArgumentException("Vehicle brand Id is required.");
+
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException("Vehicle model name is required.");
+
+        if (name.Trim().Length > 100)
+            throw new ArgumentException("Vehicle model name is too long.");
+
+        ValidateUser(user);
+    }
+
+    private static void ValidateUser(string user)
+    {
+        if (string.IsNullOrWhiteSpace(user))
+            throw new ArgumentException("User is required.");
+    }
 }

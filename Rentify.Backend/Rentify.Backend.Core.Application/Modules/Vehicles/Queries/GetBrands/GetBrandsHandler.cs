@@ -20,7 +20,7 @@ public sealed class GetBrandsHandler
         CancellationToken cancellationToken)
     {
         IReadOnlyCollection<VehicleBrandResponse> brands =
-            await _vehicleCatalogRepository.GetVehicleBrandsAsync(cancellationToken);
+            await _vehicleCatalogRepository.GetVehicleBrandsAsync(request.OnlyActive, cancellationToken);
 
         return ResultReponse<IReadOnlyCollection<VehicleBrandResponse>>.Success(brands);
     }

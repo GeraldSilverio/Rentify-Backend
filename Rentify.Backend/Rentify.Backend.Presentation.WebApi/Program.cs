@@ -17,6 +17,7 @@ using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.CreateVehicleFe
 using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.CreateVehicle;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.DeleteVehicle;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.DeleteVehicleImage;
+using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.ManageVehicleCatalog;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.ReplaceVehicleFeatures;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.SetPrimaryVehicleImage;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.UpdateVehicle;
@@ -108,6 +109,7 @@ securedEndpoints.MapDeleteVehicleImageEndpoints();
 securedEndpoints.MapChangeVehicleStatusEndpoints();
 securedEndpoints.MapBlockVehicleAvailabilityEndpoints();
 securedEndpoints.MapVehicleCatalogEndpoints();
+securedEndpoints.MapManageVehicleCatalogEndpoints();
 securedEndpoints.MapGetVehicleFeaturesEndpoints();
 securedEndpoints.MapCreateVehicleFeatureEndpoint();
 securedEndpoints.MapUpdateVehicleFeatureEndpoint();

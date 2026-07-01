@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Queries.GetBrands;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Queries.GetModels;
+using Rentify.Backend.Core.Application.Modules.Vehicles.Queries.GetVehicleTypes;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Queries.GetVehicles;
 
 namespace Rentify.Backend.Core.Application.Modules.Vehicles;
@@ -13,6 +14,7 @@ public static class VehicleCatalogEndpoints
         app.MapGetVehiclesEndpoint();
         app.MapGetBrandsEndpoint();
         app.MapGetModelsEndpoint();
+        app.MapGetVehicleTypesEndpoints();
 
         return app;
     }
