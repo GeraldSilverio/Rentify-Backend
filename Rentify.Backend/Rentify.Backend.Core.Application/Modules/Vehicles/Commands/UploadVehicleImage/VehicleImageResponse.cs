@@ -3,4 +3,6 @@ namespace Rentify.Backend.Core.Application.Modules.Vehicles.Commands.UploadVehic
 public sealed record VehicleImageResponse(
     Guid Id,
     string Url,
-    bool IsPrimary);
+    string PublicId,
+    bool IsPrimary,
+    DateTime CreatedDate);

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http;
 using Rentify.Backend.Core.Application.Modules.Shared.Exceptions;
 using Rentify.Backend.Core.Application.Modules.Shared.Storage;
 using Rentify.Backend.Core.Application.Modules.Shared.UnitOfWork;
+using Rentify.Backend.Core.Application.Modules.Tenants.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.BlockVehicleAvailability;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.ChangeVehicleStatus;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.CreateVehicle;
@@ -23,15 +24,21 @@ public sealed class VehicleService : IVehicleService
 
     private readonly IVehicleRepository _vehicleRepository;
     private readonly IFileStorageService _fileStorageService;
+    private readonly ITenantAccessService _tenantAccessService;
+    private readonly ICurrentSubscriptionService _currentSubscriptionService;
     private readonly IUnitOfWork _unitOfWork;
 
     public VehicleService(
         IVehicleRepository vehicleRepository,
         IFileStorageService fileStorageService,
+        ITenantAccessService tenantAccessService,
+        ICurrentSubscriptionService currentSubscriptionService,
         IUnitOfWork unitOfWork)
     {
         _vehicleRepository = vehicleRepository;
         _fileStorageService = fileStorageService;
+        _tenantAccessService = tenantAccessService;
+        _currentSubscriptionService = currentSubscriptionService;
         _unitOfWork = unitOfWork;
     }
 
@@ -106,6 +113,8 @@ public sealed class VehicleService : IVehicleService
         UploadVehicleImageCommand command,
         CancellationToken cancellationToken = default)
     {
+        await EnsureTenantCanUseVehiclesAsync(command.TenantId, cancellationToken);
+
         Vehicle vehicle = await GetVehicleWithImagesOrThrowAsync(command.TenantId, command.VehicleId, cancellationToken);
 
         int existingImagesCount = vehicle.Images.Count(image => !image.IsDeleted);
@@ -165,14 +174,61 @@ public sealed class VehicleService : IVehicleService
         }
 
         return images
-            .Select(image => new VehicleImageResponse(image.Id, image.Url, image.IsPrimary))
+            .Select(ToImageResponse)
             .ToList();
+    }
+
+    public async Task<IReadOnlyCollection<VehicleImageResponse>> GetImagesAsync(
+        Guid tenantId,
+        Guid vehicleId,
+        CancellationToken cancellationToken = default)
+    {
+        await EnsureTenantCanUseVehiclesAsync(tenantId, cancellationToken);
+
+        Vehicle vehicle = await GetVehicleWithImagesOrThrowAsync(tenantId, vehicleId, cancellationToken);
+
+        return vehicle.Images
+            .Where(image => !image.IsDeleted)
+            .OrderByDescending(image => image.IsPrimary)
+            .ThenBy(image => image.CreatedDate)
+            .Select(ToImageResponse)
+            .ToList();
+    }
+
+    public async Task DeleteImageAsync(
+        Guid tenantId,
+        Guid vehicleId,
+        Guid imageId,
+        string modifiedBy,
+        CancellationToken cancellationToken = default)
+    {
+        await EnsureTenantCanUseVehiclesAsync(tenantId, cancellationToken);
+
+        Vehicle vehicle = await GetVehicleWithImagesOrThrowAsync(tenantId, vehicleId, cancellationToken);
+        VehicleImage image = vehicle.Images.FirstOrDefault(x => x.Id == imageId && !x.IsDeleted)
+                             ?? throw new ApiException("Vehicle image not found.", StatusCodes.Status404NotFound);
+
+        string publicId = image.PublicId;
+        vehicle.RemoveImage(imageId, modifiedBy);
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        try
+        {
+            await _fileStorageService.DeleteAsync(publicId, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            throw new ApiException($"Vehicle image delete failed: {ex.Message}", StatusCodes.Status502BadGateway);
+        }
     }
 
     public async Task SetPrimaryImageAsync(
         SetPrimaryVehicleImageCommand command,
         CancellationToken cancellationToken = default)
     {
+        await EnsureTenantCanUseVehiclesAsync(command.TenantId, cancellationToken);
+
         Vehicle vehicle = await GetVehicleWithImagesOrThrowAsync(command.TenantId, command.VehicleId, cancellationToken);
 
         try
@@ -217,6 +273,12 @@ public sealed class VehicleService : IVehicleService
                ?? throw new ApiException("Vehicle not found.", StatusCodes.Status404NotFound);
     }
 
+    private async Task EnsureTenantCanUseVehiclesAsync(Guid tenantId, CancellationToken cancellationToken)
+    {
+        await _tenantAccessService.EnsureTenantIsActiveAsync(tenantId, cancellationToken);
+        _ = await _currentSubscriptionService.GetCurrentSubscriptionAsync(tenantId, cancellationToken);
+    }
+
     private async Task<Vehicle> GetVehicleWithImagesOrThrowAsync(Guid tenantId, Guid vehicleId, CancellationToken cancellationToken)
     {
         return await _vehicleRepository.GetByIdWithImagesAsync(tenantId, vehicleId, cancellationToken)
@@ -235,5 +297,15 @@ public sealed class VehicleService : IVehicleService
                 // Preserve the original failure; cleanup can be retried operationally.
             }
         }
+    }
+
+    private static VehicleImageResponse ToImageResponse(VehicleImage image)
+    {
+        return new VehicleImageResponse(
+            image.Id,
+            image.Url,
+            image.PublicId,
+            image.IsPrimary,
+            image.CreatedDate);
     }
 }

@@ -1,39 +1,33 @@
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Rentify.Backend.Core.Application.Modules.Shared.Context;
 
-namespace Rentify.Backend.Core.Application.Modules.Vehicles.Commands.UploadVehicleImage;
+namespace Rentify.Backend.Core.Application.Modules.Vehicles.Commands.DeleteVehicleImage;
 
-public static class UploadVehicleImageEndpoint
+public static class DeleteVehicleImageEndpoint
 {
-    public static IEndpointRouteBuilder MapUploadVehicleImageEndpoints(this IEndpointRouteBuilder app)
+    public static IEndpointRouteBuilder MapDeleteVehicleImageEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapPost("/api/v1/vehicles/{vehicleId:guid}/images", async (
+        app.MapDelete("/api/v1/vehicles/{vehicleId:guid}/images/{imageId:guid}", async (
             Guid vehicleId,
-            IFormFileCollection images,
-            [FromForm] bool isPrimary,
+            Guid imageId,
             ICurrentTenantService currentTenantService,
             ICurrentUserService currentUserService,
             ISender sender,
             CancellationToken cancellationToken) =>
         {
             var response = await sender.Send(
-                new UploadVehicleImageCommand(
+                new DeleteVehicleImageCommand(
                     currentTenantService.GetTenantId(),
                     vehicleId,
-                    images.ToList(),
-                    isPrimary,
+                    imageId,
                     currentUserService.ModifiedBy),
                 cancellationToken);
 
-            return Results.Created(
-                $"/api/v1/vehicles/{vehicleId}/images",
-                response);
+            return Results.Ok(response);
         })
-        .DisableAntiforgery()
         .WithTags("Vehicles");
 
         return app;
