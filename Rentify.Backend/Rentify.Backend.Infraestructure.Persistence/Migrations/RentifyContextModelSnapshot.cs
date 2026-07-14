@@ -249,6 +249,12 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("Email");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
@@ -273,14 +279,32 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
 
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("PhoneNumber");
+
                     b.Property<string>("Rnc")
                         .IsRequired()
                         .HasMaxLength(15)
                         .HasColumnType("character varying(15)");
 
+                    b.Property<string>("WhatsApp")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("WhatsApp");
+
                     b.HasKey("Id");
 
+                    b.HasIndex("Email")
+                        .IsUnique();
+
                     b.HasIndex("Rnc")
+                        .IsUnique();
+
+                    b.HasIndex("WhatsApp")
                         .IsUnique();
 
                     b.ToTable("Tenants", (string)null);
@@ -444,14 +468,6 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<DateOnly>("LicenseExpirationDate")
-                        .HasColumnType("date");
-
-                    b.Property<string>("LicenseNumber")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
                     b.Property<string>("ModifiedBy")
                         .IsRequired()
                         .HasColumnType("text");
@@ -470,9 +486,6 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("TenantId", "Email");
-
-                    b.HasIndex("TenantId", "LicenseNumber")
-                        .IsUnique();
 
                     b.HasIndex("TenantId", "PhoneNumber");
 
@@ -1036,10 +1049,6 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                     b.Property<Guid>("VehicleTypeId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Vin")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
                     b.Property<int>("Year")
                         .HasColumnType("integer");
 
@@ -1062,10 +1071,6 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                     b.HasIndex("TenantId", "VehicleModelId");
 
                     b.HasIndex("TenantId", "VehicleTypeId");
-
-                    b.HasIndex("TenantId", "Vin")
-                        .IsUnique()
-                        .HasFilter("\"IsDeleted\" = false AND \"Vin\" IS NOT NULL");
 
                     b.ToTable("Vehicles", (string)null);
                 });
@@ -1104,8 +1109,7 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Name")
-                        .IsUnique()
-                        .HasFilter("\"IsDeleted\" = false");
+                        .IsUnique();
 
                     b.ToTable("VehicleBrands", (string)null);
                 });
@@ -1462,6 +1466,43 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                     b.Navigation("SubscriptionPlan");
 
                     b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Core.Tenant", b =>
+                {
+                    b.OwnsOne("Rentify.Backend.Core.Domain.ValueObjects.Address", "Address", b1 =>
+                        {
+                            b1.Property<Guid>("TenantId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("City")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("character varying(100)")
+                                .HasColumnName("City");
+
+                            b1.Property<string>("Country")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("character varying(100)")
+                                .HasColumnName("Country");
+
+                            b1.Property<string>("Street")
+                                .IsRequired()
+                                .HasMaxLength(200)
+                                .HasColumnType("character varying(200)")
+                                .HasColumnName("Street");
+
+                            b1.HasKey("TenantId");
+
+                            b1.ToTable("Tenants");
+
+                            b1.WithOwner()
+                                .HasForeignKey("TenantId");
+                        });
+
+                    b.Navigation("Address")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Core.TenantEmailConfiguration", b =>

@@ -40,28 +40,12 @@ public sealed class CustomerRepository : ICustomerRepository
                 x.FirstName.ToLower().Contains(term)
                 || x.LastName.ToLower().Contains(term)
                 || x.Email.ToLower().Contains(term)
-                || x.LicenseNumber.ToLower().Contains(term));
+                || x.PhoneNumber.ToLower().Contains(term));
         }
 
         return await query
             .OrderBy(x => x.FirstName)
             .ThenBy(x => x.LastName)
             .ToListAsync(cancellationToken);
-    }
-
-    public async Task<bool> LicenseNumberExistsAsync(
-        Guid tenantId,
-        string licenseNumber,
-        Guid? excludedCustomerId = null,
-        CancellationToken cancellationToken = default)
-    {
-        string normalizedLicenseNumber = Customer.NormalizeLicenseNumber(licenseNumber);
-
-        return await _context.Customers.AnyAsync(
-            x => x.TenantId == tenantId
-                 && x.LicenseNumber == normalizedLicenseNumber
-                 && !x.IsDeleted
-                 && (!excludedCustomerId.HasValue || x.Id != excludedCustomerId.Value),
-            cancellationToken);
     }
 }

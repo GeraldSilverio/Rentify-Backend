@@ -6,6 +6,4 @@ public sealed record CustomerResponse(
     string FirstName,
     string LastName,
     string Email,
-    string PhoneNumber,
-    string LicenseNumber,
-    DateOnly LicenseExpirationDate);
+    string PhoneNumber);

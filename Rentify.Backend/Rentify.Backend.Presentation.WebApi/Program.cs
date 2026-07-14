@@ -2,49 +2,28 @@ using Hangfire;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Rentify.Backend.Core.Application;
-using Rentify.Backend.Core.Application.Modules.Customers;
-using Rentify.Backend.Core.Application.Modules.Dashboard;
-using Rentify.Backend.Core.Application.Modules.Emails;
-using Rentify.Backend.Core.Application.Modules.Payments;
-using Rentify.Backend.Core.Application.Modules.Reservations;
 using Rentify.Backend.Core.Application.Modules.Secutiry;
 using Rentify.Backend.Core.Application.Modules.Shared.Context;
 using Rentify.Backend.Core.Application.Modules.Vehicles;
-using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.BlockVehicleAvailability;
-using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.ChangeVehicleStatus;
-using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.ChangeVehicleFeatureStatus;
-using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.ChangeVehicleActivation;
-using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.CreateVehicleFeature;
-using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.CreateVehicle;
-using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.DeleteVehicle;
-using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.DeleteVehicleImage;
-using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.ManageVehicleCatalog;
-using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.ReplaceVehicleFeatures;
-using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.SetPrimaryVehicleImage;
-using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.UpdateVehicle;
-using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.UpdateVehicleFeature;
-using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.UploadVehicleImage;
-using Rentify.Backend.Core.Application.Modules.Vehicles.Queries.GetAssignedVehicleFeatures;
-using Rentify.Backend.Core.Application.Modules.Vehicles.Queries.GetVehicleImages;
-using Rentify.Backend.Core.Application.Modules.Vehicles.Queries.GetVehicleFeatures;
 using Rentify.Backend.Infraestructure.Identity;
 using Rentify.Backend.Infraestructure.Identity.Entities;
 using Rentify.Backend.Infraestructure.Identity.Seeds;
 using Rentify.Backend.Infraestructure.Persistence;
 using Rentify.Backend.Infraestructure.Shared;
-using Rentify.Backend.Presentation.Endpoints;
+using Rentify.Backend.Presentation.WebApi.Endpoints.Admin.Vehicles;
+using Rentify.Backend.Presentation.WebApi.Endpoints.Customers;
 using Rentify.Backend.Presentation.WebApi.Endpoints.Tenants;
+using Rentify.Backend.Presentation.WebApi.Endpoints.Vehicles;
 using Rentify.Backend.Presentation.WebApi.Extensions;
 using Rentify.Backend.Presentation.WebApi.Services;
 using Rentify.Backend.Shared;
 using Rentify.Backend.Shared.Configuration;
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 EnvFileLoader.LoadFromNearest(builder.Environment.ContentRootPath);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add(new ProducesAttribute("application/json"));
@@ -63,9 +42,7 @@ builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<ICurrentTenantService, CurrentTenantService>();
-builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
-//Dependecias de las capas.
+builder.Services.AddScoped<ICurrentRequestContext, CurrentRequestContext>();
 builder.Services.AddIdentityInfrastructure(builder.Configuration);
 builder.Services.AddPersistence(builder.Configuration);
 builder.Services.AddSharedServices();
@@ -80,6 +57,27 @@ builder.Services.AddSession();
 builder.Services.AddSwaggerExtension();
 builder.Services.AddApiVersioningExtension();
 
+builder.Services.AddAntiforgery();
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    options.AddPolicy("PublicCatalogPolicy", httpContext =>
+    {
+        var ip = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+
+        return RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: ip,
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 60,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0,
+                AutoReplenishment = true
+            });
+    });
+});
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -91,57 +89,46 @@ using (var scope = app.Services.CreateScope())
     await DefaultUser.CreateUser(userManager);
 }
 
-app.MapRegisterTenant();
-app.MapAuthEndpoints();
-app.MapSubscriptionEndpoints();
-app.MapTenantEndpoints();
-app.MapAdminTenantEndpoints();
+app.UseErrorHandlingMiddleware();
 
-var securedEndpoints = app.MapGroup(string.Empty)
-    .RequireAuthorization();
-
-securedEndpoints.MapCreateVehicleEndpoints();
-securedEndpoints.MapUpdateVehicleEndpoints();
-securedEndpoints.MapDeleteVehicleEndpoints();
-securedEndpoints.MapUploadVehicleImageEndpoints();
-securedEndpoints.MapGetVehicleImagesEndpoints();
-securedEndpoints.MapSetPrimaryVehicleImageEndpoints();
-securedEndpoints.MapDeleteVehicleImageEndpoints();
-securedEndpoints.MapChangeVehicleStatusEndpoints();
-securedEndpoints.MapChangeVehicleActivationEndpoints();
-securedEndpoints.MapBlockVehicleAvailabilityEndpoints();
-securedEndpoints.MapVehicleCatalogEndpoints();
-securedEndpoints.MapManageVehicleCatalogEndpoints();
-securedEndpoints.MapGetVehicleFeaturesEndpoints();
-securedEndpoints.MapCreateVehicleFeatureEndpoint();
-securedEndpoints.MapUpdateVehicleFeatureEndpoint();
-securedEndpoints.MapChangeVehicleFeatureStatusEndpoints();
-securedEndpoints.MapGetAssignedVehicleFeaturesEndpoint();
-securedEndpoints.MapReplaceVehicleFeaturesEndpoint();
-securedEndpoints.MapCustomerEndpoints();
-securedEndpoints.MapReservationEndpoints();
-securedEndpoints.MapPaymentEndpoints();
-securedEndpoints.MapDashboardEndpoints();
-securedEndpoints.MapUserEndpoints();
-securedEndpoints.MapEmailEndpoints();
+app.UseHttpsRedirection();
 
 app.UseCors(a => a.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod());
-// Configure the HTTP request pipeline.
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-app.UseHangfireDashboard("/hangfire");
-app.UseRentifyHangfireJobs();
-app.UseHttpsRedirection();
+
 app.UseRouting();
+app.UseAntiforgery();
+app.UseRateLimiter();
+
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseSwaggerExtension();
-app.UseErrorHandlingMiddleware();
+
+app.UseHangfireDashboard("/hangfire");
+app.UseRentifyHangfireJobs();
 
 app.UseHealthChecks("/health");
 app.UseSession();
+
+#region Endpoints
+
+#region Vehicles
+app.MapVehicleCatalogEndpoints();
+app.MapVehiclesEndpoints();
+#endregion
+app.MapCustomersEndpoints();
+app.MapCustomerDocumentsEndpoints();
+app.MapAdminTenantEndpoints();
+app.MapAdminVehicleCatalogEndpoints();
+app.MapRegisterTenant();
+app.MapAuthEndpoints();
+app.MapSubscriptionEndpoints();
+app.MapTenantEndpoints();
+#endregion
+
 app.Run();
 

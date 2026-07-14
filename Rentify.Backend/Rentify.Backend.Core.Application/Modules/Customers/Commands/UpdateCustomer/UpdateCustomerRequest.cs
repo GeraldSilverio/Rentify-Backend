@@ -4,7 +4,4 @@ public sealed record UpdateCustomerRequest(
     string FirstName,
     string LastName,
     string Email,
-    string PhoneNumber,
-    string LicenseNumber,
-    DateOnly LicenseExpirationDate,
-    string ModifiedBy);
+    string PhoneNumber);

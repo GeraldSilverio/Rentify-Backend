@@ -12,8 +12,6 @@ public sealed class Customer : BaseEntity
     public string LastName { get; private set; } = null!;
     public string Email { get; private set; } = null!;
     public string PhoneNumber { get; private set; } = null!;
-    public string LicenseNumber { get; private set; } = null!;
-    public DateOnly LicenseExpirationDate { get; private set; }
     public IReadOnlyCollection<CustomerDocument> Documents => _documents.AsReadOnly();
 
     private Customer()
@@ -26,8 +24,6 @@ public sealed class Customer : BaseEntity
         string lastName,
         string email,
         string phoneNumber,
-        string licenseNumber,
-        DateOnly licenseExpirationDate,
         string createdBy)
     {
         Id = Guid.NewGuid();
@@ -36,8 +32,6 @@ public sealed class Customer : BaseEntity
         LastName = lastName.Trim();
         Email = email.Trim().ToLowerInvariant();
         PhoneNumber = phoneNumber.Trim();
-        LicenseNumber = NormalizeLicenseNumber(licenseNumber);
-        LicenseExpirationDate = licenseExpirationDate;
         CreatedBy = createdBy;
         ModifiedBy = createdBy;
         CreatedDate = DateTime.UtcNow;
@@ -51,11 +45,9 @@ public sealed class Customer : BaseEntity
         string lastName,
         string email,
         string phoneNumber,
-        string licenseNumber,
-        DateOnly licenseExpirationDate,
         string createdBy)
     {
-        Validate(tenantId, firstName, lastName, email, phoneNumber, licenseNumber, licenseExpirationDate);
+        Validate(tenantId, firstName, lastName, email, phoneNumber);
 
         return new Customer(
             tenantId,
@@ -63,8 +55,6 @@ public sealed class Customer : BaseEntity
             lastName,
             email,
             phoneNumber,
-            licenseNumber,
-            licenseExpirationDate,
             createdBy);
     }
 
@@ -73,18 +63,14 @@ public sealed class Customer : BaseEntity
         string lastName,
         string email,
         string phoneNumber,
-        string licenseNumber,
-        DateOnly licenseExpirationDate,
         string modifiedBy)
     {
-        Validate(TenantId, firstName, lastName, email, phoneNumber, licenseNumber, licenseExpirationDate);
+        Validate(TenantId, firstName, lastName, email, phoneNumber);
 
         FirstName = firstName.Trim();
         LastName = lastName.Trim();
         Email = email.Trim().ToLowerInvariant();
         PhoneNumber = phoneNumber.Trim();
-        LicenseNumber = NormalizeLicenseNumber(licenseNumber);
-        LicenseExpirationDate = licenseExpirationDate;
         ModifiedBy = modifiedBy;
         ModifiedDate = DateTime.UtcNow;
     }
@@ -111,19 +97,12 @@ public sealed class Customer : BaseEntity
         ModifiedDate = DateTime.UtcNow;
     }
 
-    public static string NormalizeLicenseNumber(string licenseNumber)
-    {
-        return licenseNumber.Trim().ToUpperInvariant().Replace("-", string.Empty).Replace(" ", string.Empty);
-    }
-
     private static void Validate(
         Guid tenantId,
         string firstName,
         string lastName,
         string email,
-        string phoneNumber,
-        string licenseNumber,
-        DateOnly licenseExpirationDate)
+        string phoneNumber)
     {
         if (tenantId == Guid.Empty)
             throw new ArgumentException("Tenant Id is required.");
@@ -139,11 +118,5 @@ public sealed class Customer : BaseEntity
 
         if (string.IsNullOrWhiteSpace(phoneNumber))
             throw new ArgumentException("Phone number is required.");
-
-        if (string.IsNullOrWhiteSpace(licenseNumber))
-            throw new ArgumentException("License number is required.");
-
-        if (licenseExpirationDate <= DateOnly.FromDateTime(DateTime.UtcNow))
-            throw new ArgumentException("License expiration date must be in the future.");
     }
 }

@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Npgsql;
 using Rentify.Backend.Core.Application.Modules.Secutiry.Contracts.Services;
+using Rentify.Backend.Core.Application.Modules.Shared.Constants;
 using Rentify.Backend.Core.Application.Modules.Shared.Helpers;
 using Rentify.Backend.Core.Application.Modules.Shared.Response;
 using Rentify.Backend.Core.Domain.Settings;
@@ -38,7 +38,18 @@ namespace Rentify.Backend.Infraestructure.Identity
             });
 
             services.AddAuthentication();
-            services.AddAuthorization();
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy(
+                    AuthorizationPolicies.RequiredRoles,
+                    policy =>
+                    {
+                        policy.RequireAuthenticatedUser();
+                        policy.RequireRole(
+                            ApplicationRoles.Owner,
+                            ApplicationRoles.Secretary);
+                    });
+            });
 
             #endregion
 
@@ -88,8 +99,6 @@ namespace Rentify.Backend.Infraestructure.Identity
                     OnChallenge = c =>
                     {
                         c.HandleResponse();
-                        c.Response.StatusCode = 401;
-                        c.Response.ContentType = "application/json";
                         var result = JsonConvert.SerializeObject(ResultReponse<string>.Failure(Error.SetError("You are not authorized", StatusCodes.Status401Unauthorized)));
                         return c.Response.WriteAsync(result);
                     },

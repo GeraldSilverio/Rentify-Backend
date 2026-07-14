@@ -18,6 +18,7 @@ namespace Rentify.Backend.Infraestructure.Identity.Seeds
             await CreateRoleIfNotExistsAsync(roleManager, ApplicationRoles.User);
             await CreateRoleIfNotExistsAsync(roleManager, ApplicationRoles.Owner);
             await CreateRoleIfNotExistsAsync(roleManager, ApplicationRoles.Admin);
+            await CreateRoleIfNotExistsAsync(roleManager, ApplicationRoles.Secretary);
             await CreateRoleIfNotExistsAsync(roleManager, ApplicationRoles.SuperAdmin);
         }
 

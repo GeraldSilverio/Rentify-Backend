@@ -23,9 +23,7 @@ public sealed class SearchCustomersHandler : IRequestHandler<SearchCustomersQuer
             x.FirstName,
             x.LastName,
             x.Email,
-            x.PhoneNumber,
-            x.LicenseNumber,
-            x.LicenseExpirationDate)).ToList();
+            x.PhoneNumber)).ToList();
 
         return ResultReponse<IReadOnlyList<CustomerResponse>>.Success(response);
     }

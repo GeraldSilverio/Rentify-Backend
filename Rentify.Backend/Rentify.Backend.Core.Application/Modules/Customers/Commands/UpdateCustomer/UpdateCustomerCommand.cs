@@ -10,6 +10,4 @@ public sealed record UpdateCustomerCommand(
     string LastName,
     string Email,
     string PhoneNumber,
-    string LicenseNumber,
-    DateOnly LicenseExpirationDate,
     string ModifiedBy) : IRequest<ResultReponse<Guid>>;

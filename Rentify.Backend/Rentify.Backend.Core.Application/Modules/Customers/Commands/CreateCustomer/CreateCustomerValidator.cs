@@ -11,10 +11,6 @@ public sealed class CreateCustomerValidator : AbstractValidator<CreateCustomerCo
         RuleFor(x => x.LastName).NotEmpty().MaximumLength(100);
         RuleFor(x => x.Email).NotEmpty().EmailAddress().MaximumLength(150);
         RuleFor(x => x.PhoneNumber).NotEmpty().MaximumLength(30);
-        RuleFor(x => x.LicenseNumber).NotEmpty().MaximumLength(50);
-        RuleFor(x => x.LicenseExpirationDate)
-            .GreaterThan(DateOnly.FromDateTime(DateTime.UtcNow))
-            .WithMessage("License expiration date must be in the future.");
         RuleFor(x => x.CreatedBy).NotEmpty();
     }
 }

@@ -16,9 +16,7 @@ public sealed class CustomerConfiguration : IEntityTypeConfiguration<Customer>
         builder.Property(x => x.LastName).IsRequired().HasMaxLength(100);
         builder.Property(x => x.Email).IsRequired().HasMaxLength(150);
         builder.Property(x => x.PhoneNumber).IsRequired().HasMaxLength(30);
-        builder.Property(x => x.LicenseNumber).IsRequired().HasMaxLength(50);
 
-        builder.HasIndex(x => new { x.TenantId, x.LicenseNumber }).IsUnique();
         builder.HasIndex(x => new { x.TenantId, x.Email });
         builder.HasIndex(x => new { x.TenantId, x.PhoneNumber });
 

@@ -9,6 +9,4 @@ public sealed record CreateCustomerCommand(
     string LastName,
     string Email,
     string PhoneNumber,
-    string LicenseNumber,
-    DateOnly LicenseExpirationDate,
     string CreatedBy) : IRequest<ResultReponse<Guid>>;

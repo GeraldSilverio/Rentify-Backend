@@ -30,17 +30,12 @@ public sealed class CustomerService : ICustomerService
 
     public async Task<Guid> CreateAsync(CreateCustomerCommand command, CancellationToken cancellationToken = default)
     {
-        if (await _customerRepository.LicenseNumberExistsAsync(command.TenantId, command.LicenseNumber, cancellationToken: cancellationToken))
-            throw new ApiException("Customer license number already exists for this tenant.", StatusCodes.Status400BadRequest);
-
         Customer customer = Customer.Create(
             command.TenantId,
             command.FirstName,
             command.LastName,
             command.Email,
             command.PhoneNumber,
-            command.LicenseNumber,
-            command.LicenseExpirationDate,
             command.CreatedBy);
 
         await _customerRepository.AddAsync(customer, cancellationToken);
@@ -53,16 +48,11 @@ public sealed class CustomerService : ICustomerService
     {
         Customer customer = await GetCustomerOrThrowAsync(command.TenantId, command.CustomerId, cancellationToken);
 
-        if (await _customerRepository.LicenseNumberExistsAsync(command.TenantId, command.LicenseNumber, customer.Id, cancellationToken))
-            throw new ApiException("Customer license number already exists for this tenant.", StatusCodes.Status400BadRequest);
-
         customer.Update(
             command.FirstName,
             command.LastName,
             command.Email,
             command.PhoneNumber,
-            command.LicenseNumber,
-            command.LicenseExpirationDate,
             command.ModifiedBy);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
