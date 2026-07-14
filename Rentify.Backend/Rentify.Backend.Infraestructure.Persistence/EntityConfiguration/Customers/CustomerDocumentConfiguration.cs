@@ -13,6 +13,7 @@ public sealed class CustomerDocumentConfiguration : IEntityTypeConfiguration<Cus
 
         builder.HasKey(x => x.Id);
 
+        builder.Property(x => x.Id).ValueGeneratedNever();
         builder.Property(x => x.Name).IsRequired().HasMaxLength(150);
         builder.Property(x => x.Url).IsRequired().HasMaxLength(500);
         builder.Property(x => x.PublicId).IsRequired().HasMaxLength(255);

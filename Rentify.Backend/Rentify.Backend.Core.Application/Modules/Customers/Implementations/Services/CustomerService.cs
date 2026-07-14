@@ -84,12 +84,21 @@ public sealed class CustomerService : ICustomerService
                 command.DocumentType,
                 command.CreatedBy);
 
+            await _customerRepository.AddDocumentAsync(document, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return document.Id;
         }
-        catch
+        catch (Exception exception)
         {
-            await _fileStorageService.DeleteAsync(storedFile.PublicId, CancellationToken.None);
+            try
+            {
+                await _fileStorageService.DeleteAsync(storedFile.PublicId, CancellationToken.None);
+            }
+            catch (Exception deleteException)
+            {
+                exception.Data["CustomerDocumentStorageCleanupFailed"] = deleteException.Message;
+            }
+
             throw;
         }
     }

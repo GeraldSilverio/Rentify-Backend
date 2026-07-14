@@ -9,6 +9,7 @@ namespace Rentify.Backend.Core.Application.Modules.Customers.Contracts.Repositor
 public interface ICustomerRepository
 {
     Task AddAsync(Customer customer, CancellationToken cancellationToken = default);
+    Task AddDocumentAsync(CustomerDocument document, CancellationToken cancellationToken = default);
     Task<Customer?> GetByIdAsync(Guid tenantId, Guid customerId, CancellationToken cancellationToken = default);
     Task<CustomerDetailsResponse?> GetDetailsAsync(Guid tenantId, Guid customerId, CancellationToken cancellationToken = default);
     Task<PaginatedResponse<CustomerResponse>> SearchAsync(SearchCustomersQuery query, CancellationToken cancellationToken = default);

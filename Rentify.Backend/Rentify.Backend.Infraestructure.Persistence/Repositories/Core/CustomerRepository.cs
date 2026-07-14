@@ -23,6 +23,11 @@ public sealed class CustomerRepository : ICustomerRepository
         await _context.Customers.AddAsync(customer, cancellationToken);
     }
 
+    public async Task AddDocumentAsync(CustomerDocument document, CancellationToken cancellationToken = default)
+    {
+        await _context.CustomerDocuments.AddAsync(document, cancellationToken);
+    }
+
     public async Task<Customer?> GetByIdAsync(Guid tenantId, Guid customerId, CancellationToken cancellationToken = default)
     {
         return await _context.Customers
