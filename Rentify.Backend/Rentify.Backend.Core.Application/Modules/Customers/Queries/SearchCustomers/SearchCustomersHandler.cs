@@ -5,7 +5,7 @@ using Rentify.Backend.Core.Application.Modules.Shared.Response;
 
 namespace Rentify.Backend.Core.Application.Modules.Customers.Queries.SearchCustomers;
 
-public sealed class SearchCustomersHandler : IRequestHandler<SearchCustomersQuery, ResultReponse<IReadOnlyList<CustomerResponse>>>
+public sealed class SearchCustomersHandler : IRequestHandler<SearchCustomersQuery, ResultReponse<PaginatedResponse<CustomerResponse>>>
 {
     private readonly ICustomerRepository _customerRepository;
 
@@ -14,17 +14,10 @@ public sealed class SearchCustomersHandler : IRequestHandler<SearchCustomersQuer
         _customerRepository = customerRepository;
     }
 
-    public async Task<ResultReponse<IReadOnlyList<CustomerResponse>>> Handle(SearchCustomersQuery request, CancellationToken cancellationToken)
+    public async Task<ResultReponse<PaginatedResponse<CustomerResponse>>> Handle(SearchCustomersQuery request, CancellationToken cancellationToken)
     {
-        var customers = await _customerRepository.SearchAsync(request.TenantId, request.SearchTerm, cancellationToken);
-        var response = customers.Select(x => new CustomerResponse(
-            x.Id,
-            x.TenantId,
-            x.FirstName,
-            x.LastName,
-            x.Email,
-            x.PhoneNumber)).ToList();
+        PaginatedResponse<CustomerResponse> response = await _customerRepository.SearchAsync(request, cancellationToken);
 
-        return ResultReponse<IReadOnlyList<CustomerResponse>>.Success(response);
+        return ResultReponse<PaginatedResponse<CustomerResponse>>.Success(response);
     }
 }

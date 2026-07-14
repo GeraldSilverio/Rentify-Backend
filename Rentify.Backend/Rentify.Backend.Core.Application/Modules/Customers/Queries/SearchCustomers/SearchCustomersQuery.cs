@@ -6,4 +6,6 @@ namespace Rentify.Backend.Core.Application.Modules.Customers.Queries.SearchCusto
 
 public sealed record SearchCustomersQuery(
     Guid TenantId,
-    string? SearchTerm) : IRequest<ResultReponse<IReadOnlyList<CustomerResponse>>>;
+    int PageNumber = 1,
+    int PageSize = 10,
+    string? SearchTerm = null) : IRequest<ResultReponse<PaginatedResponse<CustomerResponse>>>;

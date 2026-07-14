@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Rentify.Backend.Core.Application.Modules.Customers.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Customers.Dtos;
+using Rentify.Backend.Core.Application.Modules.Customers.Queries.SearchCustomers;
+using Rentify.Backend.Core.Application.Modules.Shared.Response;
 using Rentify.Backend.Core.Domain.Entities;
 using Rentify.Backend.Core.Domain.Entities.Customers;
 using Rentify.Backend.Infraestructure.Persistence.Context;
@@ -60,25 +62,49 @@ public sealed class CustomerRepository : ICustomerRepository
             .FirstOrDefaultAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<Customer>> SearchAsync(Guid tenantId, string? searchTerm, CancellationToken cancellationToken = default)
+    public async Task<PaginatedResponse<CustomerResponse>> SearchAsync(
+        SearchCustomersQuery query,
+        CancellationToken cancellationToken = default)
     {
-        IQueryable<Customer> query = _context.Customers
+        IQueryable<Customer> customersQuery = _context.Customers
             .AsNoTracking()
-            .Where(x => x.TenantId == tenantId && !x.IsDeleted);
+            .Where(x => x.TenantId == query.TenantId && !x.IsDeleted);
 
-        if (!string.IsNullOrWhiteSpace(searchTerm))
+        if (!string.IsNullOrWhiteSpace(query.SearchTerm))
         {
-            string term = searchTerm.Trim().ToLowerInvariant();
-            query = query.Where(x =>
-                x.FirstName.ToLower().Contains(term)
-                || x.LastName.ToLower().Contains(term)
-                || x.Email.ToLower().Contains(term)
-                || x.PhoneNumber.ToLower().Contains(term));
+            string searchPattern = $"%{query.SearchTerm.Trim()}%";
+            customersQuery = customersQuery.Where(customer =>
+                EF.Functions.ILike(customer.FirstName, searchPattern)
+                || EF.Functions.ILike(customer.LastName, searchPattern)
+                || EF.Functions.ILike(customer.Email, searchPattern)
+                || EF.Functions.ILike(customer.PhoneNumber, searchPattern));
         }
 
-        return await query
-            .OrderBy(x => x.FirstName)
-            .ThenBy(x => x.LastName)
+        int totalCount = await customersQuery.CountAsync(cancellationToken);
+        int totalPages = totalCount == 0
+            ? 0
+            : (int)Math.Ceiling(totalCount / (double)query.PageSize);
+
+        List<CustomerResponse> customers = await customersQuery
+            .OrderBy(customer => customer.FirstName)
+            .ThenBy(customer => customer.LastName)
+            .ThenBy(customer => customer.Id)
+            .Skip((query.PageNumber - 1) * query.PageSize)
+            .Take(query.PageSize)
+            .Select(customer => new CustomerResponse(
+                customer.Id,
+                customer.TenantId,
+                customer.FirstName,
+                customer.LastName,
+                customer.Email,
+                customer.PhoneNumber))
             .ToListAsync(cancellationToken);
+
+        return new PaginatedResponse<CustomerResponse>(
+            customers,
+            query.PageNumber,
+            query.PageSize,
+            totalCount,
+            totalPages);
     }
 }

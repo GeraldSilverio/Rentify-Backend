@@ -85,10 +85,14 @@ public static class CustomersEndpoints
             string? searchTerm,
             ICurrentRequestContext currentRequestContext,
             ISender sender,
-            CancellationToken cancellationToken) =>
+            CancellationToken cancellationToken,
+            int pageNumber = 1,
+            int pageSize = 10) =>
         {
             var response = await sender.Send(new SearchCustomersQuery(
                 currentRequestContext.TenantId,
+                pageNumber,
+                pageSize,
                 searchTerm), cancellationToken);
 
             return Results.Ok(response);
