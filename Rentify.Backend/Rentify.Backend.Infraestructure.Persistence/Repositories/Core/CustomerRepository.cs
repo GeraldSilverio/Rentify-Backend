@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Rentify.Backend.Core.Application.Modules.Customers.Contracts.Repositories;
+using Rentify.Backend.Core.Application.Modules.Customers.Dtos;
 using Rentify.Backend.Core.Domain.Entities;
 using Rentify.Backend.Core.Domain.Entities.Customers;
 using Rentify.Backend.Infraestructure.Persistence.Context;
@@ -25,6 +26,38 @@ public sealed class CustomerRepository : ICustomerRepository
         return await _context.Customers
             .Include(x => x.Documents)
             .FirstOrDefaultAsync(x => x.TenantId == tenantId && x.Id == customerId && !x.IsDeleted, cancellationToken);
+    }
+
+    public async Task<CustomerDetailsResponse?> GetDetailsAsync(
+        Guid tenantId,
+        Guid customerId,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.Customers
+            .AsNoTracking()
+            .Where(x => x.TenantId == tenantId && x.Id == customerId && !x.IsDeleted)
+            .Select(x => new CustomerDetailsResponse(
+                x.Id,
+                x.TenantId,
+                x.FirstName,
+                x.LastName,
+                x.Email,
+                x.PhoneNumber,
+                x.IsActive,
+                x.CreatedDate,
+                x.ModifiedDate,
+                x.Documents
+                    .Where(document => document.IsActive && !document.IsDeleted)
+                    .OrderBy(document => document.CreatedDate)
+                    .Select(document => new CustomerDocumentResponse(
+                        document.Id,
+                        document.Name,
+                        document.Url,
+                        document.PublicId,
+                        document.DocumentType,
+                        document.CreatedDate))
+                    .ToList()))
+            .FirstOrDefaultAsync(cancellationToken);
     }
 
     public async Task<IReadOnlyList<Customer>> SearchAsync(Guid tenantId, string? searchTerm, CancellationToken cancellationToken = default)

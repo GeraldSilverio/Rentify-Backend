@@ -2,6 +2,7 @@ using MediatR;
 using Rentify.Backend.Core.Application.Modules.Customers.Commands.CreateCustomer;
 using Rentify.Backend.Core.Application.Modules.Customers.Commands.DeleteCustomer;
 using Rentify.Backend.Core.Application.Modules.Customers.Commands.UpdateCustomer;
+using Rentify.Backend.Core.Application.Modules.Customers.Queries.GetCustomerById;
 using Rentify.Backend.Core.Application.Modules.Customers.Queries.SearchCustomers;
 using Rentify.Backend.Core.Application.Modules.Shared.Constants;
 using Rentify.Backend.Core.Application.Modules.Shared.Context;
@@ -63,6 +64,19 @@ public static class CustomersEndpoints
                 currentRequestContext.TenantId,
                 customerId,
                 currentRequestContext.ModifiedBy), cancellationToken);
+
+            return Results.Ok(response);
+        });
+
+        group.MapGet("/{customerId:guid}", async (
+            Guid customerId,
+            ICurrentRequestContext currentRequestContext,
+            ISender sender,
+            CancellationToken cancellationToken) =>
+        {
+            var response = await sender.Send(new GetCustomerByIdQuery(
+                currentRequestContext.TenantId,
+                customerId), cancellationToken);
 
             return Results.Ok(response);
         });
