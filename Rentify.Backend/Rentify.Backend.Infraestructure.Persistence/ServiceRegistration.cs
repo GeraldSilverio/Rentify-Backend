@@ -51,6 +51,8 @@ namespace Rentify.Backend.Infraestructure.Persistence
             services.AddScoped<ISystemEmailTemplateRepository, SystemEmailTemplateRepository>();
             services.AddScoped<ITenantEmailConfigurationRepository, TenantEmailConfigurationRepository>();
 
+            services.AddScoped<IVehicleFeatureRepository, VehicleFeatureRepository>();
+            services.AddScoped<IVehicleFeatureAssignmentRepository, VehicleFeatureAssignmentRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ISubscriptionPlanRepository, SubscriptionPlanRepository>();
             services.AddScoped<IVehicleRepository, VehicleRepository>();

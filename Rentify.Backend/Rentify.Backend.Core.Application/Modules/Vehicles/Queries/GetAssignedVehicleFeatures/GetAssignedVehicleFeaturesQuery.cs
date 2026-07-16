@@ -6,4 +6,4 @@ namespace Rentify.Backend.Core.Application.Modules.Vehicles.Queries.GetAssignedV
 
 public sealed record GetAssignedVehicleFeaturesQuery(
     Guid TenantId,
-    Guid VehicleId) : IRequest<ResultReponse<IReadOnlyCollection<VehicleFeatureResponse>>>;
+    Guid VehicleId) : IRequest<ResultReponse<IReadOnlyCollection<VehicleFeatureAssignmentResponse>>>;

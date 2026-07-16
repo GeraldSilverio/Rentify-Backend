@@ -22,8 +22,7 @@ public sealed class VehicleFeatureAssignmentConfiguration : IEntityTypeConfigura
             .IsRequired();
 
         builder.HasIndex(x => new { x.TenantId, x.VehicleId, x.VehicleFeatureId })
-            .IsUnique()
-            .HasFilter("\"IsDeleted\" = false");
+            .IsUnique();
 
         builder.HasOne(x => x.Vehicle)
             .WithMany(x => x.FeatureAssignments)

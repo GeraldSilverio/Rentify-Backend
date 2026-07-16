@@ -220,6 +220,13 @@ public sealed class VehicleRepository : IVehicleRepository
             .FirstOrDefaultAsync(x => x.TenantId == tenantId && x.Id == id && !x.IsDeleted, cancellationToken);
     }
 
+    public async Task<bool> ExistsAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
+    {
+        return await _context.Vehicles
+            .AsNoTracking()
+            .AnyAsync(vehicle => vehicle.TenantId == tenantId && vehicle.Id == id && !vehicle.IsDeleted, cancellationToken);
+    }
+
     public async Task<bool> PlateNumberExistsAsync(
         Guid tenantId,
         string plateNumber,

@@ -120,6 +120,7 @@ app.UseSession();
 app.MapVehicleCatalogEndpoints();
 app.MapVehiclesEndpoints();
 #endregion
+app.MapVehicleFeatureAssignmentEndpoints();
 app.MapCustomersEndpoints();
 app.MapCustomerDocumentsEndpoints();
 app.MapAdminTenantEndpoints();
