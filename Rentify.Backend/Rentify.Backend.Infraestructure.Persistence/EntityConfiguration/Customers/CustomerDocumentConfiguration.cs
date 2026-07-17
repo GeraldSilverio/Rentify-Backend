@@ -18,6 +18,7 @@ public sealed class CustomerDocumentConfiguration : IEntityTypeConfiguration<Cus
         builder.Property(x => x.Url).IsRequired().HasMaxLength(500);
         builder.Property(x => x.PublicId).IsRequired().HasMaxLength(255);
         builder.Property(x => x.DocumentType).HasConversion<string>().HasMaxLength(40);
+        builder.Property(x => x.DocumentSide).HasConversion<string>().HasMaxLength(50).IsRequired();
 
         builder.HasIndex(x => new { x.TenantId, x.CustomerId });
         builder.HasIndex(x => x.PublicId).IsUnique();

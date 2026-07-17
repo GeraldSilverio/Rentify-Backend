@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Rentify.Backend.Core.Application.Modules.Customers.Commands.UploadCustomerDocument;
+using Rentify.Backend.Core.Application.Modules.Customers.Commands.DeleteCustomerDocument;
 using Rentify.Backend.Core.Application.Modules.Shared.Constants;
 using Rentify.Backend.Core.Application.Modules.Shared.Context;
 using Rentify.Backend.Core.Domain.Enums;
@@ -20,6 +21,7 @@ public static class CustomerDocumentsEndpoints
             Guid customerId,
             IFormFile document,
             [FromForm] CustomerDocumentType documentType,
+            [FromForm] DocumentSide documentSide,
             ICurrentRequestContext currentRequestContext,
             ISender sender,
             CancellationToken cancellationToken) =>
@@ -29,11 +31,28 @@ public static class CustomerDocumentsEndpoints
                 customerId,
                 document,
                 documentType,
-                currentRequestContext.ModifiedBy), cancellationToken);
+                documentSide,
+                currentRequestContext.UserId.ToString()), cancellationToken);
 
             return Results.Created($"/api/v1/customers/{customerId}/documents/{response.Value}", response);
         })
         .DisableAntiforgery();
+
+        group.MapDelete("/{customerId:guid}/documents/{documentId:guid}", async (
+            Guid customerId,
+            Guid documentId,
+            ICurrentRequestContext currentRequestContext,
+            ISender sender,
+            CancellationToken cancellationToken) =>
+        {
+            await sender.Send(new DeleteCustomerDocumentCommand(
+                currentRequestContext.TenantId,
+                customerId,
+                documentId,
+                currentRequestContext.UserId.ToString()), cancellationToken);
+
+            return Results.NoContent();
+        });
 
         return app;
     }

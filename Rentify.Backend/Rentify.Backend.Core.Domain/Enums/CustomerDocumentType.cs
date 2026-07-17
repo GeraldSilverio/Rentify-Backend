@@ -5,5 +5,7 @@ public enum CustomerDocumentType
     DriverLicense = 1,
     Identification = 2,
     Passport = 3,
-    Other = 4
+    Other = 4,
+    GoodConductCertificate = 5,
+    IdentificationSelfie = 6
 }

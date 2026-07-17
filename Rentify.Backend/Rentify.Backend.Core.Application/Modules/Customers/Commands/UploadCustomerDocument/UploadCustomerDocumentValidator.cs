@@ -1,4 +1,5 @@
 using FluentValidation;
+using Rentify.Backend.Core.Domain.Enums;
 
 namespace Rentify.Backend.Core.Application.Modules.Customers.Commands.UploadCustomerDocument;
 
@@ -15,6 +16,12 @@ public sealed class UploadCustomerDocumentValidator : AbstractValidator<UploadCu
     {
         RuleFor(x => x.TenantId).NotEmpty();
         RuleFor(x => x.CustomerId).NotEmpty();
+        RuleFor(x => x.DocumentType).IsInEnum();
+        RuleFor(x => x.DocumentSide).IsInEnum();
+        RuleFor(x => x.DocumentSide)
+            .Equal(DocumentSide.NotApplicable)
+            .When(x => x.DocumentType == CustomerDocumentType.IdentificationSelfie)
+            .WithMessage("La selfie con cédula no debe tener lado frontal o trasero.");
         RuleFor(x => x.Document).NotNull().WithMessage("Document is required.");
         RuleFor(x => x.Document.Length)
             .LessThanOrEqualTo(5 * 1024 * 1024)

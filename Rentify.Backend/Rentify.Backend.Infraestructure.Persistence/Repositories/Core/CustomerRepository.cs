@@ -5,6 +5,7 @@ using Rentify.Backend.Core.Application.Modules.Customers.Queries.SearchCustomers
 using Rentify.Backend.Core.Application.Modules.Shared.Response;
 using Rentify.Backend.Core.Domain.Entities;
 using Rentify.Backend.Core.Domain.Entities.Customers;
+using Rentify.Backend.Core.Domain.Enums;
 using Rentify.Backend.Infraestructure.Persistence.Context;
 
 namespace Rentify.Backend.Infraestructure.Persistence.Repositories;
@@ -35,6 +36,37 @@ public sealed class CustomerRepository : ICustomerRepository
             .FirstOrDefaultAsync(x => x.TenantId == tenantId && x.Id == customerId && !x.IsDeleted, cancellationToken);
     }
 
+    public async Task<CustomerDocument?> GetDocumentByIdAsync(
+        Guid tenantId,
+        Guid customerId,
+        Guid documentId,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.CustomerDocuments
+            .FirstOrDefaultAsync(document =>
+                document.TenantId == tenantId
+                && document.CustomerId == customerId
+                && document.Id == documentId
+                && !document.IsDeleted,
+                cancellationToken);
+    }
+
+    public Task<bool> IdentificationExistsAsync(
+        Guid tenantId,
+        IdentificationType identificationType,
+        string identificationNumberNormalized,
+        Guid? excludedCustomerId,
+        CancellationToken cancellationToken = default)
+    {
+        return _context.Customers.AnyAsync(customer =>
+            customer.TenantId == tenantId
+            && customer.IdentificationType == identificationType
+            && customer.IdentificationNumberNormalized == identificationNumberNormalized
+            && !customer.IsDeleted
+            && (!excludedCustomerId.HasValue || customer.Id != excludedCustomerId.Value),
+            cancellationToken);
+    }
+
     public async Task<CustomerDetailsResponse?> GetDetailsAsync(
         Guid tenantId,
         Guid customerId,
@@ -46,10 +78,22 @@ public sealed class CustomerRepository : ICustomerRepository
             .Select(x => new CustomerDetailsResponse(
                 x.Id,
                 x.TenantId,
+                x.CustomerType,
+                x.IdentificationType,
+                x.IdentificationNumber,
+                x.BirthDate,
+                x.IsVerified,
+                x.VerifiedAt,
+                x.VerifiedBy,
                 x.FirstName,
                 x.LastName,
                 x.Email,
                 x.PhoneNumber,
+                x.AddressLine,
+                x.Sector,
+                x.City,
+                x.Province,
+                x.AddressReference,
                 x.IsActive,
                 x.CreatedDate,
                 x.ModifiedDate,
@@ -62,6 +106,7 @@ public sealed class CustomerRepository : ICustomerRepository
                         document.Url,
                         document.PublicId,
                         document.DocumentType,
+                        document.DocumentSide,
                         document.CreatedDate))
                     .ToList()))
             .FirstOrDefaultAsync(cancellationToken);
@@ -99,10 +144,20 @@ public sealed class CustomerRepository : ICustomerRepository
             .Select(customer => new CustomerResponse(
                 customer.Id,
                 customer.TenantId,
+                customer.CustomerType,
+                customer.IdentificationType,
+                customer.IdentificationNumber,
+                customer.BirthDate,
+                customer.IsVerified,
                 customer.FirstName,
                 customer.LastName,
                 customer.Email,
-                customer.PhoneNumber))
+                customer.PhoneNumber,
+                customer.AddressLine,
+                customer.Sector,
+                customer.City,
+                customer.Province,
+                customer.AddressReference))
             .ToListAsync(cancellationToken);
 
         return new PaginatedResponse<CustomerResponse>(

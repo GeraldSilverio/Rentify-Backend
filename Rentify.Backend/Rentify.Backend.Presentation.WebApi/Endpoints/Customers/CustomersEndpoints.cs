@@ -2,6 +2,8 @@ using MediatR;
 using Rentify.Backend.Core.Application.Modules.Customers.Commands.CreateCustomer;
 using Rentify.Backend.Core.Application.Modules.Customers.Commands.DeleteCustomer;
 using Rentify.Backend.Core.Application.Modules.Customers.Commands.UpdateCustomer;
+using Rentify.Backend.Core.Application.Modules.Customers.Commands.VerifyCustomer;
+using Rentify.Backend.Core.Application.Modules.Customers.Commands.UnverifyCustomer;
 using Rentify.Backend.Core.Application.Modules.Customers.Queries.GetCustomerById;
 using Rentify.Backend.Core.Application.Modules.Customers.Queries.SearchCustomers;
 using Rentify.Backend.Core.Application.Modules.Shared.Constants;
@@ -26,11 +28,20 @@ public static class CustomersEndpoints
         {
             var response = await sender.Send(new CreateCustomerCommand(
                 currentRequestContext.TenantId,
+                request.CustomerType,
+                request.IdentificationType,
+                request.IdentificationNumber,
+                request.BirthDate,
                 request.FirstName,
                 request.LastName,
                 request.Email,
                 request.PhoneNumber,
-                currentRequestContext.ModifiedBy), cancellationToken);
+                request.AddressLine,
+                request.Sector,
+                request.City,
+                request.Province,
+                request.AddressReference,
+                currentRequestContext.UserId.ToString()), cancellationToken);
 
             return Results.Created($"/api/v1/customers/{response.Value}", response);
         });
@@ -45,10 +56,47 @@ public static class CustomersEndpoints
             var response = await sender.Send(new UpdateCustomerCommand(
                 currentRequestContext.TenantId,
                 customerId,
+                request.CustomerType,
+                request.IdentificationType,
+                request.IdentificationNumber,
+                request.BirthDate,
                 request.FirstName,
                 request.LastName,
                 request.Email,
                 request.PhoneNumber,
+                request.AddressLine,
+                request.Sector,
+                request.City,
+                request.Province,
+                request.AddressReference,
+                currentRequestContext.ModifiedBy), cancellationToken);
+
+            return Results.Ok(response);
+        });
+
+        group.MapPut("/{customerId:guid}/verify", async (
+            Guid customerId,
+            ICurrentRequestContext currentRequestContext,
+            ISender sender,
+            CancellationToken cancellationToken) =>
+        {
+            var response = await sender.Send(new VerifyCustomerCommand(
+                currentRequestContext.TenantId,
+                customerId,
+                currentRequestContext.ModifiedBy), cancellationToken);
+
+            return Results.Ok(response);
+        });
+
+        group.MapPut("/{customerId:guid}/unverify", async (
+            Guid customerId,
+            ICurrentRequestContext currentRequestContext,
+            ISender sender,
+            CancellationToken cancellationToken) =>
+        {
+            var response = await sender.Send(new UnverifyCustomerCommand(
+                currentRequestContext.TenantId,
+                customerId,
                 currentRequestContext.ModifiedBy), cancellationToken);
 
             return Results.Ok(response);

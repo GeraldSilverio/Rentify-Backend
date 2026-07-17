@@ -10,4 +10,5 @@ public sealed record UploadCustomerDocumentCommand(
     Guid CustomerId,
     IFormFile Document,
     CustomerDocumentType DocumentType,
+    DocumentSide DocumentSide,
     string CreatedBy) : IRequest<ResultReponse<Guid>>;

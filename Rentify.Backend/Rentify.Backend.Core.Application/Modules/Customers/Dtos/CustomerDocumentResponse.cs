@@ -8,4 +8,5 @@ public sealed record CustomerDocumentResponse(
     string Url,
     string PublicId,
     CustomerDocumentType DocumentType,
+    DocumentSide DocumentSide,
     DateTime CreatedDate);
