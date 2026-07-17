@@ -167,4 +167,25 @@ public sealed class CustomerRepository : ICustomerRepository
             totalCount,
             totalPages);
     }
+
+    public Task<bool> EmailExistsAsync(Guid tenantId, string email, CancellationToken cancellationToken = default)
+    {
+        return EmailExistsAsync(tenantId, email, null, cancellationToken);
+    }
+
+    public Task<bool> EmailExistsAsync(
+        Guid tenantId,
+        string email,
+        Guid? excludedCustomerId,
+        CancellationToken cancellationToken = default)
+    {
+        string normalizedEmail = email.Trim().ToLowerInvariant();
+
+        return _context.Customers.AnyAsync(customer =>
+             customer.TenantId == tenantId
+             && customer.Email == normalizedEmail
+             && !customer.IsDeleted
+             && (!excludedCustomerId.HasValue || customer.Id != excludedCustomerId.Value),
+             cancellationToken);
+    }
 }

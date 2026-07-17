@@ -39,6 +39,7 @@ public sealed class CustomerService : ICustomerService
     public async Task<Guid> CreateAsync(CreateCustomerCommand command, CancellationToken cancellationToken = default)
     {
         string identificationNumberNormalized = Customer.NormalizeIdentificationNumber(command.IdentificationNumber);
+
         if (await _customerRepository.IdentificationExistsAsync(
                 command.TenantId,
                 command.IdentificationType,
@@ -47,6 +48,15 @@ public sealed class CustomerService : ICustomerService
                 cancellationToken))
         {
             throw new ApiException("Ya existe un cliente con esta identificación.", StatusCodes.Status400BadRequest);
+        }
+
+        if (await _customerRepository.EmailExistsAsync(
+                command.TenantId,
+                command.Email,
+                null,
+                cancellationToken))
+        {
+            throw new ApiException("Ya existe un cliente con este correo electrónico.", StatusCodes.Status400BadRequest);
         }
 
         Customer customer = Customer.Create(
@@ -84,6 +94,15 @@ public sealed class CustomerService : ICustomerService
                 cancellationToken))
         {
             throw new ApiException("Ya existe un cliente con esta identificación.", StatusCodes.Status400BadRequest);
+        }
+
+        if (await _customerRepository.EmailExistsAsync(
+                command.TenantId,
+                command.Email,
+                command.CustomerId,
+                cancellationToken))
+        {
+            throw new ApiException("Ya existe un cliente con este correo electrónico.", StatusCodes.Status400BadRequest);
         }
 
         customer.Update(

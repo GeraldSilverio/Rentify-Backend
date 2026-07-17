@@ -6,8 +6,11 @@ using Rentify.Backend.Core.Application.Modules.Customers.Commands.VerifyCustomer
 using Rentify.Backend.Core.Application.Modules.Customers.Commands.UnverifyCustomer;
 using Rentify.Backend.Core.Application.Modules.Customers.Queries.GetCustomerById;
 using Rentify.Backend.Core.Application.Modules.Customers.Queries.SearchCustomers;
+using Rentify.Backend.Core.Application.Modules.Customers.Queries.CheckCustomerEmailAvailability;
+using Rentify.Backend.Core.Application.Modules.Customers.Queries.CheckCustomerIdentificationAvailability;
 using Rentify.Backend.Core.Application.Modules.Shared.Constants;
 using Rentify.Backend.Core.Application.Modules.Shared.Context;
+using Rentify.Backend.Core.Domain.Enums;
 
 namespace Rentify.Backend.Presentation.WebApi.Endpoints.Customers;
 
@@ -19,6 +22,38 @@ public static class CustomersEndpoints
             .MapGroup("/api/v1/customers")
             .WithTags("Customers")
             .RequireAuthorization(AuthorizationPolicies.RequiredRoles);
+
+        group.MapGet("/availability/identification", async (
+            IdentificationType identificationType,
+            string identificationNumber,
+            Guid? excludeCustomerId,
+            ICurrentRequestContext currentRequestContext,
+            ISender sender,
+            CancellationToken cancellationToken) =>
+        {
+            var response = await sender.Send(new CheckCustomerIdentificationAvailabilityQuery(
+                currentRequestContext.TenantId,
+                identificationType,
+                identificationNumber,
+                excludeCustomerId), cancellationToken);
+
+            return Results.Ok(response);
+        });
+
+        group.MapGet("/availability/email", async (
+            string email,
+            Guid? excludeCustomerId,
+            ICurrentRequestContext currentRequestContext,
+            ISender sender,
+            CancellationToken cancellationToken) =>
+        {
+            var response = await sender.Send(new CheckCustomerEmailAvailabilityQuery(
+                currentRequestContext.TenantId,
+                email,
+                excludeCustomerId), cancellationToken);
+
+            return Results.Ok(response);
+        });
 
         group.MapPost("/", async (
             CreateCustomerRequest request,
