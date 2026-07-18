@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Rentify.Backend.Core.Application.Modules.Shared.Exceptions;
+using Rentify.Backend.Core.Application.Modules.Tenants.Commands.RegisterTenant;
 using Rentify.Backend.Core.Application.Modules.Tenants.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Tenants.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Tenants.Validation;
@@ -17,7 +18,7 @@ public sealed class TenantUniquenessService : ITenantUniquenessService
         _tenantRepository = tenantRepository;
     }
 
-    public async Task<bool> IsRncInUseAsync(
+    private async Task<bool> IsRncInUseAsync(
         string? rnc,
         Guid? excludedTenantId = null,
         CancellationToken cancellationToken = default)
@@ -28,12 +29,24 @@ public sealed class TenantUniquenessService : ITenantUniquenessService
                await _tenantRepository.RncExistsAsync(normalizedRnc, excludedTenantId, cancellationToken);
     }
 
-    public async Task EnsureRncIsUniqueAsync(
-        string? rnc,
+
+    public async Task ValidateUniqueFieldsAsync(
+        RegisterTenantCommand registerTenantCommand,
         Guid? excludedTenantId = null,
         CancellationToken cancellationToken = default)
     {
-        if (await IsRncInUseAsync(rnc, excludedTenantId, cancellationToken))
+
+        if (await IsRncInUseAsync(registerTenantCommand.Rnc, excludedTenantId, cancellationToken))
             throw new ApiException(RncAlreadyInUseMessage, StatusCodes.Status400BadRequest);
+
+        if (await _tenantRepository.EmailExistAsync(registerTenantCommand.ContactInformation.Email, excludedTenantId, cancellationToken))
+        {
+            throw new ApiException("El correo del negocio ya existe.", StatusCodes.Status400BadRequest);
+        }
+
+        if (await _tenantRepository.PhoneNumberExistAsync(registerTenantCommand.ContactInformation.PhoneNumber, excludedTenantId, cancellationToken))
+        {
+            throw new ApiException("El numero del negocio ya existe.", StatusCodes.Status400BadRequest);
+        }
     }
 }

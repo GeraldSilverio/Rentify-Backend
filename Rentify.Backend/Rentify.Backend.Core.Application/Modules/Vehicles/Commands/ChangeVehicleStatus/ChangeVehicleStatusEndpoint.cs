@@ -13,17 +13,16 @@ public static class ChangeVehicleStatusEndpoint
         app.MapPut("/api/v1/vehicles/{vehicleId:guid}/status", async(
             Guid vehicleId,
             ChangeVehicleStatusRequest request,
-            ICurrentTenantService currentTenantService,
-            ICurrentUserService currentUserService,
+            ICurrentRequestContext currentRequestContext,
             ISender sender,
             CancellationToken cancellationToken) =>
         {
             var response = await sender.Send(
                 new ChangeVehicleStatusCommand(
-                    currentTenantService.GetTenantId(),
+                    currentRequestContext.TenantId,
                     vehicleId,
                     request.Status,
-                    currentUserService.ModifiedBy),
+                    currentRequestContext.ModifiedBy),
                 cancellationToken);
 
             return Results.Ok(response);

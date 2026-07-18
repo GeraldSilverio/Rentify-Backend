@@ -12,12 +12,12 @@ public static class GetVehicleDetailEndpoint
     {
         app.MapGet("/api/v1/vehicles/{vehicleId:guid}", async (
             Guid vehicleId,
-            ICurrentTenantService currentTenantService,
+            ICurrentRequestContext currentRequestContext,
             ISender sender,
             CancellationToken cancellationToken) =>
         {
             var response = await sender.Send(
-                new GetVehicleDetailQuery(currentTenantService.GetTenantId(), vehicleId),
+                new GetVehicleDetailQuery(currentRequestContext.TenantId, vehicleId),
                 cancellationToken);
 
             return Results.Ok(response);

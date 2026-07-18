@@ -9,12 +9,12 @@ public static class GetTenantSubscriptionEndpoint
     public static IEndpointRouteBuilder MapGetTenantSubscriptionEndpoint(this IEndpointRouteBuilder app)
     {
         app.MapGet("/subscription", async (
-            ICurrentTenantService currentTenantService,
+            ICurrentRequestContext currentRequestContext,
             ISender sender,
             CancellationToken cancellationToken) =>
         {
             var response = await sender.Send(
-                new GetTenantSubscriptionQuery(currentTenantService.GetTenantId()),
+                new GetTenantSubscriptionQuery(currentRequestContext.TenantId),
                 cancellationToken);
 
             return Results.Ok(response);

@@ -11,7 +11,7 @@ public static class ExtendTenantTrialEndpoint
         app.MapPut("/{tenantId:guid}/subscription/extend-trial", async (
             Guid tenantId,
             ExtendTenantTrialRequest request,
-            ICurrentUserService currentUserService,
+            ICurrentRequestContext currentRequestContext,
             ISender sender,
             CancellationToken cancellationToken) =>
         {
@@ -19,7 +19,7 @@ public static class ExtendTenantTrialEndpoint
                 new ExtendTenantTrialCommand(
                     tenantId,
                     request.DaysToAdd,
-                    currentUserService.ModifiedBy),
+                    currentRequestContext.ModifiedBy),
                 cancellationToken);
 
             return Results.Ok(response);

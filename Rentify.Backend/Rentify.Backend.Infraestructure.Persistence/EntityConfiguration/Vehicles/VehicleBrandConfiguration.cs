@@ -10,6 +10,8 @@ public sealed class VehicleBrandConfiguration : IEntityTypeConfiguration<Vehicle
     {
         builder.ToTable("VehicleBrands");
 
+        builder.HasQueryFilter(x=> !x.IsDeleted);
+
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Name)
@@ -17,9 +19,7 @@ public sealed class VehicleBrandConfiguration : IEntityTypeConfiguration<Vehicle
             .HasMaxLength(100);
 
         builder.HasIndex(x => x.Name)
-            .IsUnique()
-            .HasFilter("\"IsDeleted\" = false");
-
+            .IsUnique();
         builder.HasMany(x => x.Models)
             .WithOne(x => x.VehicleBrand)
             .HasForeignKey(x => x.VehicleBrandId)

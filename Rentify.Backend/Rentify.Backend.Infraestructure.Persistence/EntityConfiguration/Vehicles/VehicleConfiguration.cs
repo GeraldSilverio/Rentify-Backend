@@ -31,13 +31,6 @@ public sealed class VehicleConfiguration : IEntityTypeConfiguration<Backend.Core
             .IsUnique()
             .HasFilter("\"IsDeleted\" = false");
 
-        builder.Property(x => x.Vin)
-            .HasMaxLength(50);
-
-        builder.HasIndex(x => new { x.TenantId, x.Vin })
-            .IsUnique()
-            .HasFilter("\"IsDeleted\" = false AND \"Vin\" IS NOT NULL");
-
         builder.Property(x => x.Color)
             .IsRequired()
             .HasMaxLength(50);
@@ -52,7 +45,6 @@ public sealed class VehicleConfiguration : IEntityTypeConfiguration<Backend.Core
         builder.HasIndex(x => new { x.TenantId, x.VehicleModelId });
         builder.HasIndex(x => new { x.TenantId, x.VehicleTypeId });
 
-        builder.Ignore(x => x.DailyRate);
 
         builder.HasOne(x => x.VehicleBrand)
             .WithMany()

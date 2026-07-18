@@ -12,7 +12,7 @@ public static class VehicleFeatureAssignmentEndpoints
     {
         RouteGroupBuilder group = app
             .MapGroup("/api/v1/vehicles")
-            .WithTags("vehicles")
+            .WithTags("Vehicles Features")
             .RequireAuthorization(policy => policy.RequireRole(ApplicationRoles.Owner));
 
         group.MapGet("/{vehicleId:guid}/features", async (

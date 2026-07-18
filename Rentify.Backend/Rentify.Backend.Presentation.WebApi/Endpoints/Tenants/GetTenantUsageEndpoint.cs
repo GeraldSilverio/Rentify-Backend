@@ -9,12 +9,12 @@ public static class GetTenantUsageEndpoint
     public static IEndpointRouteBuilder MapGetTenantUsageEndpoint(this IEndpointRouteBuilder app)
     {
         app.MapGet("/usage", async (
-            ICurrentTenantService currentTenantService,
+            ICurrentRequestContext currentRequestContext,
             ISender sender,
             CancellationToken cancellationToken) =>
         {
             var response = await sender.Send(
-                new GetTenantUsageQuery(currentTenantService.GetTenantId()),
+                new GetTenantUsageQuery(currentRequestContext.TenantId),
                 cancellationToken);
 
             return Results.Ok(response);

@@ -10,12 +10,12 @@ public static class ActivateAdminTenantEndpoint
     {
         app.MapPut("/{tenantId:guid}/activate", async (
             Guid tenantId,
-            ICurrentUserService currentUserService,
+            ICurrentRequestContext currentRequestContext,
             ISender sender,
             CancellationToken cancellationToken) =>
         {
             var response = await sender.Send(
-                new ActivateAdminTenantCommand(tenantId, currentUserService.ModifiedBy),
+                new ActivateAdminTenantCommand(tenantId, currentRequestContext.ModifiedBy),
                 cancellationToken);
 
             return Results.Ok(response);

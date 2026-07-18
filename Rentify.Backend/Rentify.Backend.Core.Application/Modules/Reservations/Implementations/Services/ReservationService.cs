@@ -41,8 +41,8 @@ public sealed class ReservationService : IReservationService
         if (vehicleIds.Length != command.VehicleIds.Count)
             throw new ApiException("Reservation contains duplicated vehicles.", StatusCodes.Status400BadRequest);
 
-        if (await _reservationRepository.HasOverlappingReservationAsync(command.TenantId, vehicleIds, command.StartDate, command.EndDate, cancellationToken))
-            throw new ApiException("One or more vehicles are already reserved for this date range.", StatusCodes.Status400BadRequest);
+        //if (await _reservationRepository.HasOverlappingReservationAsync(command.TenantId, vehicleIds, command.StartDate, command.EndDate, cancellationToken))
+        //    throw new ApiException("One or more vehicles are already reserved for this date range.", StatusCodes.Status400BadRequest);
 
         Reservation reservation = Reservation.Create(
             command.TenantId,
@@ -62,11 +62,11 @@ public sealed class ReservationService : IReservationService
             if (!vehicle.IsAvailableFor(command.StartDate, command.EndDate))
                 throw new ApiException($"Vehicle '{vehicle.PlateNumber}' is unavailable for this date range.", StatusCodes.Status400BadRequest);
 
-            reservation.AddVehicle(vehicle.Id, vehicle.DailyRate, command.CreatedBy);
+            //reservation.AddVehicle(vehicle.Id, vehicle.DailyRate, command.CreatedBy);
             vehicle.ChangeStatus(VehicleStatus.Reserved, command.CreatedBy);
         }
 
-        await _reservationRepository.AddAsync(reservation, cancellationToken);
+        //await _reservationRepository.AddAsync(reservation, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return reservation.Id;

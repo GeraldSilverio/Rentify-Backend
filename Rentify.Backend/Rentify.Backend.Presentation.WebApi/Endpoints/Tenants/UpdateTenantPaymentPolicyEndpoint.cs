@@ -10,21 +10,20 @@ public static class UpdateTenantPaymentPolicyEndpoint
     {
         app.MapPut("/payment-policy", async (
             UpdateTenantPaymentPolicyRequest request,
-            ICurrentTenantService currentTenantService,
-            ICurrentUserService currentUserService,
+            ICurrentRequestContext currentRequestContext,
             ISender sender,
             CancellationToken cancellationToken) =>
         {
             var response = await sender.Send(
                 new UpdateTenantPaymentPolicyCommand(
-                    currentTenantService.GetTenantId(),
+                    currentRequestContext.TenantId,
                     request.Name,
                     request.PaymentFrequency,
                     request.CutoffDayOfWeek,
                     request.GraceDays,
                     request.ReminderStartDayOfWeek,
                     request.LateFeeEnabled,
-                    currentUserService.ModifiedBy),
+                    currentRequestContext.ModifiedBy),
                 cancellationToken);
 
             return Results.Ok(response);

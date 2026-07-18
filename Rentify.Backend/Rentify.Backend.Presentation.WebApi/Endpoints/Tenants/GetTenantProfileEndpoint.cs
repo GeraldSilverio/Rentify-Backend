@@ -9,12 +9,12 @@ public static class GetTenantProfileEndpoint
     public static IEndpointRouteBuilder MapGetTenantProfileEndpoint(this IEndpointRouteBuilder app)
     {
         app.MapGet("/profile", async (
-            ICurrentTenantService currentTenantService,
+            ICurrentRequestContext currentRequestContext,
             ISender sender,
             CancellationToken cancellationToken) =>
         {
             var response = await sender.Send(
-                new GetTenantProfileQuery(currentTenantService.GetTenantId()),
+                new GetTenantProfileQuery(currentRequestContext.TenantId),
                 cancellationToken);
 
             return Results.Ok(response);

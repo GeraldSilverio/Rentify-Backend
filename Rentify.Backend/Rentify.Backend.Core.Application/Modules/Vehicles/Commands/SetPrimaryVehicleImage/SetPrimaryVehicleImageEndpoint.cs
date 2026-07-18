@@ -13,17 +13,16 @@ public static class SetPrimaryVehicleImageEndpoint
         app.MapPut("/api/v1/vehicles/{vehicleId:guid}/images/{imageId:guid}/set-primary", async (
             Guid vehicleId,
             Guid imageId,
-            ICurrentTenantService currentTenantService,
-            ICurrentUserService currentUserService,
+            ICurrentRequestContext currentRequestContext,
             ISender sender,
             CancellationToken cancellationToken) =>
         {
             var response = await sender.Send(
                 new SetPrimaryVehicleImageCommand(
-                    currentTenantService.GetTenantId(),
+                    currentRequestContext.TenantId,
                     vehicleId,
                     imageId,
-                    currentUserService.ModifiedBy),
+                    currentRequestContext.ModifiedBy),
                 cancellationToken);
 
             return Results.Ok(response);

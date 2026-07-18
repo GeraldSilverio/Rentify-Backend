@@ -13,12 +13,12 @@ public static class ChangeVehicleFeatureStatusEndpoint
     {
         app.MapPut("/api/v1/admin/vehicle-features/{featureId:guid}/activate", async (
             Guid featureId,
-            ICurrentUserService currentUserService,
+            ICurrentRequestContext currentRequestContext,
             ISender sender,
             CancellationToken cancellationToken) =>
         {
             var response = await sender.Send(
-                new ChangeVehicleFeatureStatusCommand(featureId, true, currentUserService.ModifiedBy),
+                new ChangeVehicleFeatureStatusCommand(featureId, true, currentRequestContext.ModifiedBy),
                 cancellationToken);
 
             return Results.Ok(response);
@@ -28,12 +28,12 @@ public static class ChangeVehicleFeatureStatusEndpoint
 
         app.MapPut("/api/v1/admin/vehicle-features/{featureId:guid}/deactivate", async (
             Guid featureId,
-            ICurrentUserService currentUserService,
+            ICurrentRequestContext currentRequestContext,
             ISender sender,
             CancellationToken cancellationToken) =>
         {
             var response = await sender.Send(
-                new ChangeVehicleFeatureStatusCommand(featureId, false, currentUserService.ModifiedBy),
+                new ChangeVehicleFeatureStatusCommand(featureId, false, currentRequestContext.ModifiedBy),
                 cancellationToken);
 
             return Results.Ok(response);

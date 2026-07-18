@@ -10,18 +10,17 @@ public static class UpdateTenantProfileEndpoint
     {
         app.MapPut("/profile", async (
             UpdateTenantProfileRequest request,
-            ICurrentTenantService currentTenantService,
-            ICurrentUserService currentUserService,
+            ICurrentRequestContext currentRequestContext,
             ISender sender,
             CancellationToken cancellationToken) =>
         {
             var response = await sender.Send(
                 new UpdateTenantProfileCommand(
-                    currentTenantService.GetTenantId(),
+                    currentRequestContext.TenantId,
                     request.Name,
                     request.LegalName,
                     request.Rnc,
-                    currentUserService.ModifiedBy),
+                    currentRequestContext.ModifiedBy),
                 cancellationToken);
 
             return Results.Ok(response);

@@ -41,5 +41,10 @@ namespace Rentify.Backend.Core.Domain.ValueObjects
         {
             return Value.GetHashCode();
         }
+
+        public static implicit operator string(PhoneNumber phone)
+        {
+            return phone.Value;
+        }
     }
 }

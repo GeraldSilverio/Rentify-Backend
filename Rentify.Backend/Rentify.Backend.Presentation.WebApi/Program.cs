@@ -5,10 +5,12 @@ using Rentify.Backend.Core.Application;
 using Rentify.Backend.Core.Application.Modules.Secutiry;
 using Rentify.Backend.Core.Application.Modules.Shared.Context;
 using Rentify.Backend.Core.Application.Modules.Vehicles;
+using Rentify.Backend.Core.Application.Modules.Vehicles.Contracts.Repositories;
 using Rentify.Backend.Infraestructure.Identity;
 using Rentify.Backend.Infraestructure.Identity.Entities;
 using Rentify.Backend.Infraestructure.Identity.Seeds;
 using Rentify.Backend.Infraestructure.Persistence;
+using Rentify.Backend.Infraestructure.Persistence.Repositories.Vehicules;
 using Rentify.Backend.Infraestructure.Shared;
 using Rentify.Backend.Presentation.WebApi.Endpoints.Admin.Vehicles;
 using Rentify.Backend.Presentation.WebApi.Endpoints.Customers;
@@ -46,6 +48,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentRequestContext, CurrentRequestContext>();
 builder.Services.AddIdentityInfrastructure(builder.Configuration);
 builder.Services.AddPersistence(builder.Configuration);
+builder.Services.AddScoped<IVehicleRateRepository, VehicleRateRepository>();
 builder.Services.AddSharedServices();
 builder.Services.AddApplicationLayer();
 builder.Services.AddEndpointsApiExplorer();
@@ -120,8 +123,9 @@ app.UseSession();
 #region Vehicles
 app.MapVehicleCatalogEndpoints();
 app.MapVehiclesEndpoints();
-#endregion
+app.MapVehicleRateEndpoints();
 app.MapVehicleFeatureAssignmentEndpoints();
+#endregion
 app.MapCustomersEndpoints();
 app.MapCustomerDocumentsEndpoints();
 app.MapAdminLocationsEndpoints();

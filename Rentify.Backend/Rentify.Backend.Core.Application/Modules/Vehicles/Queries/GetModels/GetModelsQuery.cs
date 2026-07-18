@@ -5,5 +5,5 @@ using Rentify.Backend.Core.Application.Modules.Vehicles.Dtos;
 namespace Rentify.Backend.Core.Application.Modules.Vehicles.Queries.GetModels;
 
 public sealed record GetModelsQuery(
-    Guid? VehicleBrandId,
+    Guid? BrandId,
     bool OnlyActive = true) : IRequest<ResultReponse<IReadOnlyCollection<VehicleModelResponse>>>;

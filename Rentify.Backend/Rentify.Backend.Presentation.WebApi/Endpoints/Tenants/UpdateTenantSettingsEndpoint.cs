@@ -10,14 +10,13 @@ public static class UpdateTenantSettingsEndpoint
     {
         app.MapPut("/settings", async (
             UpdateTenantSettingsRequest request,
-            ICurrentTenantService currentTenantService,
-            ICurrentUserService currentUserService,
+            ICurrentRequestContext currentRequestContext,
             ISender sender,
             CancellationToken cancellationToken) =>
         {
             var response = await sender.Send(
                 new UpdateTenantSettingsCommand(
-                    currentTenantService.GetTenantId(),
+                    currentRequestContext.TenantId,
                     request.CurrencyCode,
                     request.TimeZone,
                     request.EnableReservations,
@@ -25,7 +24,7 @@ public static class UpdateTenantSettingsEndpoint
                     request.EnableMaintenance,
                     request.EnableLateFees,
                     request.EnablePublicCatalog,
-                    currentUserService.ModifiedBy),
+                    currentRequestContext.ModifiedBy),
                 cancellationToken);
 
             return Results.Ok(response);

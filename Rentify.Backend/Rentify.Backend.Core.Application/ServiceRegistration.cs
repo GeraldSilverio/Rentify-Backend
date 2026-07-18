@@ -10,13 +10,13 @@ using Rentify.Backend.Core.Application.Modules.Customers.Implementations.Service
 using Rentify.Backend.Core.Application.Modules.Payments.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Payments.Implementations.Services;
 using Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Services;
-using Rentify.Backend.Core.Application.Modules.Reservations.Implementations.Services;
 using Rentify.Backend.Core.Application.Modules.Subscriptions.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Subscriptions.Implementations;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Implementations.Services;
 using Rentify.Backend.Core.Application.Modules.Shared.Behaviors;
 using Rentify.Backend.Core.Application.Modules.Tenants.Services;
+using Rentify.Backend.Core.Application.Modules.Reservations.Implementations.Services;
 
 namespace Rentify.Backend.Core.Application;
 

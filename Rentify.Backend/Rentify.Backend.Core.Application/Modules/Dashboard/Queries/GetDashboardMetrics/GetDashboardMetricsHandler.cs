@@ -16,12 +16,14 @@ public sealed class GetDashboardMetricsHandler : IRequestHandler<GetDashboardMet
 
     public async Task<ResultReponse<DashboardMetricsResponse>> Handle(GetDashboardMetricsQuery request, CancellationToken cancellationToken)
     {
-        DashboardMetricsResponse metrics = await _dashboardRepository.GetMetricsAsync(
-            request.TenantId,
-            DateOnly.FromDateTime(DateTime.UtcNow),
-            cancellationToken);
+        //DashboardMetricsResponse metrics = await _dashboardRepository.GetMetricsAsync(
+        //    request.TenantId,
+        //    DateOnly.FromDateTime(DateTime.UtcNow),
+        //    cancellationToken);
 
 
-        return ResultReponse<DashboardMetricsResponse>.Success(new DashboardMetricsResponse(5000,20,10,8));
+        //return ResultReponse<DashboardMetricsResponse>.Success(new DashboardMetricsResponse(5000,20,10,8));
+
+        return null;
     }
 }

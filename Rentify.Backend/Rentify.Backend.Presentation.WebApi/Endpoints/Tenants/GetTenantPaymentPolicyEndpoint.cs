@@ -9,12 +9,12 @@ public static class GetTenantPaymentPolicyEndpoint
     public static IEndpointRouteBuilder MapGetTenantPaymentPolicyEndpoint(this IEndpointRouteBuilder app)
     {
         app.MapGet("/payment-policy", async (
-            ICurrentTenantService currentTenantService,
+            ICurrentRequestContext currentRequestContext,
             ISender sender,
             CancellationToken cancellationToken) =>
         {
             var response = await sender.Send(
-                new GetTenantPaymentPolicyQuery(currentTenantService.GetTenantId()),
+                new GetTenantPaymentPolicyQuery(currentRequestContext.TenantId),
                 cancellationToken);
 
             return Results.Ok(response);

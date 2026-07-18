@@ -12,7 +12,7 @@ public static class GetVehiclesEndpoint
     public static IEndpointRouteBuilder MapGetVehiclesEndpoint(this IEndpointRouteBuilder app)
     {
         app.MapGet("/api/v1/vehicles", async (
-            ICurrentTenantService currentTenantService,
+            ICurrentRequestContext currentRequestContext,
             ISender sender,
             CancellationToken cancellationToken,
             int pageNumber = 1,
@@ -28,7 +28,7 @@ public static class GetVehiclesEndpoint
             bool? onlyActive = true) =>
         {
             var response = await sender.Send(new GetVehiclesQuery(
-                currentTenantService.GetTenantId(),
+                currentRequestContext.TenantId,
                 pageNumber,
                 pageSize,
                 search,

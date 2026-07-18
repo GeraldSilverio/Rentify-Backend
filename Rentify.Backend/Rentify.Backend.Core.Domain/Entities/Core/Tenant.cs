@@ -1,5 +1,6 @@
 ﻿using Rentify.Backend.Core.Domain.Commons;
 using Rentify.Backend.Core.Domain.Enums;
+using Rentify.Backend.Core.Domain.ValueObjects;
 
 namespace Rentify.Backend.Core.Domain.Entities.Core;
 
@@ -12,6 +13,14 @@ public sealed class Tenant : BaseEntity
     public string? LegalName { get; private set; }
 
     public string? Rnc { get; private set; }
+
+    public Address Address { get; private set; }
+
+    public PhoneNumber PhoneNumber { get; private set; }
+
+    public PhoneNumber WhatsApp { get; private set; }
+
+    public Email Email { get; private set; }
 
     public BusinessModel BusinessModel { get; private set; }
 
@@ -26,7 +35,11 @@ public sealed class Tenant : BaseEntity
         string? legalName,
         string? rnc,
         BusinessModel businessModel,
-        string createdBy)
+        string createdBy,
+        Address address,
+        PhoneNumber phoneNumber,
+        PhoneNumber whatsApp,
+        Email email)
     {
         Id = id;
         Name = NormalizeName(name);
@@ -40,6 +53,10 @@ public sealed class Tenant : BaseEntity
         ModifiedDate = CreatedDate;
         CreatedBy = createdBy;
         ModifiedBy = createdBy;
+        Address = address;
+        PhoneNumber = phoneNumber;
+        WhatsApp = whatsApp;
+        Email = email;
     }
 
     public static Tenant Create(
@@ -47,6 +64,10 @@ public sealed class Tenant : BaseEntity
         string? legalName,
         string? rnc,
         BusinessModel businessModel,
+        Email email,
+        PhoneNumber phoneNumber,
+        PhoneNumber whatsApp,
+        Address address,
         string createdBy)
     {
         Validate(name, businessModel, createdBy);
@@ -57,8 +78,13 @@ public sealed class Tenant : BaseEntity
             legalName,
             rnc,
             businessModel,
-            createdBy);
+            createdBy,
+            address,
+            phoneNumber,
+            whatsApp,
+            email);
     }
+
 
     public void Update(
         string name,
@@ -73,7 +99,6 @@ public sealed class Tenant : BaseEntity
         LegalName = string.IsNullOrWhiteSpace(legalName) ? null : legalName.Trim();
         Rnc = string.IsNullOrWhiteSpace(rnc) ? null : NormalizeRnc(rnc);
         BusinessModel = businessModel;
-
         ModifiedBy = modifiedBy;
         ModifiedDate = DateTime.UtcNow;
     }

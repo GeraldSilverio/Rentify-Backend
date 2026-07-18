@@ -12,17 +12,16 @@ public static class ChangeVehicleActivationEndpoint
     {
         app.MapPut("/api/v1/vehicles/{vehicleId:guid}/activate", async (
             Guid vehicleId,
-            ICurrentTenantService currentTenantService,
-            ICurrentUserService currentUserService,
+            ICurrentRequestContext currentRequestContext,
             ISender sender,
             CancellationToken cancellationToken) =>
         {
             var response = await sender.Send(
                 new ChangeVehicleActivationCommand(
-                    currentTenantService.GetTenantId(),
+                    currentRequestContext.TenantId,
                     vehicleId,
                     true,
-                    currentUserService.ModifiedBy),
+                    currentRequestContext.ModifiedBy),
                 cancellationToken);
 
             return Results.Ok(response);
@@ -31,17 +30,16 @@ public static class ChangeVehicleActivationEndpoint
 
         app.MapPut("/api/v1/vehicles/{vehicleId:guid}/deactivate", async (
             Guid vehicleId,
-            ICurrentTenantService currentTenantService,
-            ICurrentUserService currentUserService,
+            ICurrentRequestContext currentRequestContext,
             ISender sender,
             CancellationToken cancellationToken) =>
         {
             var response = await sender.Send(
                 new ChangeVehicleActivationCommand(
-                    currentTenantService.GetTenantId(),
+                    currentRequestContext.TenantId,
                     vehicleId,
                     false,
-                    currentUserService.ModifiedBy),
+                    currentRequestContext.ModifiedBy),
                 cancellationToken);
 
             return Results.Ok(response);

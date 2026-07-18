@@ -29,33 +29,35 @@ public sealed class PaymentService : IPaymentService
 
     public async Task<RegisterPaymentResponse> RegisterAsync(RegisterPaymentCommand command, CancellationToken cancellationToken = default)
     {
-        Reservation reservation = await _reservationRepository.GetByIdAsync(command.TenantId, command.ReservationId, cancellationToken)
-                                  ?? throw new ApiException("Reservation not found.", StatusCodes.Status404NotFound);
+        // Reservation reservation = await _reservationRepository.GetByIdAsync(command.TenantId, command.ReservationId, cancellationToken)
+        //                           ?? throw new ApiException("Reservation not found.", StatusCodes.Status404NotFound);
 
-        reservation.RegisterPayment(command.Amount, command.Method, command.Reference, command.CreatedBy);
+        //// reservation.RegisterPayment(command.Amount, command.Method, command.Reference, command.CreatedBy);
 
-        Payment payment = Payment.Create(
-            command.TenantId,
-            command.ReservationId,
-            command.Amount,
-            command.Method,
-            command.Reference,
-            command.CreatedBy);
+        // Payment payment = Payment.Create(
+        //     command.TenantId,
+        //     command.ReservationId,
+        //     command.Amount,
+        //     command.Method,
+        //     command.Reference,
+        //     command.CreatedBy);
 
-        string invoiceNumber = await _paymentRepository.GenerateInvoiceNumberAsync(command.TenantId, cancellationToken);
+        // string invoiceNumber = await _paymentRepository.GenerateInvoiceNumberAsync(command.TenantId, cancellationToken);
 
-        Invoice invoice = Invoice.Create(
-            command.TenantId,
-            payment.Id,
-            command.ReservationId,
-            invoiceNumber,
-            command.Amount,
-            command.CreatedBy);
+        // Invoice invoice = Invoice.Create(
+        //     command.TenantId,
+        //     payment.Id,
+        //     command.ReservationId,
+        //     invoiceNumber,
+        //     command.Amount,
+        //     command.CreatedBy);
 
-        await _paymentRepository.AddAsync(payment, cancellationToken);
-        await _paymentRepository.AddInvoiceAsync(invoice, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        // await _paymentRepository.AddAsync(payment, cancellationToken);
+        // await _paymentRepository.AddInvoiceAsync(invoice, cancellationToken);
+        // await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return new RegisterPaymentResponse(payment.Id, invoice.Id, invoice.InvoiceNumber);
+        // return new RegisterPaymentResponse(payment.Id, invoice.Id, invoice.InvoiceNumber);
+
+        return null;
     }
 }

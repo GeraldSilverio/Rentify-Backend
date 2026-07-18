@@ -7,9 +7,6 @@ namespace Rentify.Backend.Core.Application.Modules.Emails.Contracts.Services
 {
     public interface IEmailService
     {
-        Task<Guid> CreateEmailTemplateAsync(CreateEmailTemplateCommand command, CancellationToken cancellationToken = default);
-        Task<Guid> UpdateEmailTemplateAsync(Guid id, UpdateEmailTemplateCommand command, CancellationToken cancellationToken = default);
-        Task<Guid> ConfigureTenantEmailAsync(ConfigureTenantEmailCommand command, CancellationToken cancellationToken = default);
         Task<SendTemplateEmailResponse> SendEmailAsync(SendTemplateEmailCommand command, CancellationToken cancellationToken = default);
     }
 }

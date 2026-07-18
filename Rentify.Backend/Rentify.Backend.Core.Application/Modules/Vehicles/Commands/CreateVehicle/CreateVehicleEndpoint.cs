@@ -12,13 +12,12 @@ public static class CreateVehicleEndpoint
     {
         app.MapPost("/api/v1/vehicles", async (
             CreateVehicleRequest request,
-            ICurrentTenantService currentTenantService,
-            ICurrentUserService currentUserService,
+            ICurrentRequestContext currentRequestContext,
             ISender sender,
             CancellationToken cancellationToken) =>
         {
             var command = new CreateVehicleCommand(
-                currentTenantService.GetTenantId(),
+                currentRequestContext.TenantId,
                 request.VehicleBrandId,
                 request.VehicleModelId,
                 request.VehicleTypeId,
@@ -27,9 +26,11 @@ public static class CreateVehicleEndpoint
                 request.Vin,
                 request.Color,
                 request.CurrentMileage,
+                request.SecurityDepositRequired,
+                request.SecurityDepositAmount,
                 request.Rates,
                 request.FeatureIds ?? Array.Empty<Guid>(),
-                currentUserService.ModifiedBy);
+                currentRequestContext.ModifiedBy);
 
             var response = await sender.Send(command, cancellationToken);
 

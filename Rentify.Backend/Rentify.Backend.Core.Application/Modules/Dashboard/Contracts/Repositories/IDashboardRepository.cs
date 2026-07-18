@@ -4,5 +4,5 @@ namespace Rentify.Backend.Core.Application.Modules.Dashboard.Contracts.Repositor
 
 public interface IDashboardRepository
 {
-    Task<DashboardMetricsResponse> GetMetricsAsync(Guid tenantId, DateOnly today, CancellationToken cancellationToken = default);
+    //Task<DashboardMetricsResponse> GetMetricsAsync(Guid tenantId, DateOnly today, CancellationToken cancellationToken = default);
 }

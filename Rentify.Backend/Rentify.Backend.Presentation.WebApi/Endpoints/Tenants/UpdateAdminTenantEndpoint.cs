@@ -11,7 +11,7 @@ public static class UpdateAdminTenantEndpoint
         app.MapPut("/{tenantId:guid}", async (
             Guid tenantId,
             UpdateAdminTenantRequest request,
-            ICurrentUserService currentUserService,
+            ICurrentRequestContext currentRequestContext,
             ISender sender,
             CancellationToken cancellationToken) =>
         {
@@ -22,7 +22,7 @@ public static class UpdateAdminTenantEndpoint
                     request.LegalName,
                     request.Rnc,
                     request.BusinessModel,
-                    currentUserService.ModifiedBy),
+                    currentRequestContext.ModifiedBy),
                 cancellationToken);
 
             return Results.Ok(response);

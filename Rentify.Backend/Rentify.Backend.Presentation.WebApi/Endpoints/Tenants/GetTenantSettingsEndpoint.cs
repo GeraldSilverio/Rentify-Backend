@@ -9,12 +9,12 @@ public static class GetTenantSettingsEndpoint
     public static IEndpointRouteBuilder MapGetTenantSettingsEndpoint(this IEndpointRouteBuilder app)
     {
         app.MapGet("/settings", async (
-            ICurrentTenantService currentTenantService,
+            ICurrentRequestContext currentRequestContext,
             ISender sender,
             CancellationToken cancellationToken) =>
         {
             var response = await sender.Send(
-                new GetTenantSettingsQuery(currentTenantService.GetTenantId()),
+                new GetTenantSettingsQuery(currentRequestContext.TenantId),
                 cancellationToken);
 
             return Results.Ok(response);

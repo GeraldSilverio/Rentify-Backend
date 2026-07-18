@@ -13,18 +13,17 @@ public static class BlockVehicleAvailabilityEndpoint
         app.MapPost("/api/v1/vehicles/{vehicleId:guid}/unavailable-dates", async(
             Guid vehicleId,
             BlockVehicleAvailabilityRequest request,
-            ICurrentTenantService currentTenantService,
-            ICurrentUserService currentUserService,
+            ICurrentRequestContext currentRequestContext,
             ISender sender,
             CancellationToken cancellationToken) =>
         {
             var command = new BlockVehicleAvailabilityCommand(
-                currentTenantService.GetTenantId(),
+                currentRequestContext.TenantId,
                 vehicleId,
                 request.StartDate,
                 request.EndDate,
                 request.Reason,
-                currentUserService.ModifiedBy);
+                currentRequestContext.ModifiedBy);
 
             var response = await sender.Send(command, cancellationToken);
 

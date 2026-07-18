@@ -1,7 +1,4 @@
-﻿using MediatR;
-using Microsoft.AspNetCore.Http;
-using Rentify.Backend.Core.Application.Modules.Emails.Contracts.Services;
-using Rentify.Backend.Core.Application.Modules.Secutiry.Contracts.Services;
+﻿using Rentify.Backend.Core.Application.Modules.Secutiry.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Shared.Constants;
 using Rentify.Backend.Core.Application.Modules.Shared.Contracts;
 using Rentify.Backend.Core.Application.Modules.Shared.UnitOfWork;
@@ -13,6 +10,7 @@ using Rentify.Backend.Core.Application.Modules.Tenants.Events;
 using Rentify.Backend.Core.Application.Modules.Users.Commands.CreateUser;
 using Rentify.Backend.Core.Domain.Entities.Core;
 using Rentify.Backend.Core.Domain.Entities.Payments;
+using Rentify.Backend.Core.Domain.ValueObjects;
 
 namespace Rentify.Backend.Core.Application.Modules.Tenants.Services
 {
@@ -49,24 +47,32 @@ namespace Rentify.Backend.Core.Application.Modules.Tenants.Services
 
         public async Task<RegisterTenantResponse> CreateTenantAsync(RegisterTenantCommand request, CancellationToken cancellationToken)
         {
-            await _tenantUniquenessService.EnsureRncIsUniqueAsync(request.Rnc, cancellationToken: cancellationToken);
+            await _tenantUniquenessService.ValidateUniqueFieldsAsync(request, cancellationToken: cancellationToken);
 
-            Tenant tenant = Tenant.Create(request.Name, request.LegalName, request.Rnc, request.BusinessModel, request.CreatedBy);
+            Tenant tenant = Tenant.Create(request.Name,
+                request.LegalName,
+                request.Rnc,
+                request.BusinessModel,
+                new Email(request.ContactInformation.Email),
+                new PhoneNumber(request.ContactInformation.PhoneNumber),
+                new PhoneNumber(request.ContactInformation.WhatsApp),
+                new Address(request.AddressInformation.Street, request.AddressInformation.City, request.AddressInformation.Country),
+                request.CreatedBy);
 
             await _tenantRepository.AddAsync(tenant, cancellationToken);
 
             await _tenantSettingService.AddAsync(TenantSettings.CreateDefault(tenant.Id, request.BusinessModel, request.CreatedBy));
 
-            await _paymentPolicyService.AddAsync(PaymentPolicy.CreateDefault(tenant.Id, request.BusinessModel, request.CreatedBy),cancellationToken);
-           
+            await _paymentPolicyService.AddAsync(PaymentPolicy.CreateDefault(tenant.Id, request.BusinessModel, request.CreatedBy), cancellationToken);
+
             Subscription subscription = await _subscriptionService.RegisterSubscriptionAsync(tenant.Id, request, cancellationToken);
 
             Guid ownerUserId = await _accountService.CreateUserAsync(new CreateUserCommand(
                request.UserInformation.FullName,
                request.UserInformation.UserName,
-               request.ContactInformation.Email,
+               request.UserInformation.ContactInformation.Email,
                request.UserInformation.Password,
-               request.ContactInformation.PhoneNumber,
+               request.UserInformation.ContactInformation.PhoneNumber,
                tenant.Id,
                request.CreatedBy,
                ApplicationRoles.Owner));
@@ -74,21 +80,21 @@ namespace Rentify.Backend.Core.Application.Modules.Tenants.Services
             await _outboxService.AddAsync(
                 tenant.Id,
                 OutboxMessageTypes.TenantRegistered,
-                new TenantRegisteredOutboxPayload(
-                    tenant.Id,
-                    subscription.Id,
-                    ownerUserId,
-                    request.Name,
-                    request.UserInformation.FullName,
-                    request.UserInformation.ContactInformation.Email,
-                    request.SubscriptionPlanCode,
-                    subscription.Status.ToString(),
-                    subscription.StartsAt,
-                    subscription.ExpiresAt,
-                    subscription.TrialEndsAt,
-                    request.BusinessModel),
-                request.CreatedBy,
-                cancellationToken: cancellationToken);
+                    new TenantRegisteredOutboxPayload(
+                        tenant.Id,
+                        subscription.Id,
+                        ownerUserId,
+                        request.Name,
+                        request.UserInformation.FullName,
+                        request.UserInformation.ContactInformation.Email,
+                        request.SubscriptionPlanCode,
+                        subscription.Status.ToString(),
+                        subscription.StartsAt,
+                        subscription.ExpiresAt,
+                        subscription.TrialEndsAt,
+                        request.BusinessModel),
+                        request.CreatedBy,
+                    cancellationToken: cancellationToken);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 

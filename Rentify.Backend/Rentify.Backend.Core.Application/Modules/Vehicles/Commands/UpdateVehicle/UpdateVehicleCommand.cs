@@ -14,4 +14,6 @@ public sealed record UpdateVehicleCommand(
     string? Vin,
     string Color,
     int? CurrentMileage,
+    bool SecurityDepositRequired,
+    decimal SecurityDepositAmount,
     string ModifiedBy) : IRequest<ResultReponse<Guid>>;

@@ -14,12 +14,12 @@ public static class UpdateVehicleFeatureEndpoint
         app.MapPut("/api/v1/admin/vehicle-features/{featureId:guid}", async (
             Guid featureId,
             UpdateVehicleFeatureRequest request,
-            ICurrentUserService currentUserService,
+            ICurrentRequestContext currentRequestContext,
             ISender sender,
             CancellationToken cancellationToken) =>
         {
             var response = await sender.Send(
-                new UpdateVehicleFeatureCommand(featureId, request.Name, request.Category, currentUserService.ModifiedBy),
+                new UpdateVehicleFeatureCommand(featureId, request.Name, request.Category, currentRequestContext.ModifiedBy),
                 cancellationToken);
 
             return Results.Ok(response);

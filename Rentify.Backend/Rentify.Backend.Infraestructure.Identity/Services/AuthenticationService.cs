@@ -19,6 +19,7 @@ using Rentify.Backend.Core.Domain.Settings;
 using Rentify.Backend.Infraestructure.Identity.Context;
 using Rentify.Backend.Infraestructure.Identity.Contracts.Services;
 using Rentify.Backend.Infraestructure.Identity.Entities;
+using Rentify.Backend.Core.Application.Modules.Tenants.Contracts.Repositories;
 
 namespace Rentify.Backend.Infraestructure.Identity.Services
 {
@@ -30,6 +31,7 @@ namespace Rentify.Backend.Infraestructure.Identity.Services
         private readonly IdentityContext _identityContext;
         private readonly JwtSettings _jwtSettings;
         private readonly IEmailService _emailService;
+        private readonly ITenantRepository _tenantRepository;
 
         public AuthenticationService(
             SignInManager<ApplicationUser> signInManager,
@@ -37,7 +39,8 @@ namespace Rentify.Backend.Infraestructure.Identity.Services
             IJwtServices jwtServices,
             IdentityContext identityContext,
             IOptions<JwtSettings> jwtSettings,
-            IEmailService emailService)
+            IEmailService emailService,
+            ITenantRepository tenantRepository)
         {
             _signInManager = signInManager;
             _userManager = userManager;
@@ -45,6 +48,7 @@ namespace Rentify.Backend.Infraestructure.Identity.Services
             _identityContext = identityContext;
             _jwtSettings = jwtSettings.Value;
             _emailService = emailService;
+            _tenantRepository = tenantRepository;
         }
 
         public async Task<LoginResponse> LoginAsync(LoginCommand loginCommand)
@@ -53,22 +57,28 @@ namespace Rentify.Backend.Infraestructure.Identity.Services
 
             if (user == null)
             {
-                throw new ApiException("Invalid credentials", StatusCodes.Status401Unauthorized);
+                throw new ApiException("Crendenciales inválidas", StatusCodes.Status401Unauthorized);
             }
 
             if (!user.IsActive)
             {
-                throw new ApiException("User is inactive", StatusCodes.Status403Forbidden);
+                throw new ApiException("Usuario desactivado, favor contactar al administrador.", StatusCodes.Status403Forbidden);
             }
 
             var signInResult = await _signInManager.CheckPasswordSignInAsync(user, loginCommand.Password, lockoutOnFailure: true);
 
             if (!signInResult.Succeeded)
             {
-                throw new ApiException("Invalid credentials", StatusCodes.Status401Unauthorized);
+                throw new ApiException("Crendenciales inválidas", StatusCodes.Status401Unauthorized);
+            }
+
+            if(!await _tenantRepository.IsTenantActiveAsync(user.TenantId))
+            {
+                throw new ApiException("La empresa no esta activa, favor contactar al administrador.", StatusCodes.Status403Forbidden);
             }
 
             var roles = await _userManager.GetRolesAsync(user);
+
             var tokenResponse = await GenerateTokenResponseAsync(user);
 
             return new LoginResponse(

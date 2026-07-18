@@ -14,7 +14,6 @@ using Rentify.Backend.Core.Application.Modules.Vehicles.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Dtos;
 using Rentify.Backend.Core.Domain.Entities.Vehicles;
-using Rentify.Backend.Core.Domain.Enums;
 
 namespace Rentify.Backend.Core.Application.Modules.Vehicles.Implementations.Services;
 
@@ -64,9 +63,6 @@ public sealed class VehicleService : IVehicleService
         if (await _vehicleRepository.PlateNumberExistsAsync(command.TenantId, command.PlateNumber, cancellationToken: cancellationToken))
             throw new ApiException($"Vehicle with plate number '{command.PlateNumber}' already exists for this tenant.", StatusCodes.Status400BadRequest);
 
-        if (await _vehicleRepository.VinExistsAsync(command.TenantId, command.Vin, cancellationToken: cancellationToken))
-            throw new ApiException($"Vehicle with VIN '{command.Vin}' already exists for this tenant.", StatusCodes.Status400BadRequest);
-
         Vehicle vehicle = Vehicle.Create(
             command.TenantId,
             command.VehicleBrandId,
@@ -77,6 +73,8 @@ public sealed class VehicleService : IVehicleService
             command.Vin,
             command.Color,
             command.CurrentMileage,
+            command.SecurityDepositRequired,
+            command.SecurityDepositAmount,
             command.CreatedBy);
 
         vehicle.ReplaceRates(
@@ -99,9 +97,10 @@ public sealed class VehicleService : IVehicleService
             vehicle.VehicleTypeId,
             vehicle.Year,
             vehicle.PlateNumber,
-            vehicle.Vin,
             vehicle.Color,
             vehicle.CurrentMileage,
+            vehicle.SecurityDepositRequired,
+            vehicle.SecurityDepositAmount,
             vehicle.Rates
                 .Where(rate => !rate.IsDeleted)
                 .OrderBy(rate => rate.RentalType)
@@ -130,18 +129,16 @@ public sealed class VehicleService : IVehicleService
         if (await _vehicleRepository.PlateNumberExistsAsync(command.TenantId, command.PlateNumber, command.VehicleId, cancellationToken))
             throw new ApiException($"Vehicle with plate number '{command.PlateNumber}' already exists for this tenant.", StatusCodes.Status400BadRequest);
 
-        if (await _vehicleRepository.VinExistsAsync(command.TenantId, command.Vin, command.VehicleId, cancellationToken))
-            throw new ApiException($"Vehicle with VIN '{command.Vin}' already exists for this tenant.", StatusCodes.Status400BadRequest);
-
         vehicle.Update(
             command.VehicleBrandId,
             command.VehicleModelId,
             command.VehicleTypeId,
             command.Year,
             command.PlateNumber,
-            command.Vin,
             command.Color,
             command.CurrentMileage,
+            command.SecurityDepositRequired,
+            command.SecurityDepositAmount,
             command.ModifiedBy);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -157,82 +154,76 @@ public sealed class VehicleService : IVehicleService
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyCollection<VehicleImageResponse>> UploadImagesAsync(
-        UploadVehicleImageCommand command,
-        CancellationToken cancellationToken = default)
-    {
-        await EnsureTenantCanUseVehiclesAsync(command.TenantId, cancellationToken);
+    //public async Task<IReadOnlyCollection<VehicleImageResponse>> UploadImagesAsync(
+    //    UploadVehicleImageCommand command,
+    //    CancellationToken cancellationToken = default)
+    //{
+    //    await EnsureTenantCanUseVehiclesAsync(command.TenantId, cancellationToken);
 
-        Vehicle vehicle = await GetVehicleWithImagesOrThrowAsync(command.TenantId, command.VehicleId, cancellationToken);
+    //    Vehicle vehicle = await GetVehicleWithImagesOrThrowAsync(command.TenantId, command.VehicleId, cancellationToken);
 
-        int existingImagesCount = vehicle.Images.Count(image => !image.IsDeleted);
-        if (existingImagesCount + command.Images.Count > MaxImagesPerVehicle)
-        {
-            throw new ApiException(
-                $"A vehicle can have a maximum of {MaxImagesPerVehicle} images.",
-                StatusCodes.Status400BadRequest);
-        }
+    //    int existingImagesCount = vehicle.Images.Count(image => !image.IsDeleted);
+    //    if (existingImagesCount + command.Images.Count > MaxImagesPerVehicle)
+    //    {
+    //        throw new ApiException(
+    //            $"A vehicle can have a maximum of {MaxImagesPerVehicle} images.",
+    //            StatusCodes.Status400BadRequest);
+    //    }
 
-        var uploadedFiles = new List<StoredFileResult>();
+    //    var uploadedFiles = new List<StoredFileResult>();
 
-        try
-        {
-            foreach (IFormFile file in command.Images)
-            {
-                uploadedFiles.Add(await _fileStorageService.UploadAsync(file, VehicleImagesFolder, cancellationToken));
-            }
-        }
-        catch (Exception ex)
-        {
-            await DeleteUploadedFilesAsync(uploadedFiles);
-            throw new ApiException($"Vehicle image upload failed: {ex.Message}", StatusCodes.Status502BadGateway);
-        }
+    //    try
+    //    {
+    //        foreach (IFormFile file in command.Images)
+    //        {
+    //            uploadedFiles.Add(await _fileStorageService.UploadAsync(file, VehicleImagesFolder, cancellationToken));
+    //        }
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        await DeleteUploadedFilesAsync(uploadedFiles);
+    //        throw new ApiException($"Vehicle image upload failed: {ex.Message}", StatusCodes.Status502BadGateway);
+    //    }
 
-        var images = new List<VehicleImage>(uploadedFiles.Count);
+    //    var images = new List<VehicleImage>(uploadedFiles.Count);
 
-        for (int index = 0; index < uploadedFiles.Count; index++)
-        {
-            StoredFileResult storedFile = uploadedFiles[index];
+    //    for (int index = 0; index < uploadedFiles.Count; index++)
+    //    {
+    //        StoredFileResult storedFile = uploadedFiles[index];
 
-            // A batch has one primary intent. The first new image receives it;
-            // Vehicle.AddImage preserves the invariant for the full collection.
-            bool isPrimary = command.IsPrimary && index == 0;
-            images.Add(vehicle.AddImage(storedFile.Url, storedFile.PublicId, isPrimary, command.CreatedBy));
-        }
+    //        bool isPrimary = command.IsPrimary && index == 0;
+    //        images.Add(vehicle.AddImage(storedFile.Url, storedFile.PublicId, isPrimary, command.CreatedBy));
+    //    }
 
-        // The aggregate is tracked and owns the relationship; AddRange makes the
-        // state of the new children explicit without attaching or updating the vehicle.
-        await _vehicleRepository.AddImagesAsync(images, cancellationToken);
+    //    await _vehicleRepository.AddImagesAsync(images, cancellationToken);
 
-        try
-        {
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-        }
-        catch (ConcurrencyException)
-        {
-            await DeleteUploadedFilesAsync(uploadedFiles);
-            throw new ApiException(
-                "Vehicle was changed or deleted while its images were being uploaded. Please retry.",
-                StatusCodes.Status409Conflict);
-        }
-        catch
-        {
-            await DeleteUploadedFilesAsync(uploadedFiles);
-            throw;
-        }
+    //    try
+    //    {
+    //        await _unitOfWork.SaveChangesAsync(cancellationToken);
+    //    }
+    //    catch (ConcurrencyException)
+    //    {
+    //        await DeleteUploadedFilesAsync(uploadedFiles);
+    //        throw new ApiException(
+    //            "Vehicle was changed or deleted while its images were being uploaded. Please retry.",
+    //            StatusCodes.Status409Conflict);
+    //    }
+    //    catch
+    //    {
+    //        await DeleteUploadedFilesAsync(uploadedFiles);
+    //        throw;
+    //    }
 
-        return images
-            .Select(ToImageResponse)
-            .ToList();
-    }
+    //    return images
+    //        .Select(ToImageResponse)
+    //        .ToList();
+    //}
 
     public async Task<IReadOnlyCollection<VehicleImageResponse>> GetImagesAsync(
         Guid tenantId,
         Guid vehicleId,
         CancellationToken cancellationToken = default)
     {
-        await EnsureTenantCanUseVehiclesAsync(tenantId, cancellationToken);
-
         Vehicle vehicle = await GetVehicleWithImagesOrThrowAsync(tenantId, vehicleId, cancellationToken);
 
         return vehicle.Images

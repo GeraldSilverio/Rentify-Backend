@@ -14,8 +14,8 @@ public interface IVehicleService
     Task<CreateVehicleResponse> CreateAsync(CreateVehicleCommand command, CancellationToken cancellationToken = default);
     Task UpdateAsync(UpdateVehicleCommand command, CancellationToken cancellationToken = default);
     Task DeleteAsync(DeleteVehicleCommand command, CancellationToken cancellationToken = default);
+
     Task<IReadOnlyCollection<VehicleImageResponse>> GetImagesAsync(Guid tenantId, Guid vehicleId, CancellationToken cancellationToken = default);
-    Task<IReadOnlyCollection<VehicleImageResponse>> UploadImagesAsync(UploadVehicleImageCommand command, CancellationToken cancellationToken = default);
     Task DeleteImageAsync(Guid tenantId, Guid vehicleId, Guid imageId, string modifiedBy, CancellationToken cancellationToken = default);
     Task SetPrimaryImageAsync(SetPrimaryVehicleImageCommand command, CancellationToken cancellationToken = default);
     Task<IReadOnlyCollection<VehicleFeatureResponse>> GetFeaturesAsync(Guid tenantId, Guid vehicleId, CancellationToken cancellationToken = default);

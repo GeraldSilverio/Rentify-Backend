@@ -17,18 +17,18 @@ public sealed class UploadVehicleImageHandler
 
     private readonly IUnitOfWork _unitOfWork;
     private readonly IFileStorageService _fileStorageService;
-    private readonly IVehicleRepository _vehicleRepository;
+    private readonly IVehicleImageRepository _vehicleImageRepository;
     private readonly int _maxImagesPerVehicle;
     private readonly string _vehicleImagesFolder;
 
     public UploadVehicleImageHandler(
         IUnitOfWork unitOfWork,
         IFileStorageService fileStorageService,
-        IVehicleRepository vehicleRepository)
+        IVehicleImageRepository vehicleImageRepository)
     {
         _unitOfWork = unitOfWork;
         _fileStorageService = fileStorageService;
-        _vehicleRepository = vehicleRepository;
+        _vehicleImageRepository = vehicleImageRepository;
         _maxImagesPerVehicle = int.Parse(ReadFromConfiguration.GetValueFromConfig("MaxImagesPerVehicle"));
         _vehicleImagesFolder = ReadFromConfiguration.GetValueFromConfig("VehicleImagesFolder");
     }
@@ -39,13 +39,7 @@ public sealed class UploadVehicleImageHandler
     {
         ValidateImages(command.Images);
 
-        Vehicle vehicle = await _vehicleRepository.GetByIdWithImagesAsync(
-            command.TenantId,
-            command.VehicleId,
-            cancellationToken)
-            ?? throw new ApiException("Vehicle not found.", StatusCodes.Status404NotFound);
-
-        int existingImagesCount = vehicle.Images.Count(image => image.IsActive && !image.IsDeleted);
+        int existingImagesCount = await _vehicleImageRepository.GetTotalImagesByVehicleAsync(command.TenantId, command.VehicleId, cancellationToken);
 
         if (existingImagesCount + command.Images.Count > _maxImagesPerVehicle)
         {
@@ -66,12 +60,15 @@ public sealed class UploadVehicleImageHandler
 
             var images = new List<VehicleImage>(uploadedFiles.Count);
 
-            for (int index = 0; index < uploadedFiles.Count; index++)
-            {
-                StoredFileResult storedFile = uploadedFiles[index];
-                bool isPrimary = command.IsPrimary && index == 0;
+        for (int index = 0; index < uploadedFiles.Count; index++)
+        {
+            StoredFileResult storedFile = uploadedFiles[index];
+            bool isPrimary = command.IsPrimary && index == 0;
 
-                VehicleImage image = vehicle.AddImage(
+            //Si el vehiculo no tiene imagenes y es el primer elemento, colocarle primary.
+                isPrimary = existingImagesCount == 0 && index == 0;
+
+                VehicleImage image = VehicleImage.Create(command.TenantId,command.VehicleId,
                     storedFile.Url,
                     storedFile.PublicId,
                     isPrimary,
@@ -79,6 +76,8 @@ public sealed class UploadVehicleImageHandler
 
                 images.Add(image);
             }
+
+            await _vehicleImageRepository.AddImagesAsync(images,cancellationToken);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 

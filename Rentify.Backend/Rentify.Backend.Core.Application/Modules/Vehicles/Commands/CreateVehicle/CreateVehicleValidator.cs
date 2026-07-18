@@ -21,6 +21,13 @@ public sealed class CreateVehicleValidator : AbstractValidator<CreateVehicleComm
         RuleFor(x => x.CurrentMileage)
             .GreaterThanOrEqualTo(0)
             .When(x => x.CurrentMileage.HasValue);
+        RuleFor(x => x.SecurityDepositAmount)
+            .GreaterThanOrEqualTo(0)
+            .WithMessage("Security deposit amount cannot be negative.");
+        RuleFor(x => x.SecurityDepositAmount)
+            .GreaterThan(0)
+            .When(x => x.SecurityDepositRequired)
+            .WithMessage("Security deposit amount must be greater than zero when required.");
         RuleFor(x => x.Rates)
             .NotEmpty()
             .WithMessage("At least one vehicle rate is required.");

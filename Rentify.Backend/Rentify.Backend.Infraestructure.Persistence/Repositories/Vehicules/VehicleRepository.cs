@@ -41,7 +41,6 @@ public sealed class VehicleRepository : IVehicleRepository
             string searchPattern = $"%{query.Search.Trim()}%";
             vehiclesQuery = vehiclesQuery.Where(vehicle =>
                 EF.Functions.ILike(vehicle.PlateNumber, searchPattern)
-                || (vehicle.Vin != null && EF.Functions.ILike(vehicle.Vin, searchPattern))
                 || EF.Functions.ILike(vehicle.VehicleModel.Name, searchPattern)
                 || EF.Functions.ILike(vehicle.VehicleBrand.Name, searchPattern));
         }
@@ -102,9 +101,10 @@ public sealed class VehicleRepository : IVehicleRepository
                 vehicle.VehicleType.Name,
                 vehicle.Year,
                 vehicle.PlateNumber,
-                vehicle.Vin,
                 vehicle.Color,
                 vehicle.CurrentMileage,
+                vehicle.SecurityDepositRequired,
+                vehicle.SecurityDepositAmount,
                 vehicle.Status,
                 vehicle.IsActive,
                 vehicle.Images
@@ -157,9 +157,10 @@ public sealed class VehicleRepository : IVehicleRepository
                 vehicle.VehicleType.Name,
                 vehicle.Year,
                 vehicle.PlateNumber,
-                vehicle.Vin,
                 vehicle.Color,
                 vehicle.CurrentMileage,
+                vehicle.SecurityDepositRequired,
+                vehicle.SecurityDepositAmount,
                 vehicle.Status,
                 vehicle.IsActive,
                 vehicle.Rates
@@ -233,7 +234,7 @@ public sealed class VehicleRepository : IVehicleRepository
         Guid? excludedVehicleId = null,
         CancellationToken cancellationToken = default)
     {
-        string normalizedPlateNumber = NormalizePlateNumber(plateNumber);
+        string normalizedPlateNumber = Vehicle.NormalizePlateNumber(plateNumber);
 
         return await _context.Vehicles.AnyAsync(
             x => x.TenantId == tenantId
@@ -242,31 +243,6 @@ public sealed class VehicleRepository : IVehicleRepository
                  && (!excludedVehicleId.HasValue || x.Id != excludedVehicleId.Value),
             cancellationToken);
     }
-
-    public async Task<bool> VinExistsAsync(
-        Guid tenantId,
-        string? vin,
-        Guid? excludedVehicleId = null,
-        CancellationToken cancellationToken = default)
-    {
-        if (string.IsNullOrWhiteSpace(vin))
-            return false;
-
-        string normalizedVin = vin.Trim().ToUpperInvariant();
-
-        return await _context.Vehicles.AnyAsync(
-            x => x.TenantId == tenantId
-                 && x.Vin == normalizedVin
-                 && !x.IsDeleted
-                 && (!excludedVehicleId.HasValue || x.Id != excludedVehicleId.Value),
-            cancellationToken);
-    }
-
-    private static string NormalizePlateNumber(string plateNumber)
-    {
-        return plateNumber.Trim().ToUpperInvariant().Replace("-", string.Empty).Replace(" ", string.Empty);
-    }
-
     private sealed record ActiveRentalProjection(
         Guid VehicleId,
         Guid ReservationId,

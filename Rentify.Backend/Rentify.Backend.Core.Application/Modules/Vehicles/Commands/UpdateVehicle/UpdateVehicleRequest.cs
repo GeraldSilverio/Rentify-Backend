@@ -8,4 +8,6 @@ public sealed record UpdateVehicleRequest(
     string PlateNumber,
     string? Vin,
     string Color,
-    int? CurrentMileage);
+    int? CurrentMileage,
+    bool SecurityDepositRequired,
+    decimal SecurityDepositAmount);

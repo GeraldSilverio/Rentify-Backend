@@ -9,5 +9,7 @@ public sealed record CreateVehicleRequest(
     string? Vin,
     string Color,
     int? CurrentMileage,
+    bool SecurityDepositRequired,
+    decimal SecurityDepositAmount,
     IReadOnlyCollection<CreateVehicleRateRequest> Rates,
     IReadOnlyCollection<Guid>? FeatureIds = null);
