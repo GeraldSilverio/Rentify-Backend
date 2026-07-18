@@ -3,12 +3,14 @@ using Rentify.Backend.Core.Domain.Entities;
 using Rentify.Backend.Core.Domain.Entities.Core;
 using Rentify.Backend.Core.Domain.Entities.Customers;
 using Rentify.Backend.Core.Domain.Entities.Events;
+using Rentify.Backend.Core.Domain.Entities.Locations;
 using Rentify.Backend.Core.Domain.Entities.Payments;
 using Rentify.Backend.Core.Domain.Entities.Reservations;
 using Rentify.Backend.Core.Domain.Entities.Vehicles;
 using Rentify.Backend.Infraestructure.Persistence.EntityConfiguration.Core;
 using Rentify.Backend.Infraestructure.Persistence.EntityConfiguration.Customers;
 using Rentify.Backend.Infraestructure.Persistence.EntityConfiguration.Events;
+using Rentify.Backend.Infraestructure.Persistence.EntityConfiguration.Locations;
 using Rentify.Backend.Infraestructure.Persistence.EntityConfiguration.Payments;
 using Rentify.Backend.Infraestructure.Persistence.EntityConfiguration.Reservation;
 using Rentify.Backend.Infraestructure.Persistence.EntityConfiguration.Reservations;
@@ -45,6 +47,8 @@ namespace Rentify.Backend.Infraestructure.Persistence.Context
             modelBuilder.ApplyConfiguration(new VehicleUnavailableDateConfiguration());
             modelBuilder.ApplyConfiguration(new CustomerConfiguration());
             modelBuilder.ApplyConfiguration(new CustomerDocumentConfiguration());
+            modelBuilder.ApplyConfiguration(new LocationConfiguration());
+            modelBuilder.ApplyConfiguration(new TenantLocationConfiguration());
             modelBuilder.ApplyConfiguration(new ReservationConfiguration());
             modelBuilder.ApplyConfiguration(new ReservationVehicleConfiguration());
             modelBuilder.ApplyConfiguration(new ReservationPaymentConfiguration());
@@ -74,6 +78,8 @@ namespace Rentify.Backend.Infraestructure.Persistence.Context
         public DbSet<VehicleUnavailableDate> VehicleUnavailableDates { get; set; }
         public DbSet<Customer> Customers { get; set; }
         public DbSet<CustomerDocument> CustomerDocuments { get; set; }
+        public DbSet<Location> Locations { get; set; }
+        public DbSet<TenantLocation> TenantLocations { get; set; }
         public DbSet<Reservation> Reservations { get; set; }
         public DbSet<ReservationVehicle> ReservationVehicles { get; set; }
         public DbSet<ReservationPayment> ReservationPayments { get; set; }
