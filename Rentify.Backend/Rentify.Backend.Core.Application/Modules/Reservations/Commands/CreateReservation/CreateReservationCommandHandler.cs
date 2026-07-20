@@ -1,4 +1,115 @@
+using MediatR;
+using Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Repositories;
+using Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Reservations.Dtos;
-using MediatR; using Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Repositories; using Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Services; using Rentify.Backend.Core.Application.Modules.Reservations.Mappers; using Rentify.Backend.Core.Application.Modules.Reservations.Services; using Rentify.Backend.Core.Application.Modules.Shared.Response; using Rentify.Backend.Core.Application.Modules.Shared.UnitOfWork; using Rentify.Backend.Core.Domain.Entities.Reservations;
+using Rentify.Backend.Core.Application.Modules.Reservations.Mappers;
+using Rentify.Backend.Core.Application.Modules.Reservations.Services;
+using Rentify.Backend.Core.Application.Modules.Shared.Response;
+using Rentify.Backend.Core.Application.Modules.Shared.UnitOfWork;
+using Rentify.Backend.Core.Domain.Entities.Reservations;
+using Rentify.Backend.Core.Domain.Entities.Vehicles;
+
 namespace Rentify.Backend.Core.Application.Modules.Reservations.Commands;
-public sealed class CreateReservationCommandHandler : IRequestHandler<CreateReservationCommand, ResultReponse<ReservationResponse>> { private readonly IReservationRepository _reservationRepository; private readonly IReservationCustomerValidator _customerValidator; private readonly IReservationVehicleResolver _vehicleResolver; private readonly IReservationLocationResolver _locationResolver; private readonly IReservationCodeGenerator _reservationCodeGenerator; private readonly IUnitOfWork _unitOfWork; public CreateReservationCommandHandler(IReservationRepository reservationRepository, IReservationCustomerValidator customerValidator, IReservationVehicleResolver vehicleResolver, IReservationLocationResolver locationResolver, IReservationCodeGenerator reservationCodeGenerator, IUnitOfWork unitOfWork) { _reservationRepository = reservationRepository; _customerValidator = customerValidator; _vehicleResolver = vehicleResolver; _locationResolver = locationResolver; _reservationCodeGenerator = reservationCodeGenerator; _unitOfWork = unitOfWork; } public async Task<ResultReponse<ReservationResponse>> Handle(CreateReservationCommand request, CancellationToken cancellationToken) { await _customerValidator.ValidateAsync(request.TenantId, request.CustomerId, cancellationToken); var vehicle = await _vehicleResolver.GetReservableVehicleAsync(request.TenantId, request.VehicleId, cancellationToken); var delivery = await _locationResolver.ResolveDeliveryAsync(request.TenantId, request.DeliveryTenantLocationId, request.DeliveryLocationName, request.DeliveryFee, cancellationToken); var returns = await _locationResolver.ResolveReturnAsync(request.TenantId, request.ReturnTenantLocationId, request.ReturnLocationName, request.ReturnFee, cancellationToken); var rate = _vehicleResolver.GetRateOrThrow(vehicle, request.RentalType); int quantity = Reservation.CalculateQuantity(request.DeliveryDateTime, request.ExpectedReturnDateTime, request.RentalType); string code = await _reservationCodeGenerator.GenerateAsync(request.TenantId, cancellationToken); Reservation reservation = Reservation.Create(request.TenantId, code, request.CustomerId, request.VehicleId, request.DeliveryDateTime, request.ExpectedReturnDateTime, request.RentalType, quantity, rate.Price, vehicle.SecurityDepositRequired, vehicle.SecurityDepositAmount, delivery.TenantLocationId, delivery.Name, request.DeliveryAddressDetails, delivery.Fee, returns.TenantLocationId, returns.Name, request.ReturnAddressDetails, returns.Fee, request.DiscountAmount, request.Channel, request.Notes, request.CreatedBy); await _reservationRepository.AddAsync(reservation, cancellationToken); await _unitOfWork.SaveChangesAsync(cancellationToken); return ResultReponse<ReservationResponse>.Success(reservation.ToResponse()); } }
+
+public sealed class CreateReservationCommandHandler
+    : IRequestHandler<CreateReservationCommand, ResultReponse<ReservationResponse>>
+{
+    private readonly IReservationRepository _reservationRepository;
+    private readonly IReservationCustomerValidator _customerValidator;
+    private readonly IReservationVehicleResolver _vehicleResolver;
+    private readonly IReservationLocationResolver _locationResolver;
+    private readonly IReservationCodeGenerator _reservationCodeGenerator;
+    private readonly IUnitOfWork _unitOfWork;
+
+    public CreateReservationCommandHandler(
+        IReservationRepository reservationRepository,
+        IReservationCustomerValidator customerValidator,
+        IReservationVehicleResolver vehicleResolver,
+        IReservationLocationResolver locationResolver,
+        IReservationCodeGenerator reservationCodeGenerator,
+        IUnitOfWork unitOfWork)
+    {
+        _reservationRepository = reservationRepository;
+        _customerValidator = customerValidator;
+        _vehicleResolver = vehicleResolver;
+        _locationResolver = locationResolver;
+        _reservationCodeGenerator = reservationCodeGenerator;
+        _unitOfWork = unitOfWork;
+    }
+
+    public async Task<ResultReponse<ReservationResponse>> Handle(
+        CreateReservationCommand request,
+        CancellationToken cancellationToken)
+    {
+        await _customerValidator.ValidateAsync(
+            request.TenantId,
+            request.CustomerId,
+            cancellationToken);
+
+        Vehicle vehicle =
+            await _vehicleResolver.GetReservableVehicleAsync(
+                request.TenantId,
+                request.VehicleId,
+                cancellationToken);
+
+        ResolvedReservationLocation delivery =
+            await _locationResolver.ResolveDeliveryAsync(
+                request.TenantId,
+                request.DeliveryTenantLocationId,
+                request.DeliveryLocationName,
+                request.DeliveryFee,
+                cancellationToken);
+
+        ResolvedReservationLocation returns =
+            await _locationResolver.ResolveReturnAsync(
+                request.TenantId,
+                request.ReturnTenantLocationId,
+                request.ReturnLocationName,
+                request.ReturnFee,
+                cancellationToken);
+
+        VehicleRate rate = _vehicleResolver.GetRateOrThrow(vehicle, request.RentalType);
+
+        int quantity = Reservation.CalculateQuantity(
+            request.DeliveryDateTime,
+            request.ExpectedReturnDateTime,
+            request.RentalType);
+
+        string code =
+            await _reservationCodeGenerator.GenerateAsync(
+                request.TenantId,
+                cancellationToken);
+
+        Reservation reservation = Reservation.Create(
+            request.TenantId,
+            code,
+            request.CustomerId,
+            request.VehicleId,
+            request.DeliveryDateTime,
+            request.ExpectedReturnDateTime,
+            request.RentalType,
+            quantity,
+            rate.Price,
+            vehicle.SecurityDepositRequired,
+            vehicle.SecurityDepositAmount,
+            delivery.TenantLocationId,
+            delivery.Name,
+            request.DeliveryAddressDetails,
+            delivery.Fee,
+            returns.TenantLocationId,
+            returns.Name,
+            request.ReturnAddressDetails,
+            returns.Fee,
+            request.DiscountAmount,
+            request.Channel,
+            request.Notes,
+            request.CreatedBy);
+
+        await _reservationRepository.AddAsync(reservation, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        ReservationResponse response = reservation.ToResponse();
+
+        return ResultReponse<ReservationResponse>.Success(response);
+    }
+}

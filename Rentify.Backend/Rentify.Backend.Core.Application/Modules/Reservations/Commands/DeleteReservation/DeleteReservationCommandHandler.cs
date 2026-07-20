@@ -1,3 +1,44 @@
-using MediatR; using Microsoft.AspNetCore.Http; using Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Repositories; using Rentify.Backend.Core.Application.Modules.Shared.Exceptions; using Rentify.Backend.Core.Application.Modules.Shared.Response; using Rentify.Backend.Core.Application.Modules.Shared.UnitOfWork;
+using MediatR;
+using Microsoft.AspNetCore.Http;
+using Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Repositories;
+using Rentify.Backend.Core.Application.Modules.Shared.Exceptions;
+using Rentify.Backend.Core.Application.Modules.Shared.Response;
+using Rentify.Backend.Core.Application.Modules.Shared.UnitOfWork;
+using Rentify.Backend.Core.Domain.Entities.Reservations;
+
 namespace Rentify.Backend.Core.Application.Modules.Reservations.Commands;
-public sealed class DeleteReservationCommandHandler : IRequestHandler<DeleteReservationCommand, ResultReponse<Guid>> { private readonly IReservationRepository _reservationRepository; private readonly IUnitOfWork _unitOfWork; public DeleteReservationCommandHandler(IReservationRepository reservationRepository, IUnitOfWork unitOfWork) { _reservationRepository = reservationRepository; _unitOfWork = unitOfWork; } public async Task<ResultReponse<Guid>> Handle(DeleteReservationCommand request, CancellationToken cancellationToken) { var reservation = await _reservationRepository.GetByIdAsync(request.TenantId, request.ReservationId, cancellationToken) ?? throw new ApiException("Reserva no encontrada.", StatusCodes.Status404NotFound); reservation.Delete(request.ModifiedBy); await _unitOfWork.SaveChangesAsync(cancellationToken); return ResultReponse<Guid>.Success(reservation.Id); } }
+
+public sealed class DeleteReservationCommandHandler
+    : IRequestHandler<DeleteReservationCommand, ResultReponse<Guid>>
+{
+    private readonly IReservationRepository _reservationRepository;
+    private readonly IUnitOfWork _unitOfWork;
+
+    public DeleteReservationCommandHandler(
+        IReservationRepository reservationRepository,
+        IUnitOfWork unitOfWork)
+    {
+        _reservationRepository = reservationRepository;
+        _unitOfWork = unitOfWork;
+    }
+
+    public async Task<ResultReponse<Guid>> Handle(
+        DeleteReservationCommand request,
+        CancellationToken cancellationToken)
+    {
+        Reservation reservation =
+            await _reservationRepository.GetByIdAsync(
+                request.TenantId,
+                request.ReservationId,
+                cancellationToken)
+            ?? throw new ApiException(
+                "Reserva no encontrada.",
+                StatusCodes.Status404NotFound);
+
+        reservation.Delete(request.ModifiedBy);
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return ResultReponse<Guid>.Success(reservation.Id);
+    }
+}

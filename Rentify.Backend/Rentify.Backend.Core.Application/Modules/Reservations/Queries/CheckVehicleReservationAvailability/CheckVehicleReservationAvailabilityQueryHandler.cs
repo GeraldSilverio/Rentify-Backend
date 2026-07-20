@@ -1,3 +1,39 @@
-using MediatR; using Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Repositories; using Rentify.Backend.Core.Application.Modules.Reservations.Dtos; using Rentify.Backend.Core.Application.Modules.Shared.Response;
+using MediatR;
+using Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Repositories;
+using Rentify.Backend.Core.Application.Modules.Reservations.Dtos;
+using Rentify.Backend.Core.Application.Modules.Shared.Response;
+
 namespace Rentify.Backend.Core.Application.Modules.Reservations.Queries;
-public sealed class CheckVehicleReservationAvailabilityQueryHandler : IRequestHandler<CheckVehicleReservationAvailabilityQuery, ResultReponse<ReservationAvailabilityResponse>> { private readonly IReservationRepository _reservationRepository; public CheckVehicleReservationAvailabilityQueryHandler(IReservationRepository reservationRepository) => _reservationRepository = reservationRepository; public async Task<ResultReponse<ReservationAvailabilityResponse>> Handle(CheckVehicleReservationAvailabilityQuery request, CancellationToken cancellationToken) { bool occupied = await _reservationRepository.HasApprovedOverlapAsync(request.TenantId, request.VehicleId, request.DeliveryDateTime, request.ExpectedReturnDateTime, request.ExcludeReservationId, cancellationToken); return ResultReponse<ReservationAvailabilityResponse>.Success(new ReservationAvailabilityResponse(!occupied, occupied ? "El vehículo ya tiene una reserva aprobada para el rango de fechas seleccionado." : null)); } }
+
+public sealed class CheckVehicleReservationAvailabilityQueryHandler
+    : IRequestHandler<CheckVehicleReservationAvailabilityQuery, ResultReponse<ReservationAvailabilityResponse>>
+{
+    private readonly IReservationRepository _reservationRepository;
+
+    public CheckVehicleReservationAvailabilityQueryHandler(IReservationRepository reservationRepository)
+    {
+        _reservationRepository = reservationRepository;
+    }
+
+    public async Task<ResultReponse<ReservationAvailabilityResponse>> Handle(
+        CheckVehicleReservationAvailabilityQuery request,
+        CancellationToken cancellationToken)
+    {
+        bool occupied =
+            await _reservationRepository.HasApprovedOverlapAsync(
+                request.TenantId,
+                request.VehicleId,
+                request.DeliveryDateTime,
+                request.ExpectedReturnDateTime,
+                request.ExcludeReservationId,
+                cancellationToken);
+
+        ReservationAvailabilityResponse response = new(
+            !occupied,
+            occupied
+                ? "El vehículo ya tiene una reserva aprobada para el rango de fechas seleccionado."
+                : null);
+
+        return ResultReponse<ReservationAvailabilityResponse>.Success(response);
+    }
+}
