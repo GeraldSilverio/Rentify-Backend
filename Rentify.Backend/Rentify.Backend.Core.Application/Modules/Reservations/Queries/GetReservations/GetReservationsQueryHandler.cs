@@ -1,9 +1,8 @@
 using MediatR;
 using Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Repositories;
-using Rentify.Backend.Core.Application.Modules.Reservations.Dtos;
 using Rentify.Backend.Core.Application.Modules.Shared.Response;
 
-namespace Rentify.Backend.Core.Application.Modules.Reservations.Queries;
+namespace Rentify.Backend.Core.Application.Modules.Reservations.Queries.GetReservations;
 
 public sealed class GetReservationsQueryHandler
     : IRequestHandler<GetReservationsQuery, ResultReponse<PaginatedResponse<ReservationListItemResponse>>>

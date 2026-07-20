@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Rentify.Backend.Core.Application.Modules.Locations.Contracts.Repositories;
+using Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Shared.Exceptions;
 using Rentify.Backend.Core.Domain.Entities.Locations;
 

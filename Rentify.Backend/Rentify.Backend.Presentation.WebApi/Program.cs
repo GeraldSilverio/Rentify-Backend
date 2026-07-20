@@ -132,7 +132,7 @@ app.MapCustomerDocumentsEndpoints();
 app.MapAdminLocationsEndpoints();
 app.MapLocationsEndpoints();
 app.MapTenantLocationsEndpoints();
-//app.MapReservationsEndpoints();
+app.MapReservationsEndpoints();
 app.MapAdminTenantEndpoints();
 app.MapAdminVehicleCatalogEndpoints();
 app.MapRegisterTenant();

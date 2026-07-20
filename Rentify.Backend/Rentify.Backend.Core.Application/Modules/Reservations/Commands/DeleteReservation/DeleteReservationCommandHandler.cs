@@ -6,7 +6,7 @@ using Rentify.Backend.Core.Application.Modules.Shared.Response;
 using Rentify.Backend.Core.Application.Modules.Shared.UnitOfWork;
 using Rentify.Backend.Core.Domain.Entities.Reservations;
 
-namespace Rentify.Backend.Core.Application.Modules.Reservations.Commands;
+namespace Rentify.Backend.Core.Application.Modules.Reservations.Commands.DeleteReservation;
 
 public sealed class DeleteReservationCommandHandler
     : IRequestHandler<DeleteReservationCommand, ResultReponse<Guid>>

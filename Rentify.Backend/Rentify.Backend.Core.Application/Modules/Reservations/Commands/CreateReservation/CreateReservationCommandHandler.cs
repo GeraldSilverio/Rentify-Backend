@@ -3,13 +3,12 @@ using Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Repositori
 using Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Reservations.Dtos;
 using Rentify.Backend.Core.Application.Modules.Reservations.Mappers;
-using Rentify.Backend.Core.Application.Modules.Reservations.Services;
 using Rentify.Backend.Core.Application.Modules.Shared.Response;
 using Rentify.Backend.Core.Application.Modules.Shared.UnitOfWork;
 using Rentify.Backend.Core.Domain.Entities.Reservations;
 using Rentify.Backend.Core.Domain.Entities.Vehicles;
 
-namespace Rentify.Backend.Core.Application.Modules.Reservations.Commands;
+namespace Rentify.Backend.Core.Application.Modules.Reservations.Commands.CreateReservation;
 
 public sealed class CreateReservationCommandHandler
     : IRequestHandler<CreateReservationCommand, ResultReponse<ReservationResponse>>

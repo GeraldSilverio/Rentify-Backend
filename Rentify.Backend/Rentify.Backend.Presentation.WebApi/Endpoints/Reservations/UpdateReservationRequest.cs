@@ -1,13 +1,8 @@
-using MediatR;
-using Rentify.Backend.Core.Application.Modules.Reservations.Dtos;
-using Rentify.Backend.Core.Application.Modules.Shared.Response;
 using Rentify.Backend.Core.Domain.Enums;
 
-namespace Rentify.Backend.Core.Application.Modules.Reservations.Commands.UpdateReservation;
+namespace Rentify.Backend.Presentation.WebApi.Endpoints.Reservations;
 
-public sealed record UpdateReservationCommand(
-    Guid TenantId,
-    Guid ReservationId,
+public sealed record UpdateReservationRequest(
     DateTime DeliveryDateTime,
     DateTime ExpectedReturnDateTime,
     RentalType RentalType,
@@ -20,5 +15,4 @@ public sealed record UpdateReservationCommand(
     string? ReturnAddressDetails,
     decimal ReturnFee,
     decimal DiscountAmount,
-    string? Notes,
-    string ModifiedBy) : IRequest<ResultReponse<ReservationResponse>>;
+    string? Notes);

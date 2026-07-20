@@ -1,7 +1,7 @@
 using Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Services;
 
-namespace Rentify.Backend.Core.Application.Modules.Reservations.Implementations.Services;
+namespace Rentify.Backend.Core.Application.Modules.Reservations.Services;
 
 public sealed class ReservationCodeGenerator : IReservationCodeGenerator
 {

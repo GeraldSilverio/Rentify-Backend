@@ -1,5 +1,5 @@
-using Rentify.Backend.Core.Application.Modules.Reservations.Dtos;
-using Rentify.Backend.Core.Application.Modules.Reservations.Queries;
+using Rentify.Backend.Core.Application.Modules.Reservations.Queries.GetReservationById;
+using Rentify.Backend.Core.Application.Modules.Reservations.Queries.GetReservations;
 using Rentify.Backend.Core.Application.Modules.Shared.Response;
 using Rentify.Backend.Core.Domain.Entities.Reservations;
 

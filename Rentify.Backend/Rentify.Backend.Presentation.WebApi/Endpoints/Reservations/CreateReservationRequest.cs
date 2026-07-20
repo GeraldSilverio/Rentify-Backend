@@ -1,12 +1,8 @@
-using MediatR;
-using Rentify.Backend.Core.Application.Modules.Reservations.Dtos;
-using Rentify.Backend.Core.Application.Modules.Shared.Response;
 using Rentify.Backend.Core.Domain.Enums;
 
-namespace Rentify.Backend.Core.Application.Modules.Reservations.Commands.CreateReservation;
+namespace Rentify.Backend.Presentation.WebApi.Endpoints.Reservations;
 
-public sealed record CreateReservationCommand(
-    Guid TenantId,
+public sealed record CreateReservationRequest(
     Guid CustomerId,
     Guid VehicleId,
     DateTime DeliveryDateTime,
@@ -22,5 +18,4 @@ public sealed record CreateReservationCommand(
     decimal ReturnFee,
     decimal DiscountAmount,
     ReservationChannel Channel,
-    string? Notes,
-    string CreatedBy) : IRequest<ResultReponse<ReservationResponse>>;
+    string? Notes);

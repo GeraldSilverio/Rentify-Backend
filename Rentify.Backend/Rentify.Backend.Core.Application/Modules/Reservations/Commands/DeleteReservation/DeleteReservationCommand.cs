@@ -1,7 +1,7 @@
 using MediatR;
 using Rentify.Backend.Core.Application.Modules.Shared.Response;
 
-namespace Rentify.Backend.Core.Application.Modules.Reservations.Commands;
+namespace Rentify.Backend.Core.Application.Modules.Reservations.Commands.DeleteReservation;
 
 public sealed record DeleteReservationCommand(
     Guid TenantId,

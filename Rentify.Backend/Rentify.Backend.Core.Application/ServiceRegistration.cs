@@ -16,7 +16,6 @@ using Rentify.Backend.Core.Application.Modules.Vehicles.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Implementations.Services;
 using Rentify.Backend.Core.Application.Modules.Shared.Behaviors;
 using Rentify.Backend.Core.Application.Modules.Tenants.Services;
-using Rentify.Backend.Core.Application.Modules.Reservations.Implementations.Services;
 using Rentify.Backend.Core.Application.Modules.Reservations.Services;
 
 namespace Rentify.Backend.Core.Application;
@@ -59,12 +58,12 @@ public static class ServiceRegistration
         services.AddScoped<IReservationVehicleResolver, ReservationVehicleResolver>();
         services.AddScoped<IReservationCustomerValidator, ReservationCustomerValidator>();
         services.AddScoped<IPaymentService, PaymentService>();
-        services.AddScoped<ITenantService,TenantService>();
+        services.AddScoped<ITenantService, TenantService>();
         services.AddScoped<ITenantAccessService, TenantAccessService>();
         services.AddScoped<ICurrentSubscriptionService, CurrentSubscriptionService>();
         services.AddScoped<ITenantUsageService, TenantUsageService>();
         services.AddScoped<ITenantUniquenessService, TenantUniquenessService>();
-        services.AddScoped<ITenantSettingService,TenantSettingService>();
-        services.AddScoped<IPaymentPolicyService,PaymentPolicyService>();
+        services.AddScoped<ITenantSettingService, TenantSettingService>();
+        services.AddScoped<IPaymentPolicyService, PaymentPolicyService>();
     }
 }

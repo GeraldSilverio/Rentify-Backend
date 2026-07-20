@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Rentify.Backend.Core.Application.Modules.Customers.Contracts.Repositories;
+using Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Shared.Exceptions;
 using Rentify.Backend.Core.Domain.Entities.Customers;
 
@@ -25,7 +26,7 @@ public sealed class ReservationCustomerValidator : IReservationCustomerValidator
                 customerId,
                 cancellationToken);
 
-        if (customer is null || !customer.IsActive)
+        if (customer is null || !customer.IsActive || customer.IsDeleted)
         {
             throw new ApiException(
                 "Cliente no encontrado.",

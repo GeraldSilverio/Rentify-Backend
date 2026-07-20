@@ -1,11 +1,10 @@
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Repositories;
-using Rentify.Backend.Core.Application.Modules.Reservations.Dtos;
 using Rentify.Backend.Core.Application.Modules.Shared.Exceptions;
 using Rentify.Backend.Core.Application.Modules.Shared.Response;
 
-namespace Rentify.Backend.Core.Application.Modules.Reservations.Queries;
+namespace Rentify.Backend.Core.Application.Modules.Reservations.Queries.GetReservationById;
 
 public sealed class GetReservationByIdQueryHandler
     : IRequestHandler<GetReservationByIdQuery, ResultReponse<ReservationDetailsResponse>>

@@ -1,9 +1,8 @@
 using MediatR;
 using Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Repositories;
-using Rentify.Backend.Core.Application.Modules.Reservations.Dtos;
 using Rentify.Backend.Core.Application.Modules.Shared.Response;
 
-namespace Rentify.Backend.Core.Application.Modules.Reservations.Queries;
+namespace Rentify.Backend.Core.Application.Modules.Reservations.Queries.CheckVehicleReservationAvailability;
 
 public sealed class CheckVehicleReservationAvailabilityQueryHandler
     : IRequestHandler<CheckVehicleReservationAvailabilityQuery, ResultReponse<ReservationAvailabilityResponse>>

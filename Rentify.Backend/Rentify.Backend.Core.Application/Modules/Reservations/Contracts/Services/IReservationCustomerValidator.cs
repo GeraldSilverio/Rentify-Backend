@@ -1,4 +1,4 @@
-namespace Rentify.Backend.Core.Application.Modules.Reservations.Services;
+namespace Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Services;
 
 public interface IReservationCustomerValidator
 {

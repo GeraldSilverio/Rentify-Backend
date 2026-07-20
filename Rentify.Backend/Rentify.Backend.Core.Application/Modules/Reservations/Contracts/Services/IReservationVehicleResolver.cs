@@ -1,7 +1,7 @@
 using Rentify.Backend.Core.Domain.Entities.Vehicles;
 using Rentify.Backend.Core.Domain.Enums;
 
-namespace Rentify.Backend.Core.Application.Modules.Reservations.Services;
+namespace Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Services;
 
 public interface IReservationVehicleResolver
 {
