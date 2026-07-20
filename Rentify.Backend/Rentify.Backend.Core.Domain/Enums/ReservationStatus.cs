@@ -1,10 +1,3 @@
 namespace Rentify.Backend.Core.Domain.Enums;
 
-public enum ReservationStatus
-{
-    Pending = 1,
-    Confirmed = 2,
-    Active = 3,
-    Completed = 4,
-    Cancelled = 5
-}
+public enum ReservationStatus { Pending = 1, Approved = 2, Rejected = 3, Cancelled = 4, ConvertedToRental = 5, Expired = 6 }

@@ -1,14 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+namespace Rentify.Backend.Core.Domain.Enums;
 
-namespace Rentify.Backend.Core.Domain.Enums
-{
-    public enum ReservationChannel
-    {
-        Internal = 1,
-        Website = 2,
-    }
-}
+public enum ReservationChannel { Internal = 1, PublicWeb = 2, WhatsApp = 3, Phone = 4, WalkIn = 5 }

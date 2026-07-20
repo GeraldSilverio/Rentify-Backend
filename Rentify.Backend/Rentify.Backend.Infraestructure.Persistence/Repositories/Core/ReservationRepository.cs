@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Repositories;
-using Rentify.Backend.Core.Domain.Entities;
+using Rentify.Backend.Core.Application.Modules.Reservations.Dtos;
+using Rentify.Backend.Core.Application.Modules.Reservations.Queries;
+using Rentify.Backend.Core.Application.Modules.Shared.Response;
 using Rentify.Backend.Core.Domain.Entities.Reservations;
 using Rentify.Backend.Core.Domain.Enums;
 using Rentify.Backend.Infraestructure.Persistence.Context;
@@ -10,73 +12,19 @@ namespace Rentify.Backend.Infraestructure.Persistence.Repositories;
 public sealed class ReservationRepository : IReservationRepository
 {
     private readonly RentifyContext _context;
-
-    public ReservationRepository(RentifyContext context)
+    public ReservationRepository(RentifyContext context) => _context = context;
+    public Task AddAsync(Reservation reservation, CancellationToken cancellationToken = default) => _context.Reservations.AddAsync(reservation, cancellationToken).AsTask();
+    public Task<Reservation?> GetByIdAsync(Guid tenantId, Guid reservationId, CancellationToken cancellationToken = default) => _context.Reservations.FirstOrDefaultAsync(x => x.TenantId == tenantId && x.Id == reservationId && !x.IsDeleted, cancellationToken);
+    public Task<bool> CodeExistsAsync(Guid tenantId, string code, CancellationToken cancellationToken = default) => _context.Reservations.AnyAsync(x => x.TenantId == tenantId && x.Code == code && !x.IsDeleted, cancellationToken);
+    public Task<string?> GetLastCodeAsync(Guid tenantId, int year, CancellationToken cancellationToken = default) => _context.Reservations.AsNoTracking().Where(x => x.TenantId == tenantId && !x.IsDeleted && x.Code.StartsWith($"RV-{year}-")).OrderByDescending(x => x.Code).Select(x => x.Code).FirstOrDefaultAsync(cancellationToken);
+    public Task<bool> HasApprovedOverlapAsync(Guid tenantId, Guid vehicleId, DateTime deliveryDateTime, DateTime expectedReturnDateTime, Guid? excludedReservationId, CancellationToken cancellationToken = default) => _context.Reservations.AsNoTracking().AnyAsync(x => x.TenantId == tenantId && x.VehicleId == vehicleId && x.Status == ReservationStatus.Approved && !x.IsDeleted && (!excludedReservationId.HasValue || x.Id != excludedReservationId.Value) && deliveryDateTime < x.ExpectedReturnDateTime && expectedReturnDateTime > x.DeliveryDateTime, cancellationToken);
+    public async Task<PaginatedResponse<ReservationListItemResponse>> GetPagedAsync(GetReservationsQuery query, CancellationToken cancellationToken = default)
     {
-        _context = context;
+        IQueryable<Reservation> source = _context.Reservations.AsNoTracking().Where(x => x.TenantId == query.TenantId && !x.IsDeleted);
+        if (!string.IsNullOrWhiteSpace(query.Search)) { string pattern = $"%{query.Search.Trim()}%"; source = source.Where(x => EF.Functions.ILike(x.Code, pattern) || EF.Functions.ILike(x.Customer.FirstName, pattern) || EF.Functions.ILike(x.Customer.LastName, pattern) || EF.Functions.ILike(x.Customer.IdentificationNumber, pattern) || EF.Functions.ILike(x.Vehicle.PlateNumber, pattern) || EF.Functions.ILike(x.Vehicle.VehicleBrand.Name, pattern) || EF.Functions.ILike(x.Vehicle.VehicleModel.Name, pattern)); }
+        if (query.Status.HasValue) source = source.Where(x => x.Status == query.Status.Value); if (query.CustomerId.HasValue) source = source.Where(x => x.CustomerId == query.CustomerId); if (query.VehicleId.HasValue) source = source.Where(x => x.VehicleId == query.VehicleId); if (query.FromDate.HasValue) source = source.Where(x => x.ExpectedReturnDateTime >= query.FromDate.Value); if (query.ToDate.HasValue) source = source.Where(x => x.DeliveryDateTime <= query.ToDate.Value);
+        int total = await source.CountAsync(cancellationToken); List<ReservationListItemResponse> items = await source.OrderByDescending(x => x.CreatedDate).ThenBy(x => x.Id).Skip((query.PageNumber - 1) * query.PageSize).Take(query.PageSize).Select(x => new ReservationListItemResponse(x.Id, x.Code, x.CustomerId, x.Customer.FirstName + " " + x.Customer.LastName, x.VehicleId, x.Vehicle.VehicleBrand.Name + " " + x.Vehicle.VehicleModel.Name, x.Vehicle.PlateNumber, x.DeliveryDateTime, x.ExpectedReturnDateTime, x.RentalType, x.Quantity, x.RentalAmount, x.SecurityDepositAmount, x.DeliveryFee, x.ReturnFee, x.DiscountAmount, x.TotalAmount, x.Status, x.Channel, x.CreatedDate)).ToListAsync(cancellationToken);
+        return new PaginatedResponse<ReservationListItemResponse>(items, query.PageNumber, query.PageSize, total, total == 0 ? 0 : (int)Math.Ceiling(total / (double)query.PageSize));
     }
-
-    //public async Task AddAsync(Reservation reservation, CancellationToken cancellationToken = default)
-    //{
-    //    await _context.Reservations.AddAsync(reservation, cancellationToken);
-    //}
-
-    //public async Task<Reservation?> GetByIdAsync(Guid tenantId, Guid reservationId, CancellationToken cancellationToken = default)
-    //{
-    //    return await _context.Reservations
-    //        .Include(x => x.Payments)
-    //        .Include(x => x.Vehicles)
-    //        .FirstOrDefaultAsync(x => x.TenantId == tenantId && x.Id == reservationId && !x.IsDeleted, cancellationToken);
-    //}
-
-    //public async Task<bool> HasOverlappingReservationAsync(
-    //    Guid tenantId,
-    //    IEnumerable<Guid> vehicleIds,
-    //    DateOnly startDate,
-    //    DateOnly endDate,
-    //    CancellationToken cancellationToken = default)
-    //{
-    //    Guid[] ids = vehicleIds.ToArray();
-
-    //    return await _context.ReservationVehicles
-    //        .AnyAsync(x =>
-    //            x.TenantId == tenantId
-    //            && ids.Contains(x.VehicleId)
-    //            && !x.IsDeleted
-    //            && !x.Reservation.IsDeleted
-    //            && x.Reservation.Status != ReservationStatus.Cancelled
-    //            && x.Reservation.StartDate <= endDate
-    //            && x.Reservation.EndDate >= startDate,
-    //            cancellationToken);
-    //}
-
-    //public async Task<decimal> GetMonthlyRevenueAsync(Guid tenantId, int year, int month, CancellationToken cancellationToken = default)
-    //{
-    //    DateTime from = new(year, month, 1, 0, 0, 0, DateTimeKind.Utc);
-    //    DateTime to = from.AddMonths(1);
-
-    //    return await _context.Payments
-    //        .Where(x => x.TenantId == tenantId && !x.IsDeleted && x.PaidAt >= from && x.PaidAt < to)
-    //        .SumAsync(x => x.Amount, cancellationToken);
-    //}
-
-    //public async Task<int> CountActiveReservationsAsync(Guid tenantId, CancellationToken cancellationToken = default)
-    //{
-    //    return await _context.Reservations.CountAsync(
-    //        x => x.TenantId == tenantId
-    //             && !x.IsDeleted
-    //             && (x.Status == ReservationStatus.Confirmed || x.Status == ReservationStatus.Active),
-    //        cancellationToken);
-    //}
-
-    //public async Task<int> CountUpcomingReturnsAsync(Guid tenantId, DateOnly fromDate, DateOnly toDate, CancellationToken cancellationToken = default)
-    //{
-    //    return await _context.Reservations.CountAsync(
-    //        x => x.TenantId == tenantId
-    //             && !x.IsDeleted
-    //             && x.Status != ReservationStatus.Cancelled
-    //             && x.EndDate >= fromDate
-    //             && x.EndDate <= toDate,
-    //        cancellationToken);
-    //}
+    public Task<ReservationDetailsResponse?> GetDetailsAsync(Guid tenantId, Guid reservationId, CancellationToken cancellationToken = default) => _context.Reservations.AsNoTracking().Where(x => x.TenantId == tenantId && x.Id == reservationId && !x.IsDeleted).Select(x => new ReservationDetailsResponse(x.Id, x.Code, new ReservationCustomerResponse(x.Customer.Id, x.Customer.FirstName + " " + x.Customer.LastName, x.Customer.CustomerType, x.Customer.IdentificationType, x.Customer.IdentificationNumber, x.Customer.PhoneNumber, x.Customer.Email, x.Customer.IsVerified), new ReservationVehicleResponse(x.Vehicle.Id, x.Vehicle.VehicleBrand.Name, x.Vehicle.VehicleModel.Name, x.Vehicle.VehicleType.Name, x.Vehicle.Year, x.Vehicle.PlateNumber, x.Vehicle.Color, x.Vehicle.Status, x.Vehicle.Images.Where(i => !i.IsDeleted && i.IsPrimary).Select(i => i.Url).FirstOrDefault()), x.DeliveryDateTime, x.ExpectedReturnDateTime, x.RentalType, x.Quantity, x.UnitRate, x.RentalAmount, x.SecurityDepositRequired, x.SecurityDepositAmount, x.DeliveryTenantLocationId, x.DeliveryLocationName, x.DeliveryAddressDetails, x.DeliveryFee, x.ReturnTenantLocationId, x.ReturnLocationName, x.ReturnAddressDetails, x.ReturnFee, x.DiscountAmount, x.TotalAmount, x.Status, x.Channel, x.ApprovedAt, x.ApprovedBy, x.RejectedAt, x.RejectionReason, x.RejectedBy, x.CancelledAt, x.CancellationReason, x.CancelledBy, x.ConvertedToRentalAt, x.ConvertedToRentalBy, x.Notes, x.CreatedDate, x.ModifiedDate)).FirstOrDefaultAsync(cancellationToken);
 }

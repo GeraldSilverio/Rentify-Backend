@@ -53,7 +53,7 @@ public static class ServiceRegistration
         services.AddScoped<ISubscriptionService, SubscriptionService>();
         services.AddScoped<IVehicleService, VehicleService>();
         services.AddScoped<ICustomerService, CustomerService>();
-        services.AddScoped<IReservationService, ReservationService>();
+        services.AddScoped<IReservationCodeGenerator, ReservationCodeGenerator>();
         services.AddScoped<IPaymentService, PaymentService>();
         services.AddScoped<ITenantService,TenantService>();
         services.AddScoped<ITenantAccessService, TenantAccessService>();
