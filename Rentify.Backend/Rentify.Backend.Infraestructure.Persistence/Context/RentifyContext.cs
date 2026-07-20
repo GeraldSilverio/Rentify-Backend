@@ -12,7 +12,6 @@ using Rentify.Backend.Infraestructure.Persistence.EntityConfiguration.Customers;
 using Rentify.Backend.Infraestructure.Persistence.EntityConfiguration.Events;
 using Rentify.Backend.Infraestructure.Persistence.EntityConfiguration.Locations;
 using Rentify.Backend.Infraestructure.Persistence.EntityConfiguration.Payments;
-using Rentify.Backend.Infraestructure.Persistence.EntityConfiguration.Reservation;
 using Rentify.Backend.Infraestructure.Persistence.EntityConfiguration.Reservations;
 using Rentify.Backend.Infraestructure.Persistence.EntityConfiguration.Vehicles;
 
@@ -50,8 +49,6 @@ namespace Rentify.Backend.Infraestructure.Persistence.Context
             modelBuilder.ApplyConfiguration(new LocationConfiguration());
             modelBuilder.ApplyConfiguration(new TenantLocationConfiguration());
             modelBuilder.ApplyConfiguration(new ReservationConfiguration());
-            modelBuilder.ApplyConfiguration(new ReservationVehicleConfiguration());
-            modelBuilder.ApplyConfiguration(new ReservationPaymentConfiguration());
             modelBuilder.ApplyConfiguration(new PaymentConfiguration());
             modelBuilder.ApplyConfiguration(new InvoiceConfiguration());
         }
@@ -81,8 +78,6 @@ namespace Rentify.Backend.Infraestructure.Persistence.Context
         public DbSet<Location> Locations { get; set; }
         public DbSet<TenantLocation> TenantLocations { get; set; }
         public DbSet<Reservation> Reservations { get; set; }
-        public DbSet<ReservationVehicle> ReservationVehicles { get; set; }
-        public DbSet<ReservationPayment> ReservationPayments { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<PaymentPolicy> PaymentPolicies => Set<PaymentPolicy>();

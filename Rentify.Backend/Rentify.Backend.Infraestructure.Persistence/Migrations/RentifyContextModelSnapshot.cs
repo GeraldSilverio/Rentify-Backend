@@ -888,6 +888,8 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                     b.HasIndex("PaymentId")
                         .IsUnique();
 
+                    b.HasIndex("ReservationId");
+
                     b.HasIndex("TenantId", "InvoiceNumber")
                         .IsUnique();
 
@@ -1206,119 +1208,6 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                     b.HasIndex("TenantId", "VehicleId", "DeliveryDateTime", "ExpectedReturnDateTime");
 
                     b.ToTable("Reservations", (string)null);
-                });
-
-            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Reservations.ReservationPayment", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<decimal>("Amount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Method")
-                        .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("character varying(40)");
-
-                    b.Property<string>("ModifiedBy")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Reference")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<Guid>("ReservationId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ReservationId");
-
-                    b.HasIndex("TenantId", "ReservationId");
-
-                    b.ToTable("ReservationPayments", (string)null);
-                });
-
-            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Reservations.ReservationVehicle", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<decimal>("DailyRate")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("ModifiedBy")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("RentalDays")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("ReservationId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid");
-
-                    b.Property<decimal>("TotalAmount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
-
-                    b.Property<Guid>("VehicleId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("VehicleId");
-
-                    b.HasIndex("ReservationId", "VehicleId")
-                        .IsUnique();
-
-                    b.HasIndex("TenantId", "VehicleId");
-
-                    b.ToTable("ReservationVehicles", (string)null);
                 });
 
             modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Vehicles.Vehicle", b =>
@@ -1895,6 +1784,12 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Rentify.Backend.Core.Domain.Entities.Reservations.Reservation", null)
+                        .WithMany()
+                        .HasForeignKey("ReservationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Payment");
                 });
 
@@ -1935,36 +1830,6 @@ namespace Rentify.Backend.Infraestructure.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("Customer");
-
-                    b.Navigation("Vehicle");
-                });
-
-            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Reservations.ReservationPayment", b =>
-                {
-                    b.HasOne("Rentify.Backend.Core.Domain.Entities.Reservations.Reservation", "Reservation")
-                        .WithMany()
-                        .HasForeignKey("ReservationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Reservation");
-                });
-
-            modelBuilder.Entity("Rentify.Backend.Core.Domain.Entities.Reservations.ReservationVehicle", b =>
-                {
-                    b.HasOne("Rentify.Backend.Core.Domain.Entities.Reservations.Reservation", "Reservation")
-                        .WithMany()
-                        .HasForeignKey("ReservationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Rentify.Backend.Core.Domain.Entities.Vehicles.Vehicle", "Vehicle")
-                        .WithMany()
-                        .HasForeignKey("VehicleId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Reservation");
 
                     b.Navigation("Vehicle");
                 });

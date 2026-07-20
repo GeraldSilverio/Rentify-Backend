@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Rentify.Backend.Core.Domain.Entities;
 using Rentify.Backend.Core.Domain.Entities.Payments;
+using Rentify.Backend.Core.Domain.Entities.Reservations;
 
 namespace Rentify.Backend.Infraestructure.Persistence.EntityConfiguration.Payments;
 
@@ -18,5 +19,10 @@ public sealed class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
 
         builder.HasIndex(x => new { x.TenantId, x.InvoiceNumber }).IsUnique();
         builder.HasIndex(x => new { x.TenantId, x.ReservationId });
+
+        builder.HasOne<Reservation>()
+            .WithMany()
+            .HasForeignKey(x => x.ReservationId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
