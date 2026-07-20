@@ -11,8 +11,7 @@ namespace Rentify.Backend.Presentation.WebApi.Endpoints.Vehicles
         public static IEndpointRouteBuilder MapVehicleCatalogEndpoints(this IEndpointRouteBuilder app)
         {
             var group = app.MapGroup("/api/v1/vehicles-catalog")
-                .WithTags("vehicles-catalog")
-                .RequireRateLimiting("PublicCatalogPolicy");
+                .WithTags("Vehicles Catalog");
 
             group.MapGet("/types", async (
                 ISender sender,
