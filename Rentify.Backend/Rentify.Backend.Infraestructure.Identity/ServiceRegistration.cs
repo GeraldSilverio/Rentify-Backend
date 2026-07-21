@@ -5,8 +5,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using Npgsql;
 using Rentify.Backend.Core.Application.Modules.Secutiry.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Shared.Constants;
@@ -22,6 +24,12 @@ namespace Rentify.Backend.Infraestructure.Identity
 {
     public static class ServiceRegistration
     {
+        private const string AuthenticationFailureKey = "AuthenticationFailure";
+        private const string TokenExpired = "TOKEN_EXPIRED";
+        private const string InvalidToken = "INVALID_TOKEN";
+        private const string MissingToken = "MISSING_TOKEN";
+        private const string Forbidden = "FORBIDDEN";
+
         public static void AddIdentityInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
             ContextConfiguration(services, configuration);
@@ -86,31 +94,68 @@ namespace Rentify.Backend.Infraestructure.Identity
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key))
                 };
 
-                options.Events = new JwtBearerEvents()
+                options.Events = new JwtBearerEvents
                 {
+                    OnAuthenticationFailed = context =>
+                    {
+                        string failureKey = context.Exception is SecurityTokenExpiredException
+                            ? TokenExpired
+                            : InvalidToken;
 
-                    OnAuthenticationFailed = c =>
-                    {
-                        c.NoResult();
-                        c.Response.StatusCode = 500;
-                        c.Response.ContentType = "text/plain";
-                        return c.Response.WriteAsync(c.Exception.ToString());
+                        context.HttpContext.Items[AuthenticationFailureKey] = failureKey;
+
+                        ILogger logger = context.HttpContext.RequestServices
+                            .GetRequiredService<ILoggerFactory>()
+                            .CreateLogger("JwtAuthentication");
+
+                        if (context.Exception is SecurityTokenExpiredException)
+                        {
+                            logger.LogInformation(
+                                "El access token ha vencido; path={Path}; traceId={TraceId}",
+                                context.HttpContext.Request.Path,
+                                context.HttpContext.TraceIdentifier);
+                        }
+                        else
+                        {
+                            logger.LogWarning(
+                                context.Exception,
+                                "El access token no es válido; path={Path}; traceId={TraceId}",
+                                context.HttpContext.Request.Path,
+                                context.HttpContext.TraceIdentifier);
+                        }
+
+                        return Task.CompletedTask;
                     },
-                    OnChallenge = c =>
+                    OnChallenge = context =>
                     {
-                        c.HandleResponse();
-                        var result = JsonConvert.SerializeObject(ResultReponse<string>.Failure(Error.SetError("You are not authorized", StatusCodes.Status401Unauthorized)));
-                        return c.Response.WriteAsync(result);
+                        context.HandleResponse();
+
+                        if (context.Response.HasStarted)
+                        {
+                            return Task.CompletedTask;
+                        }
+
+                        string errorKey = ResolveAuthenticationErrorKey(context);
+
+                        return WriteAuthenticationFailureAsync(
+                            context.Response,
+                            StatusCodes.Status401Unauthorized,
+                            errorKey,
+                            GetAuthenticationMessage(errorKey));
                     },
-                    OnForbidden = c =>
+                    OnForbidden = context =>
                     {
-                        c.Response.StatusCode = 403;
-                        c.Response.ContentType = "application/json";
-                        var result =
-                            JsonConvert.SerializeObject(
-                                 ResultReponse<string>.Failure(Error.SetError("You are not authorized to access this resource",StatusCodes.Status403Forbidden)));
-                        return c.Response.WriteAsync(result);
-                    },
+                        if (context.Response.HasStarted)
+                        {
+                            return Task.CompletedTask;
+                        }
+
+                        return WriteAuthenticationFailureAsync(
+                            context.Response,
+                            StatusCodes.Status403Forbidden,
+                            Forbidden,
+                            "No tienes permisos para realizar esta operación.");
+                    }
                 };
             });
 
@@ -163,7 +208,7 @@ namespace Rentify.Backend.Infraestructure.Identity
 
         private static JwtSettings GetJwtSettings(IConfiguration configuration)
         {
-            return new JwtSettings
+            JwtSettings jwtSettings = new()
             {
                 Key = ReadFromConfiguration.GetValueFromConfig("JWT_KEY"),
                 Issuer = ReadFromConfiguration.GetValueFromConfig("JWT_ISSUER"),
@@ -171,6 +216,91 @@ namespace Rentify.Backend.Infraestructure.Identity
                 DurationInMinutes = int.Parse(ReadFromConfiguration.GetValueFromConfig("JWT_DURATION_IN_MINUTES")),
                 RefreshTokenDurationInDays = int.Parse(ReadFromConfiguration.GetValueFromConfig("JWT_REFRESH_TOKEN_DURATION_IN_DAYS"))
             };
+
+            ValidateJwtSettings(jwtSettings);
+
+            return jwtSettings;
+        }
+
+        private static string ResolveAuthenticationErrorKey(JwtBearerChallengeContext context)
+        {
+            if (context.HttpContext.Items.TryGetValue(AuthenticationFailureKey, out object? value)
+                && value is string failureKey)
+            {
+                return failureKey;
+            }
+
+            string? authorizationHeader = context.Request.Headers.Authorization.ToString();
+
+            return string.IsNullOrWhiteSpace(authorizationHeader)
+                || !authorizationHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)
+                    ? MissingToken
+                    : InvalidToken;
+        }
+
+        private static string GetAuthenticationMessage(string errorKey)
+        {
+            return errorKey switch
+            {
+                TokenExpired => "Tu sesión ha vencido.",
+                InvalidToken => "El token de acceso no es válido.",
+                MissingToken => "Debes iniciar sesión para acceder a este recurso.",
+                _ => "Debes iniciar sesión para acceder a este recurso."
+            };
+        }
+
+        private static Task WriteAuthenticationFailureAsync(
+            HttpResponse response,
+            int statusCode,
+            string key,
+            string message)
+        {
+            response.StatusCode = statusCode;
+            response.ContentType = "application/json";
+
+            string result = JsonConvert.SerializeObject(
+                ResultReponse<string>.Failure(Error.SetError(message, statusCode, key)),
+                new JsonSerializerSettings
+                {
+                    ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                    NullValueHandling = NullValueHandling.Include
+                });
+
+            return response.WriteAsync(result);
+        }
+
+        private static void ValidateJwtSettings(JwtSettings jwtSettings)
+        {
+            if (string.IsNullOrWhiteSpace(jwtSettings.Key))
+            {
+                throw new InvalidOperationException("JWT_KEY is required.");
+            }
+
+            if (string.IsNullOrWhiteSpace(jwtSettings.Issuer))
+            {
+                throw new InvalidOperationException("JWT_ISSUER is required.");
+            }
+
+            if (string.IsNullOrWhiteSpace(jwtSettings.Audience))
+            {
+                throw new InvalidOperationException("JWT_AUDIENCE is required.");
+            }
+
+            if (jwtSettings.DurationInMinutes <= 0)
+            {
+                throw new InvalidOperationException("JWT_DURATION_IN_MINUTES must be greater than zero.");
+            }
+
+            if (jwtSettings.RefreshTokenDurationInDays <= 0)
+            {
+                throw new InvalidOperationException("JWT_REFRESH_TOKEN_DURATION_IN_DAYS must be greater than zero.");
+            }
+
+            if (TimeSpan.FromDays(jwtSettings.RefreshTokenDurationInDays)
+                <= TimeSpan.FromMinutes(jwtSettings.DurationInMinutes))
+            {
+                throw new InvalidOperationException("JWT_REFRESH_TOKEN_DURATION_IN_DAYS must be greater than JWT_DURATION_IN_MINUTES.");
+            }
         }
 
         #endregion

@@ -72,7 +72,7 @@ namespace Rentify.Backend.Infraestructure.Identity.Services
                 throw new ApiException("Crendenciales inválidas", StatusCodes.Status401Unauthorized);
             }
 
-            if(!await _tenantRepository.IsTenantActiveAsync(user.TenantId))
+            if (!await _tenantRepository.IsTenantActiveAsync(user.TenantId))
             {
                 throw new ApiException("La empresa no esta activa, favor contactar al administrador.", StatusCodes.Status403Forbidden);
             }
@@ -154,23 +154,62 @@ namespace Rentify.Backend.Infraestructure.Identity.Services
 
         public async Task<TokenResponse> RefreshTokenAsync(RefreshTokenCommand refreshTokenCommand)
         {
-            var refreshToken = await _identityContext.RefreshTokens
-                .FirstOrDefaultAsync(x => x.Token == refreshTokenCommand.RefreshToken);
+            string refreshTokenHash = HashRefreshToken(refreshTokenCommand.RefreshToken);
 
-            if (refreshToken == null || !refreshToken.IsActive)
+            var refreshToken = await _identityContext.RefreshTokens
+                .FirstOrDefaultAsync(x => x.Token == refreshTokenHash);
+
+            if (refreshToken == null)
             {
-                throw new ApiException("Invalid refresh token", StatusCodes.Status401Unauthorized);
+                throw new ApiException(
+                    "El refresh token no es válido.",
+                    StatusCodes.Status401Unauthorized,
+                    "INVALID_REFRESH_TOKEN");
+            }
+
+            if (refreshToken.IsExpired)
+            {
+                throw new ApiException(
+                    "Tu refresh token ha vencido.",
+                    StatusCodes.Status401Unauthorized,
+                    "REFRESH_TOKEN_EXPIRED");
+            }
+
+            if (refreshToken.IsRevoked)
+            {
+                if (!string.IsNullOrWhiteSpace(refreshToken.ReplacedByToken))
+                {
+                    await RevokeAllActiveRefreshTokensAsync(refreshToken.UserId);
+                }
+
+                throw new ApiException(
+                    "El refresh token no es válido.",
+                    StatusCodes.Status401Unauthorized,
+                    "INVALID_REFRESH_TOKEN");
             }
 
             var user = await _userManager.FindByIdAsync(refreshToken.UserId);
 
-            if (user == null) throw new ApiException("User not found", StatusCodes.Status404NotFound);
+            if (user == null || !user.IsActive)
+            {
+                throw new ApiException(
+                    "El refresh token no es válido.",
+                    StatusCodes.Status401Unauthorized,
+                    "INVALID_REFRESH_TOKEN");
+            }
 
-            var newRefreshToken = CreateRefreshToken(user.Id);
+            if (!await _tenantRepository.IsTenantActiveAsync(user.TenantId))
+            {
+                throw new ApiException(
+                    "La empresa no está activa, favor contactar al administrador.",
+                    StatusCodes.Status403Forbidden);
+            }
+
+            GeneratedRefreshToken newRefreshToken = CreateRefreshToken(user.Id);
             refreshToken.RevokedAt = DateTime.UtcNow;
-            refreshToken.ReplacedByToken = newRefreshToken.Token;
+            refreshToken.ReplacedByToken = newRefreshToken.Entity.Token;
 
-            await _identityContext.RefreshTokens.AddAsync(newRefreshToken);
+            await _identityContext.RefreshTokens.AddAsync(newRefreshToken.Entity);
             await _identityContext.SaveChangesAsync();
 
             return await GenerateTokenResponseAsync(user, newRefreshToken);
@@ -178,10 +217,18 @@ namespace Rentify.Backend.Infraestructure.Identity.Services
 
         public async Task<bool> RevokeRefreshTokenAsync(RevokeRefreshTokenCommand revokeRefreshTokenCommand)
         {
-            var refreshToken = await _identityContext.RefreshTokens
-                .FirstOrDefaultAsync(x => x.Token == revokeRefreshTokenCommand.RefreshToken);
+            string refreshTokenHash = HashRefreshToken(revokeRefreshTokenCommand.RefreshToken);
 
-            if (refreshToken == null) throw new ApiException("Refresh token not found", StatusCodes.Status404NotFound);
+            var refreshToken = await _identityContext.RefreshTokens
+                .FirstOrDefaultAsync(x => x.Token == refreshTokenHash);
+
+            if (refreshToken == null)
+            {
+                throw new ApiException(
+                    "El refresh token no es válido.",
+                    StatusCodes.Status401Unauthorized,
+                    "INVALID_REFRESH_TOKEN");
+            }
 
             if (!refreshToken.IsRevoked)
             {
@@ -192,32 +239,42 @@ namespace Rentify.Backend.Infraestructure.Identity.Services
             return true;
         }
 
-        private async Task<TokenResponse> GenerateTokenResponseAsync(ApplicationUser user, RefreshToken? refreshToken = null)
+        private async Task<TokenResponse> GenerateTokenResponseAsync(
+            ApplicationUser user,
+            GeneratedRefreshToken? refreshToken = null)
         {
             refreshToken ??= CreateRefreshToken(user.Id);
 
-            if (_identityContext.Entry(refreshToken).State == EntityState.Detached)
+            if (_identityContext.Entry(refreshToken.Entity).State == EntityState.Detached)
             {
-                await _identityContext.RefreshTokens.AddAsync(refreshToken);
+                await _identityContext.RefreshTokens.AddAsync(refreshToken.Entity);
                 await _identityContext.SaveChangesAsync();
             }
 
             var token = await _jwtServices.GenerateSecurityTokenAsync(user);
             var accessTokenExpiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.DurationInMinutes);
 
-            return new TokenResponse(token, accessTokenExpiresAt, refreshToken.Token, refreshToken.ExpiresAt);
+            return new TokenResponse(
+                token,
+                accessTokenExpiresAt,
+                refreshToken.RawToken,
+                refreshToken.Entity.ExpiresAt);
         }
 
-        private RefreshToken CreateRefreshToken(string userId)
+        private GeneratedRefreshToken CreateRefreshToken(string userId)
         {
-            return new RefreshToken
+            string rawToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+
+            RefreshToken refreshToken = new()
             {
                 Id = Guid.NewGuid(),
-                Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
+                Token = HashRefreshToken(rawToken),
                 UserId = userId,
                 CreatedAt = DateTime.UtcNow,
                 ExpiresAt = DateTime.UtcNow.AddDays(GetRefreshTokenDurationInDays())
             };
+
+            return new GeneratedRefreshToken(refreshToken, rawToken);
         }
 
         private async Task RevokeAllActiveRefreshTokensAsync(string userId)
@@ -259,5 +316,17 @@ namespace Rentify.Backend.Infraestructure.Identity.Services
 
             return $"{baseResetPasswordUrl}{separator}email={WebUtility.UrlEncode(email)}&token={WebUtility.UrlEncode(token)}";
         }
+
+        private static string HashRefreshToken(string refreshToken)
+        {
+            byte[] tokenBytes = System.Text.Encoding.UTF8.GetBytes(refreshToken);
+            byte[] hashBytes = SHA256.HashData(tokenBytes);
+
+            return Convert.ToHexString(hashBytes);
+        }
+
+        private sealed record GeneratedRefreshToken(
+            RefreshToken Entity,
+            string RawToken);
     }
 }

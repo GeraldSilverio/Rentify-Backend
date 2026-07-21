@@ -7,7 +7,7 @@ namespace Rentify.Backend.Core.Application.Modules.Secutiry.Commands.RefreshToke
         public RefreshTokenValidator()
         {
             RuleFor(x => x.RefreshToken)
-                .NotEmpty().WithMessage("RefreshToken is required");
+                .NotEmpty().WithMessage("El refresh token es requerido.");
         }
     }
 }
