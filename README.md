@@ -23,9 +23,9 @@ The backend is organized around the following layers:
 
 - `Core.Domain`: business entities, value objects, enums, and domain rules.
 - `Core.Application`: commands, queries, handlers, validators, DTOs, service contracts, and application services.
-- `Infraestructure.Persistence`: EF Core DbContext, entity configurations, repositories, Unit of Work, and migrations.
-- `Infraestructure.Identity`: ASP.NET Core Identity, authentication, authorization, JWT, and refresh token persistence.
-- `Shared`: external service implementations such as email and file storage providers.
+- `Infrastructure.Persistence`: EF Core DbContext, entity configurations, repositories, Unit of Work, and migrations.
+- `Infrastructure.Identity`: ASP.NET Core Identity, authentication, authorization, JWT, and refresh token persistence.
+- `Infrastructure.Shared`: external service implementations such as email and file storage providers.
 - `Presentation.WebApi`: API composition root, dependency registration, middleware, Swagger, and endpoint mapping.
 
 The application layer is organized by business modules:
@@ -68,10 +68,11 @@ DB_DATABASE_NAME=rentify
 DB_USER=postgres
 DB_PASSWORD=your_password
 
-JWT_SECRET_KEY=your_super_secret_key
+JWT_KEY=your_super_secret_key
 JWT_ISSUER=Rentify
-JWT_AUDIENCE=RentifyUsers
-JWT_EXPIRATION_MINUTES=60
+JWT_AUDIENCE=RentifyRentCarService
+JWT_DURATION_IN_MINUTES=60
+JWT_REFRESH_TOKEN_DURATION_IN_DAYS=7
 
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
@@ -80,6 +81,8 @@ CLOUDINARY_API_SECRET=your_api_secret
 RESEND_API_KEY=your_resend_api_key
 EMAIL_FROM=noreply@rentify.app
 EMAIL_FROM_NAME=Rentify
+RENTIFY_DASHBOARD_URL=https://app.rentify.com/dashboard
+SUPPORT_EMAIL=support@rentify.com
 ```
 
 Do not commit `.env` files or provider credentials.
@@ -95,7 +98,7 @@ dotnet restore
 Build the solution:
 
 ```powershell
-dotnet build Rentify.Backend.slnx
+dotnet build Rentify.slnx
 ```
 
 Run the API:
@@ -116,7 +119,7 @@ Create a migration:
 
 ```powershell
 dotnet ef migrations add MigrationName `
-  --project Rentify.Backend/Rentify.Backend.Infraestructure.Persistence/Rentify.Backend.Infraestructure.Persistence.csproj `
+  --project Rentify.Backend/Rentify.Backend.Infrastructure.Persistence/Rentify.Backend.Infrastructure.Persistence.csproj `
   --startup-project Rentify.Backend/Rentify.Backend.Presentation.WebApi/Rentify.Backend.Presentation.WebApi.csproj `
   --context RentifyContext
 ```
@@ -125,7 +128,7 @@ Apply migrations:
 
 ```powershell
 dotnet ef database update `
-  --project Rentify.Backend/Rentify.Backend.Infraestructure.Persistence/Rentify.Backend.Infraestructure.Persistence.csproj `
+  --project Rentify.Backend/Rentify.Backend.Infrastructure.Persistence/Rentify.Backend.Infrastructure.Persistence.csproj `
   --startup-project Rentify.Backend/Rentify.Backend.Presentation.WebApi/Rentify.Backend.Presentation.WebApi.csproj `
   --context RentifyContext
 ```
@@ -136,15 +139,18 @@ Most business endpoints are protected with JWT Bearer authentication. Public end
 
 Key secured endpoint groups include:
 
-- `/api/v1/rent-cars`
-- `/api/v1/vehicle-brands`
-- `/api/v1/tenants/{tenantId}/vehicles`
-- `/api/v1/tenants/{tenantId}/customers`
-- `/api/v1/tenants/{tenantId}/reservations`
-- `/api/v1/tenants/{tenantId}/payments`
-- `/api/v1/tenants/{tenantId}/dashboard/metrics`
+- `/api/v1/vehicles`
+- `/api/v1/vehicles-catalog`
+- `/api/v1/customers`
+- `/api/v1/reservations`
+- `/api/v1/locations`
+- `/api/v1/tenant-locations`
+- `/api/v1/tenant`
+- `/api/v1/admin/tenants`
+- `/api/v1/admin/locations`
 - `/api/v1/emails`
-- `/api/v1/subscriptions`
+- `/api/v1/subscription`
+- `/api/v1/authentication`
 
 ## Design Notes
 

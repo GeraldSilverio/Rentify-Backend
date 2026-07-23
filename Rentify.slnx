@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/Source/" />
+  <Folder Name="/Source/Core/">
+    <Project Path="Rentify.Backend/Rentify.Backend.Core.Application/Rentify.Backend.Core.Application.csproj" />
+    <Project Path="Rentify.Backend/Rentify.Backend.Core.Domain/Rentify.Backend.Core.Domain.csproj" />
+  </Folder>
+  <Folder Name="/Source/Infrastructure/">
+    <Project Path="Rentify.Backend/Rentify.Backend.Infrastructure.Identity/Rentify.Backend.Infrastructure.Identity.csproj" />
+    <Project Path="Rentify.Backend/Rentify.Backend.Infrastructure.Persistence/Rentify.Backend.Infrastructure.Persistence.csproj" />
+    <Project Path="Rentify.Backend/Rentify.Backend.Infrastructure.Shared/Rentify.Backend.Infrastructure.Shared.csproj" />
+  </Folder>
+  <Folder Name="/Source/Presentation/">
+    <Project Path="Rentify.Backend/Rentify.Backend.Presentation.WebApi/Rentify.Backend.Presentation.WebApi.csproj" />
+  </Folder>
+</Solution>
