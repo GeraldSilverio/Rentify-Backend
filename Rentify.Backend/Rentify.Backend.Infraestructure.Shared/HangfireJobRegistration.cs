@@ -1,7 +1,6 @@
 ﻿using Hangfire;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Rentify.Backend.Core.Application.Modules.Shared.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,12 +18,28 @@ namespace Rentify.Backend.Infraestructure.Shared
             IRecurringJobManager recurringJobManager =
                 scope.ServiceProvider.GetRequiredService<IRecurringJobManager>();
 
-            recurringJobManager.AddOrUpdate<IOutboxProcessor>(
+            recurringJobManager.AddOrUpdate<OutboxProcessingJob>(
                 "process-outbox-messages",
-                processor => processor.ProcessPendingMessagesAsync(CancellationToken.None),
+                job => job.ProcessPendingMessagesAsync(),
                 Cron.Minutely);
 
             return app;
+        }
+    }
+
+    public sealed class OutboxProcessingJob
+    {
+        private readonly Rentify.Backend.Core.Application.Modules.Shared.Contracts.IOutboxProcessor _outboxProcessor;
+
+        public OutboxProcessingJob(Rentify.Backend.Core.Application.Modules.Shared.Contracts.IOutboxProcessor outboxProcessor)
+        {
+            _outboxProcessor = outboxProcessor;
+        }
+
+        [DisableConcurrentExecution(timeoutInSeconds: 300)]
+        public Task ProcessPendingMessagesAsync()
+        {
+            return _outboxProcessor.ProcessPendingMessagesAsync();
         }
     }
 }

@@ -8,6 +8,8 @@ namespace Rentify.Backend.Core.Application.Modules.Reservations.Commands.UpdateR
 public sealed record UpdateReservationCommand(
     Guid TenantId,
     Guid ReservationId,
+    Guid CustomerId,
+    Guid VehicleId,
     DateTime DeliveryDateTime,
     DateTime ExpectedReturnDateTime,
     RentalType RentalType,
@@ -21,4 +23,5 @@ public sealed record UpdateReservationCommand(
     decimal ReturnFee,
     decimal DiscountAmount,
     string? Notes,
-    string ModifiedBy) : IRequest<ResultReponse<ReservationResponse>>;
+    string ModifiedBy
+) : IRequest<ResultReponse<ReservationResponse>>;

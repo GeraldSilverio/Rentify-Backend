@@ -60,6 +60,7 @@ namespace Rentify.Backend.Infraestructure.Persistence
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ISubscriptionPlanRepository, SubscriptionPlanRepository>();
             services.AddScoped<IVehicleRepository, VehicleRepository>();
+            services.AddScoped<IVehicleUnavailableDateRepository, VehicleUnavailableDateRepository>();
             services.AddScoped<IVehicleCatalogRepository, VehicleCatalogRepository>();
             services.AddScoped<ICustomerRepository, CustomerRepository>();
             services.AddScoped<ILocationRepository, LocationRepository>();

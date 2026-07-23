@@ -6,6 +6,7 @@ using Rentify.Backend.Core.Application.Modules.Emails.Dtos;
 using Rentify.Backend.Core.Application.Modules.Shared.Exceptions;
 using Rentify.Backend.Core.Application.Modules.Shared.Helpers;
 using Rentify.Backend.Core.Domain.Enums;
+using System.Text.Encodings.Web;
 
 namespace Rentify.Backend.Core.Application.Modules.Emails.Implementations.Services
 {
@@ -40,7 +41,7 @@ namespace Rentify.Backend.Core.Application.Modules.Emails.Implementations.Servic
 
             var variables = command.Variables ?? new Dictionary<string, string>();
             var subject = RenderTemplate(emailTemplate.Subject, variables);
-            var htmlBody = RenderTemplate(emailTemplate.HtmlBody, variables);
+            var htmlBody = RenderHtmlTemplate(emailTemplate.HtmlBody, variables);
             var textBody = emailTemplate.TextBody == null ? null : RenderTemplate(emailTemplate.TextBody, variables);
 
             var messageId = await emailProviderSender.SendAsync(
@@ -48,7 +49,7 @@ namespace Rentify.Backend.Core.Application.Modules.Emails.Implementations.Servic
                     ReadFromConfiguration.GetValueFromConfig("RESEND_API_KEY"),
                     ReadFromConfiguration.GetValueFromConfig("EMAIL_FROM"),
                     ReadFromConfiguration.GetValueFromConfig("EMAIL_FROM_NAME"),
-                    variables.TryGetValue("OwnerEmail", out var ownerEmail) ? ownerEmail : "",
+                    command.To,
                     subject,
                     htmlBody,
                     textBody),
@@ -67,6 +68,15 @@ namespace Rentify.Backend.Core.Application.Modules.Emails.Implementations.Servic
             }
 
             return template;
+        }
+
+        private static string RenderHtmlTemplate(string template, Dictionary<string, string> variables)
+        {
+            Dictionary<string, string> encodedVariables = variables.ToDictionary(
+                variable => variable.Key,
+                variable => HtmlEncoder.Default.Encode(variable.Value));
+
+            return RenderTemplate(template, encodedVariables);
         }
     }
 }

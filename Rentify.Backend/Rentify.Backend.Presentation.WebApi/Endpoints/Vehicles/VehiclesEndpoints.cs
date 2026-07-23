@@ -8,6 +8,7 @@ using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.UpdateVehicle;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Commands.UploadVehicleImage;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Queries.GetVehicleDetail;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Queries.GetVehicleImages;
+using Rentify.Backend.Core.Application.Modules.Vehicles.Queries.GetVehicleUnavailablePeriods;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Queries.GetVehicles;
 using Rentify.Backend.Core.Domain.Enums;
 
@@ -150,6 +151,33 @@ namespace Rentify.Backend.Presentation.WebApi.Endpoints.Vehicles
             }).WithName("GetVehicleImages")
             .WithSummary("Gets a vehicle images for the authenticated tenant.")
             .WithDescription("This endpoint retrieves the images associated with a specific vehicle for the authenticated tenant.");
+
+            group.MapGet("/{vehicleId:guid}/unavailable-periods", async (
+                Guid vehicleId,
+                DateOnly? fromDate,
+                DateOnly? toDate,
+                ICurrentRequestContext currentRequestContext,
+                ISender sender,
+                CancellationToken cancellationToken) =>
+            {
+                GetVehicleUnavailablePeriodsQuery query = new(
+                    currentRequestContext.TenantId,
+                    vehicleId,
+                    fromDate,
+                    toDate);
+
+                return Results.Ok(await sender.Send(query, cancellationToken));
+            })
+            .WithName("GetVehicleUnavailablePeriods")
+            .WithSummary("Obtiene los periodos no disponibles de un vehículo.")
+            .WithDescription("Devuelve los intervalos activos durante los cuales el vehículo no puede ser reservado.")
+            .Produces(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden)
+            .Produces(StatusCodes.Status404NotFound)
+            .Produces(StatusCodes.Status500InternalServerError)
+            .RequireAuthorization(AuthorizationPolicies.RequiredRoles);
             #endregion
 
             #region PUTS

@@ -39,8 +39,6 @@ namespace Rentify.Backend.Infraestructure.Shared.Services
             {
                 await ProcessMessageAsync(message, cancellationToken);
             }
-
-            await _context.SaveChangesAsync(cancellationToken);
         }
 
         private async Task ProcessMessageAsync(
@@ -56,10 +54,12 @@ namespace Rentify.Backend.Infraestructure.Shared.Services
                 }
 
                 message.MarkAsProcessing(SystemUser);
+                await _context.SaveChangesAsync(cancellationToken);
 
                 await handler.HandleAsync(message.Payload, cancellationToken);
 
                 message.MarkAsProcessed(SystemUser);
+                await _context.SaveChangesAsync(cancellationToken);
             }
             catch (OperationCanceledException)
             {
@@ -74,6 +74,7 @@ namespace Rentify.Backend.Infraestructure.Shared.Services
                     message.Type);
 
                 message.MarkAsFailed(ex.Message, SystemUser);
+                await _context.SaveChangesAsync(cancellationToken);
             }
         }
     }

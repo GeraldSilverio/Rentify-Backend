@@ -8,6 +8,7 @@ namespace Rentify.Backend.Core.Application.Modules.Vehicles.Contracts.Repositori
 public interface IVehicleRepository
 {
     Task AddAsync(Vehicle vehicle, CancellationToken cancellationToken = default);
+    Task AddUnavailableDateAsync(VehicleUnavailableDate vehicleUnavailableDate, CancellationToken cancellationToken = default);
     Task<PaginatedResponse<VehicleListItemResponse>> GetPagedAsync(GetVehiclesQuery query, CancellationToken cancellationToken = default);
     Task<VehicleDetailResponse?> GetDetailAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default);
     Task<Vehicle?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default);

@@ -243,6 +243,12 @@ public sealed class VehicleRepository : IVehicleRepository
                  && (!excludedVehicleId.HasValue || x.Id != excludedVehicleId.Value),
             cancellationToken);
     }
+
+    public async Task AddUnavailableDateAsync(VehicleUnavailableDate vehicleUnavailableDate, CancellationToken cancellationToken = default)
+    {
+        await _context.VehicleUnavailableDates.AddAsync(vehicleUnavailableDate, cancellationToken);
+    }
+
     private sealed record ActiveRentalProjection(
         Guid VehicleId,
         Guid ReservationId,

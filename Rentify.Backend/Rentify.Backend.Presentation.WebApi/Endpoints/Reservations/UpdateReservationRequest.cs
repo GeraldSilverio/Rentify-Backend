@@ -3,6 +3,8 @@ using Rentify.Backend.Core.Domain.Enums;
 namespace Rentify.Backend.Presentation.WebApi.Endpoints.Reservations;
 
 public sealed record UpdateReservationRequest(
+    Guid CustomerId,
+    Guid VehicleId,
     DateTime DeliveryDateTime,
     DateTime ExpectedReturnDateTime,
     RentalType RentalType,

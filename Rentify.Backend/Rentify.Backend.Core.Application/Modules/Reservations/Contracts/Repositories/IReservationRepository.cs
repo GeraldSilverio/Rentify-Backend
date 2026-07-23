@@ -1,5 +1,6 @@
 using Rentify.Backend.Core.Application.Modules.Reservations.Queries.GetReservationById;
 using Rentify.Backend.Core.Application.Modules.Reservations.Queries.GetReservations;
+using Rentify.Backend.Core.Application.Modules.Reservations.Dtos;
 using Rentify.Backend.Core.Application.Modules.Shared.Response;
 using Rentify.Backend.Core.Domain.Entities.Reservations;
 
@@ -13,6 +14,11 @@ public interface IReservationRepository
         CancellationToken cancellationToken = default);
 
     Task<ReservationDetailsResponse?> GetDetailsAsync(
+        Guid tenantId,
+        Guid reservationId,
+        CancellationToken cancellationToken = default);
+
+    Task<ReservationApprovedEmailData?> GetApprovedEmailDataAsync(
         Guid tenantId,
         Guid reservationId,
         CancellationToken cancellationToken = default);

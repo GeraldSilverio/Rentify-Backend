@@ -145,6 +145,8 @@ public sealed class Reservation : BaseEntity
     }
 
     public void UpdatePendingReservation(
+        Guid customerId,
+        Guid vehicleId,
         DateTime deliveryDateTime,
         DateTime expectedReturnDateTime,
         RentalType rentalType,

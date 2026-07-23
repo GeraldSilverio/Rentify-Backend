@@ -188,4 +188,14 @@ public sealed class CustomerRepository : ICustomerRepository
              && (!excludedCustomerId.HasValue || customer.Id != excludedCustomerId.Value),
              cancellationToken);
     }
+
+    public Task<bool> ExistCustomerByIdAsync(Guid tenantId, Guid customerId, CancellationToken cancellationToken = default)
+    {
+        return _context.Customers.AnyAsync(
+            customer =>
+                customer.TenantId == tenantId
+                && customer.Id == customerId
+                && !customer.IsDeleted,
+            cancellationToken);
+    }
 }

@@ -11,6 +11,7 @@ using Rentify.Backend.Core.Application.Modules.Vehicles.Contracts.Services;
 using Rentify.Backend.Infraestructure.Shared.Emailing;
 using Rentify.Backend.Infraestructure.Shared.Services;
 using Rentify.Backend.Infraestructure.Shared.Services.OutBox;
+using Rentify.Backend.Infraestructure.Shared;
 using Rentify.Backend.Shared.Storage;
 
 namespace Rentify.Backend.Shared;
@@ -59,6 +60,8 @@ public static class ServiceRegistration
         services.AddScoped<IOutboxService, OutboxService>();
         services.AddScoped<IOutboxProcessor, OutboxProcessor>();
         services.AddScoped<IOutboxMessageHandler, TenantRegisteredOutboxHandler>();
+        services.AddScoped<IOutboxMessageHandler, ApproveReservationOutBoxHandler>();
+        services.AddScoped<OutboxProcessingJob>();
 
         return services;
     }

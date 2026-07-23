@@ -56,7 +56,6 @@ public static class ServiceRegistration
         services.AddScoped<IReservationCodeGenerator, ReservationCodeGenerator>();
         services.AddScoped<IReservationLocationResolver, ReservationLocationResolver>();
         services.AddScoped<IReservationVehicleResolver, ReservationVehicleResolver>();
-        services.AddScoped<IReservationCustomerValidator, ReservationCustomerValidator>();
         services.AddScoped<IPaymentService, PaymentService>();
         services.AddScoped<ITenantService, TenantService>();
         services.AddScoped<ITenantAccessService, TenantAccessService>();

@@ -16,7 +16,7 @@ public interface ICustomerRepository
     Task<bool> IdentificationExistsAsync(Guid tenantId, IdentificationType identificationType, string identificationNumberNormalized, Guid? excludedCustomerId, CancellationToken cancellationToken = default);
     Task<CustomerDetailsResponse?> GetDetailsAsync(Guid tenantId, Guid customerId, CancellationToken cancellationToken = default);
     Task<PaginatedResponse<CustomerResponse>> SearchAsync(SearchCustomersQuery query, CancellationToken cancellationToken = default);
-
+    Task<bool> ExistCustomerByIdAsync(Guid tenantId, Guid customerId, CancellationToken cancellationToken = default);
     Task<bool> EmailExistsAsync(Guid tenantId, string email, CancellationToken cancellationToken = default);
     Task<bool> EmailExistsAsync(Guid tenantId, string email, Guid? excludedCustomerId, CancellationToken cancellationToken = default);
 }

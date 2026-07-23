@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="e488a3fd-addc-4eec-abc2-571cfc77ca92" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/Rentify.Backend.Core.Application/Modules/Customers/Contracts/Repositories/ICustomerRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Rentify.Backend.Core.Application/Modules/Customers/Contracts/Repositories/ICustomerRepository.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Rentify.Backend.Core.Application/Modules/Emails/Implementations/Services/EmailService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Rentify.Backend.Core.Application/Modules/Emails/Implementations/Services/EmailService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Rentify.Backend.Core.Application/Modules/Reservations/Commands/ApproveReservation/ApproveReservationCommandHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Rentify.Backend.Core.Application/Modules/Reservations/Commands/ApproveReservation/ApproveReservationCommandHandler.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Rentify.Backend.Core.Application/Modules/Reservations/Commands/CreateReservation/CreateReservationCommandHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Rentify.Backend.Core.Application/Modules/Reservations/Commands/CreateReservation/CreateReservationCommandHandler.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Rentify.Backend.Core.Application/Modules/Reservations/Commands/UpdateReservation/UpdateReservationCommand.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Rentify.Backend.Core.Application/Modules/Reservations/Commands/UpdateReservation/UpdateReservationCommand.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Rentify.Backend.Core.Application/Modules/Reservations/Commands/UpdateReservation/UpdateReservationCommandHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Rentify.Backend.Core.Application/Modules/Reservations/Commands/UpdateReservation/UpdateReservationCommandHandler.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Rentify.Backend.Core.Application/Modules/Reservations/Contracts/Repositories/IReservationRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Rentify.Backend.Core.Application/Modules/Reservations/Contracts/Repositories/IReservationRepository.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Rentify.Backend.Core.Application/Modules/Reservations/Contracts/Services/IReservationCustomerValidator.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Rentify.Backend.Core.Application/Modules/Reservations/Services/ReservationCustomerValidator.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Rentify.Backend.Core.Application/Modules/Secutiry/EmailTemplateCodes.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Rentify.Backend.Core.Application/Modules/Secutiry/EmailTemplateCodes.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Rentify.Backend.Core.Application/Modules/Vehicles/Contracts/Repositories/IVehicleRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Rentify.Backend.Core.Application/Modules/Vehicles/Contracts/Repositories/IVehicleRepository.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Rentify.Backend.Core.Application/Modules/Vehicles/Contracts/Services/IVehicleService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Rentify.Backend.Core.Application/Modules/Vehicles/Contracts/Services/IVehicleService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Rentify.Backend.Core.Application/Modules/Vehicles/Implementations/Services/VehicleService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Rentify.Backend.Core.Application/Modules/Vehicles/Implementations/Services/VehicleService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Rentify.Backend.Core.Application/ServiceRegistration.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Rentify.Backend.Core.Application/ServiceRegistration.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Rentify.Backend.Core.Domain/Constants/OutBoxMessageTypes.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Rentify.Backend.Core.Domain/Constants/OutBoxMessageTypes.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Rentify.Backend.Core.Domain/Entities/Reservations/Reservation.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Rentify.Backend.Core.Domain/Entities/Reservations/Reservation.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Rentify.Backend.Core.Domain/Entities/Vehicles/Vehicle.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Rentify.Backend.Core.Domain/Entities/Vehicles/Vehicle.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Rentify.Backend.Core.Domain/Entities/Vehicles/VehicleUnavailableDate.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Rentify.Backend.Core.Domain/Entities/Vehicles/VehicleUnavailableDate.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Rentify.Backend.Infraestructure.Persistence/EntityConfiguration/Vehicles/VehicleUnavailableDateConfiguration.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Rentify.Backend.Infraestructure.Persistence/EntityConfiguration/Vehicles/VehicleUnavailableDateConfiguration.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Rentify.Backend.Infraestructure.Persistence/Repositories/Core/CustomerRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Rentify.Backend.Infraestructure.Persistence/Repositories/Core/CustomerRepository.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Rentify.Backend.Infraestructure.Persistence/Repositories/Core/ReservationRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Rentify.Backend.Infraestructure.Persistence/Repositories/Core/ReservationRepository.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Rentify.Backend.Infraestructure.Persistence/Repositories/Vehicules/VehicleRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Rentify.Backend.Infraestructure.Persistence/Repositories/Vehicules/VehicleRepository.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Rentify.Backend.Infraestructure.Persistence/ServiceRegistration.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Rentify.Backend.Infraestructure.Persistence/ServiceRegistration.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Rentify.Backend.Infraestructure.Shared/HangfireJobRegistration.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Rentify.Backend.Infraestructure.Shared/HangfireJobRegistration.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Rentify.Backend.Infraestructure.Shared/ServiceRegistration.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Rentify.Backend.Infraestructure.Shared/ServiceRegistration.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Rentify.Backend.Infraestructure.Shared/Services/OutboxProcessor.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Rentify.Backend.Infraestructure.Shared/Services/OutboxProcessor.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Rentify.Backend.Presentation.WebApi/Endpoints/Reservations/ReservationsEndpoints.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Rentify.Backend.Presentation.WebApi/Endpoints/Reservations/ReservationsEndpoints.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Rentify.Backend.Presentation.WebApi/Endpoints/Reservations/UpdateReservationRequest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Rentify.Backend.Presentation.WebApi/Endpoints/Reservations/UpdateReservationRequest.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Rentify.Backend.Presentation.WebApi/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Rentify.Backend.Presentation.WebApi/Program.cs" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectId" id="3Gv7B1ap4FuKamcBWRfi45082we" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "cidr.known.project.marker": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "settings.editor.selected.configurable": "preferences.pluginManager"
+  }
+}]]></component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="e488a3fd-addc-4eec-abc2-571cfc77ca92" name="Changes" comment="" />
+      <created>1784840052038</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1784840052038</updated>
+      <workItem from="1784840056253" duration="4000" />
+    </task>
+    <servers />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <breakpoint enabled="true" type="DotNet_Exception_Breakpoints">
+          <properties exception="System.OperationCanceledException" breakIfHandledByOtherCode="false" displayValue="System.OperationCanceledException" />
+          <option name="timeStamp" value="1" />
+        </breakpoint>
+        <breakpoint enabled="true" type="DotNet_Exception_Breakpoints">
+          <properties exception="System.Threading.Tasks.TaskCanceledException" breakIfHandledByOtherCode="false" displayValue="System.Threading.Tasks.TaskCanceledException" />
+          <option name="timeStamp" value="2" />
+        </breakpoint>
+        <breakpoint enabled="true" type="DotNet_Exception_Breakpoints">
+          <properties exception="System.Threading.ThreadAbortException" breakIfHandledByOtherCode="false" displayValue="System.Threading.ThreadAbortException" />
+          <option name="timeStamp" value="3" />
+        </breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>

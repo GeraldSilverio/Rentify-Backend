@@ -138,6 +138,8 @@ public static class ReservationsEndpoints
                 UpdateReservationCommand command = new(
                     context.TenantId,
                     reservationId,
+                    request.CustomerId,
+                    request.VehicleId,
                     request.DeliveryDateTime,
                     request.ExpectedReturnDateTime,
                     request.RentalType,

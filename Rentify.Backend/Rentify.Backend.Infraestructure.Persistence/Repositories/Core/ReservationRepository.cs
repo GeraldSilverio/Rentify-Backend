@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Reservations.Queries.GetReservationById;
 using Rentify.Backend.Core.Application.Modules.Reservations.Queries.GetReservations;
+using Rentify.Backend.Core.Application.Modules.Reservations.Dtos;
 using Rentify.Backend.Core.Application.Modules.Shared.Response;
 using Rentify.Backend.Core.Domain.Entities.Reservations;
 using Rentify.Backend.Core.Domain.Enums;
@@ -250,6 +251,50 @@ public sealed class ReservationRepository : IReservationRepository
                 reservation.Notes,
                 reservation.CreatedDate,
                 reservation.ModifiedDate))
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public Task<ReservationApprovedEmailData?> GetApprovedEmailDataAsync(
+        Guid tenantId,
+        Guid reservationId,
+        CancellationToken cancellationToken = default)
+    {
+        return (
+            from reservation in _context.Reservations.AsNoTracking()
+            join tenant in _context.Tenants.AsNoTracking() on reservation.TenantId equals tenant.Id
+            where reservation.TenantId == tenantId
+                && reservation.Id == reservationId
+                && reservation.Status == ReservationStatus.Approved
+                && !reservation.IsDeleted
+                && !reservation.Customer.IsDeleted
+                && !reservation.Vehicle.IsDeleted
+                && !tenant.IsDeleted
+            select new ReservationApprovedEmailData(
+                reservation.Customer.FirstName,
+                reservation.Customer.Email,
+                tenant.Name,
+                tenant.PhoneNumber,
+                tenant.WhatsApp,
+                tenant.Email,
+                reservation.Code,
+                reservation.ApprovedAt ?? reservation.ModifiedDate,
+                reservation.Vehicle.VehicleBrand.Name,
+                reservation.Vehicle.VehicleModel.Name,
+                reservation.Vehicle.Year,
+                reservation.RentalType,
+                reservation.Quantity,
+                reservation.DeliveryDateTime,
+                reservation.ExpectedReturnDateTime,
+                reservation.DeliveryLocationName,
+                reservation.ReturnLocationName,
+                reservation.UnitRate,
+                reservation.RentalAmount,
+                reservation.DeliveryFee,
+                reservation.ReturnFee,
+                reservation.SecurityDepositRequired,
+                reservation.SecurityDepositAmount,
+                reservation.DiscountAmount,
+                reservation.TotalAmount))
             .FirstOrDefaultAsync(cancellationToken);
     }
 }

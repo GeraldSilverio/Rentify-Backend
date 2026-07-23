@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Rentify.Backend.Core.Application.Modules.Customers.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Reservations.Dtos;
@@ -7,6 +8,7 @@ using Rentify.Backend.Core.Application.Modules.Reservations.Mappers;
 using Rentify.Backend.Core.Application.Modules.Shared.Exceptions;
 using Rentify.Backend.Core.Application.Modules.Shared.Response;
 using Rentify.Backend.Core.Application.Modules.Shared.UnitOfWork;
+using Rentify.Backend.Core.Domain.Entities.Customers;
 using Rentify.Backend.Core.Domain.Entities.Reservations;
 using Rentify.Backend.Core.Domain.Entities.Vehicles;
 
@@ -19,23 +21,36 @@ public sealed class UpdateReservationCommandHandler
     private readonly IReservationVehicleResolver _vehicleResolver;
     private readonly IReservationLocationResolver _locationResolver;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ICustomerRepository _customerRepository;
 
     public UpdateReservationCommandHandler(
         IReservationRepository reservationRepository,
         IReservationVehicleResolver vehicleResolver,
         IReservationLocationResolver locationResolver,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ICustomerRepository customerRepository)
     {
         _reservationRepository = reservationRepository;
         _vehicleResolver = vehicleResolver;
         _locationResolver = locationResolver;
         _unitOfWork = unitOfWork;
+        _customerRepository = customerRepository;
     }
 
     public async Task<ResultReponse<ReservationResponse>> Handle(
         UpdateReservationCommand request,
         CancellationToken cancellationToken)
     {
+        bool existsCustomer =
+            await _customerRepository.ExistCustomerByIdAsync(
+                request.TenantId,
+                request.CustomerId,
+                cancellationToken);
+
+        if (!existsCustomer) throw new ApiException(
+            "Cliente no encontrado.",
+            StatusCodes.Status404NotFound);
+
         Reservation reservation =
             await _reservationRepository.GetByIdAsync(
                 request.TenantId,
@@ -75,6 +90,8 @@ public sealed class UpdateReservationCommandHandler
             request.RentalType);
 
         reservation.UpdatePendingReservation(
+            request.CustomerId,
+            request.VehicleId,
             request.DeliveryDateTime,
             request.ExpectedReturnDateTime,
             request.RentalType,

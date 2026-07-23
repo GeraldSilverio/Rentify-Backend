@@ -10,6 +10,7 @@ namespace Rentify.Backend.Core.Application.Modules.Shared.Constants
     {
         public const string TenantRegistered = "tenant.registered";
         public const string ReservationCreated = "reservation.created";
+        public const string ReservationApproved = "reservation.approved";
         public const string PaymentUploaded = "payment.uploaded";
         public const string PaymentConfirmed = "payment.confirmed";
         public const string PaymentOverdue = "payment.overdue";

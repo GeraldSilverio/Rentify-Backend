@@ -4,5 +4,6 @@ namespace Rentify.Backend.Core.Application.Modules.Secutiry
     {
         public const string PasswordReset = "PASSWORD_RESET";
         public const string OwnerWelcome = "OWNER_WELCOME";
+        public const string ReservationApproved = "RESERVATION_APPROVED";
     }
 }
