@@ -19,14 +19,36 @@ using Rentify.Backend.Presentation.WebApi.Endpoints.Reservations;
 using Rentify.Backend.Presentation.WebApi.Endpoints.Tenants;
 using Rentify.Backend.Presentation.WebApi.Endpoints.Vehicles;
 using Rentify.Backend.Presentation.WebApi.Extensions;
+using Rentify.Backend.Presentation.WebApi.Logging;
+using Rentify.Backend.Presentation.WebApi.Middlewares;
 using Rentify.Backend.Presentation.WebApi.Services;
 using Rentify.Backend.Shared;
 using Rentify.Backend.Shared.Configuration;
+using Serilog;
+using Serilog.Events;
+using Serilog.Formatting.Compact;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 
-var builder = WebApplication.CreateBuilder(args);
+Log.Logger = new LoggerConfiguration()
+    .Enrich.FromLogContext()
+    .WriteTo.Console(new CompactJsonFormatter())
+    .CreateBootstrapLogger();
+
+try
+{
+Log.Information("Starting Rentify Backend");
+
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 EnvFileLoader.LoadFromNearest(builder.Environment.ContentRootPath);
+SerilogConfiguration.EnsureFileSinkDirectories(
+    builder.Configuration,
+    builder.Environment.ContentRootPath);
+
+builder.Services.AddSerilog((services, configuration) => configuration
+    .ReadFrom.Configuration(builder.Configuration)
+    .ReadFrom.Services(services)
+    .Enrich.FromLogContext());
 
 builder.Services.AddControllers(options =>
 {
@@ -83,7 +105,14 @@ builder.Services.AddRateLimiter(options =>
     });
 });
 
-var app = builder.Build();
+WebApplication app = builder.Build();
+
+app.Lifetime.ApplicationStarted.Register(() => Log.Information(
+    "Rentify Backend started in {Environment}",
+    app.Environment.EnvironmentName));
+app.Lifetime.ApplicationStopping.Register(() => Log.Information(
+    "Rentify Backend is shutting down in {Environment}",
+    app.Environment.EnvironmentName));
 
 using (var scope = app.Services.CreateScope())
 {
@@ -94,6 +123,25 @@ using (var scope = app.Services.CreateScope())
     await DefaultUser.CreateUser(userManager);
 }
 
+app.UseMiddleware<CorrelationIdMiddleware>();
+app.UseSerilogRequestLogging(options =>
+{
+    options.MessageTemplate =
+        "HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms";
+    options.GetLevel = (httpContext, _, exception) =>
+    {
+        if (exception is not null
+            || httpContext.Response.StatusCode >= StatusCodes.Status500InternalServerError)
+        {
+            return LogEventLevel.Error;
+        }
+
+        return httpContext.Response.StatusCode >= StatusCodes.Status400BadRequest
+            ? LogEventLevel.Warning
+            : LogEventLevel.Information;
+    };
+    options.EnrichDiagnosticContext = HttpLogContextEnricher.Enrich;
+});
 app.UseErrorHandlingMiddleware();
 
 app.UseHttpsRedirection();
@@ -141,5 +189,20 @@ app.MapSubscriptionEndpoints();
 app.MapTenantEndpoints();
 #endregion
 
-app.Run();
+await app.RunAsync();
+Log.Information("Rentify Backend stopped");
+}
+catch (Exception exception)
+{
+    Log.Fatal(exception, "Rentify Backend terminated unexpectedly");
+    throw;
+}
+finally
+{
+    await Log.CloseAndFlushAsync();
+}
+
+public partial class Program
+{
+}
 
