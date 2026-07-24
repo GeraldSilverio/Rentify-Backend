@@ -48,6 +48,11 @@ namespace Rentify.Backend.Infraestructure.Shared
         {
             string? jobId = context?.BackgroundJob?.Id;
             Stopwatch stopwatch = Stopwatch.StartNew();
+            using IDisposable? jobScope = _logger.BeginScope(new Dictionary<string, object?>
+            {
+                ["JobId"] = jobId,
+                ["JobType"] = nameof(OutboxProcessingJob)
+            });
 
             _logger.LogInformation(
                 "Hangfire job {JobType} started with Job {JobId}",
