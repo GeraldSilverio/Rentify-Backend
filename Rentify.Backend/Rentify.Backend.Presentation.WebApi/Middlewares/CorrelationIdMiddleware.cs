@@ -39,6 +39,9 @@ public sealed class CorrelationIdMiddleware
         using IDisposable traceIdentifierScope = LogContext.PushProperty("TraceIdentifier", context.TraceIdentifier);
         using IDisposable traceIdScope = LogContext.PushProperty("TraceId", traceId);
         using IDisposable connectionScope = LogContext.PushProperty("ConnectionId", context.Connection.Id);
+        using IDisposable hostScope = LogContext.PushProperty("RequestHost", context.Request.Host.Value);
+        using IDisposable schemeScope = LogContext.PushProperty("RequestScheme", context.Request.Scheme);
+        using IDisposable protocolScope = LogContext.PushProperty("RequestProtocol", context.Request.Protocol);
 
         _logger.LogInformation(
             "HTTP request started {RequestMethod} {RequestPath}",

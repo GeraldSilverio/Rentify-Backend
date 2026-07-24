@@ -25,7 +25,6 @@ using Rentify.Backend.Presentation.WebApi.Services;
 using Rentify.Backend.Shared;
 using Rentify.Backend.Shared.Configuration;
 using Serilog;
-using Serilog.Events;
 using Serilog.Formatting.Compact;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
@@ -124,24 +123,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseMiddleware<CorrelationIdMiddleware>();
-app.UseSerilogRequestLogging(options =>
-{
-    options.MessageTemplate =
-        "HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms";
-    options.GetLevel = (httpContext, _, exception) =>
-    {
-        if (exception is not null
-            || httpContext.Response.StatusCode >= StatusCodes.Status500InternalServerError)
-        {
-            return LogEventLevel.Error;
-        }
-
-        return httpContext.Response.StatusCode >= StatusCodes.Status400BadRequest
-            ? LogEventLevel.Warning
-            : LogEventLevel.Information;
-    };
-    options.EnrichDiagnosticContext = HttpLogContextEnricher.Enrich;
-});
+app.UseSerilogRequestLogging(RequestLoggingConfiguration.Configure);
 app.UseErrorHandlingMiddleware();
 
 app.UseHttpsRedirection();
