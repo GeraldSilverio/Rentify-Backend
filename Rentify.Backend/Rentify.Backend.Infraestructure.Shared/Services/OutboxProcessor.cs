@@ -26,7 +26,7 @@ namespace Rentify.Backend.Infraestructure.Shared.Services
 
         public async Task ProcessPendingMessagesAsync(CancellationToken cancellationToken = default)
         {
-            List<OutboxMessage> messages = await _context.OutboxMessages
+          List<OutboxMessage> messages = await _context.OutboxMessages
                 .Where(x =>
                     x.Status == OutboxMessageStatus.Pending &&
                     !x.IsDeleted &&

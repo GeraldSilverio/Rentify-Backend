@@ -9,6 +9,7 @@ using Rentify.Backend.Core.Application.Modules.Reservations.Events;
 using Rentify.Backend.Core.Application.Modules.Secutiry;
 using Rentify.Backend.Core.Application.Modules.Shared.Constants;
 using Rentify.Backend.Core.Application.Modules.Shared.Contracts;
+using Rentify.Backend.Core.Application.Modules.Shared.Helpers;
 using Rentify.Backend.Core.Domain.Enums;
 
 namespace Rentify.Backend.Infraestructure.Shared.Services.OutBox;
@@ -85,12 +86,12 @@ internal sealed class ApproveReservationOutBoxHandler : IOutboxMessageHandler
             ["CustomerFirstName"] = data.CustomerFirstName,
             ["TenantName"] = data.TenantName,
             ["ReservationCode"] = data.ReservationCode,
-            ["ApprovedAt"] = FormatDate(data.ApprovedAtUtc),
+            ["ApprovedAt"] = EmailDateFormatter.FormatDate(data.ApprovedAtUtc),
             ["VehicleDescription"] = $"{data.VehicleBrandName} {data.VehicleModelName} {data.VehicleYear}",
             ["RentalType"] = rentalType,
             ["RentalPeriod"] = FormatRentalPeriod(data.Quantity, data.RentalType),
-            ["DeliveryDateTime"] = FormatDate(data.DeliveryDateTime),
-            ["ExpectedReturnDateTime"] = FormatDate(data.ExpectedReturnDateTime),
+            ["DeliveryDateTime"] = EmailDateFormatter.FormatDate(data.DeliveryDateTime),
+            ["ExpectedReturnDateTime"] = EmailDateFormatter.FormatDate(data.ExpectedReturnDateTime),
             ["DeliveryLocation"] = data.DeliveryLocation,
             ["ReturnLocation"] = data.ReturnLocation,
             ["UnitRate"] = FormatMoney(data.UnitRate),
@@ -108,8 +109,6 @@ internal sealed class ApproveReservationOutBoxHandler : IOutboxMessageHandler
     }
 
     private static string FormatMoney(decimal amount) => $"RD$ {amount.ToString("N2", DominicanCulture)}";
-
-    private static string FormatDate(DateTime value) => value.ToString("dd 'de' MMMM 'de' yyyy, hh:mm tt", DominicanCulture).Replace("a. m.", "a. m.").Replace("p. m.", "p. m.");
 
     private static string TranslateRentalType(RentalType rentalType) => rentalType switch
     {

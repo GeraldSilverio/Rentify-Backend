@@ -169,7 +169,7 @@ public static class ReservationsEndpoints
                 ApproveReservationCommand command = new(
                     context.TenantId,
                     reservationId,
-                    context.ModifiedBy);
+                    context.UserName);
 
                 return Results.Ok(await sender.Send(command, cancellationToken));
             });
