@@ -860,3 +860,85 @@ Al finalizar una tarea:
 - Enumera cada commit creado con su hash corto y mensaje.
 - Confirma que no se ejecutó `git push`.
 - Cuando muestres código en la conversación, presenta archivos completos, no fragmentos aislados ni diffs parciales.
+
+---
+
+## 18. Logging estructurado
+
+Serilog es el proveedor central de logging del host y debe configurarse desde la sección `Serilog` de `appsettings.json` y sus archivos por ambiente. Las variables de entorno pueden sobrescribir cualquier valor usando la convención estándar de configuración de .NET.
+
+### Uso por capa
+
+- Application e Infrastructure deben inyectar `Microsoft.Extensions.Logging.ILogger<T>`.
+- Los tipos específicos de Serilog permanecen en Presentation, el host o Infrastructure cuando sean necesarios para la composición técnica.
+- Domain no referencia Serilog ni contiene logging técnico.
+- No uses `Console.WriteLine` para logs de aplicación.
+
+### Niveles
+
+- `Debug`: decisiones internas y consultas frecuentes sin datos sensibles.
+- `Information`: inicio y cierre, operaciones exitosas, commands, eventos de negocio, correos y jobs completados.
+- `Warning`: validaciones o conflictos esperados, respuestas 4xx, tokens inválidos o expirados y fallos recuperables de proveedores.
+- `Error`: excepciones inesperadas, respuestas 5xx y fallos definitivos de jobs o integraciones.
+- `Fatal`: errores de arranque que impiden continuar.
+
+No registres errores esperados de validación como `Error`.
+
+### Eventos y propiedades
+
+- Usa message templates con propiedades nombradas; no interpolación de strings.
+- Usa nombres consistentes como `CorrelationId`, `TenantId`, `UserId`, `ReservationId`, `VehicleId`, `CustomerId`, `RentalId`, `PaymentId`, `EmailTemplateCode`, `JobId`, `Status`, `PreviousStatus`, `NewStatus` y `ElapsedMilliseconds`.
+- No serialices requests, responses ni entidades completas para construir logs.
+- Commands pueden registrarse en `Information`; queries frecuentes deben preferir `Debug`.
+- Los eventos específicos del negocio complementan el pipeline de MediatR y no deben duplicarse en endpoints.
+
+Ejemplo correcto:
+
+```csharp
+logger.LogInformation(
+    "Reservation {ReservationId} approved for Vehicle {VehicleId} in Tenant {TenantId}",
+    reservationId,
+    vehicleId,
+    tenantId);
+```
+
+Está prohibido construir el mensaje con `$"..."` o serializar automáticamente el request.
+
+### HTTP y CorrelationId
+
+- El encabezado oficial es `X-Correlation-ID`.
+- `CorrelationIdMiddleware` valida o genera el identificador, lo agrega al response y lo mantiene en el `LogContext` durante toda la petición.
+- Cada petición genera un evento de entrada y uno de salida.
+- El evento de salida contiene método, ruta, status, duración y, cuando estén disponibles, `TenantId` y `UserId`.
+- No registres query strings completas, headers completos, request bodies ni response bodies.
+- Las excepciones HTTP no controladas se registran una sola vez con stack trace en el middleware global. El evento de finalización solo registra el resultado técnico.
+
+### Archivos y retención
+
+- Ruta local predeterminada: `Logs/rentify-.json`.
+- Ruta Production predeterminada: `/app/logs/rentify-.json`.
+- El formato es JSON compacto, con rotación diaria y rotación adicional a 50 MB.
+- Production conserva como máximo 30 archivos y aplica además una retención temporal de 30 días; Development conserva como máximo 10 archivos durante 7 días.
+- Ruta, límites y retención deben seguir siendo configurables.
+- Los despliegues en contenedor deben persistir `/app/logs` en un volumen y mantener habilitada la consola.
+- Nunca versions archivos de log.
+
+### Jobs, correo y proveedores
+
+- Cada job importante registra inicio, finalización, duración, `JobId` cuando esté disponible y la entidad o tenant relacionado.
+- Un job que registra una excepción debe relanzarla para conservar los retries de Hangfire.
+- Los flujos de correo registran `EmailTemplateCode`, tenant, entidad relacionada, duración y el identificador seguro del proveedor.
+- No registres destinatarios completos, HTML, texto completo, enlaces de recuperación, tokens, API keys, headers, payloads ni URLs firmadas.
+- Las integraciones externas registran proveedor, operación, resultado, duración y códigos de estado seguros; nunca el payload completo del proveedor.
+
+### Datos prohibidos
+
+Nunca registres:
+
+- `Password`, `ConfirmPassword`, `CurrentPassword` o `NewPassword`.
+- Access tokens, refresh tokens, reset-password tokens, JWT completos o el header `Authorization`.
+- Cookies, API keys, client secrets, connection strings ni variables de entorno completas.
+- Cédulas, pasaportes, licencias, documentos personales, imágenes Base64 o archivos subidos.
+- Correos o teléfonos completos cuando no sean estrictamente necesarios.
+- Direcciones completas, tarjetas, datos de pago, HTML o cuerpos de texto completos.
+- Request bodies, response bodies, headers completos, entidades completas o requests serializados.
