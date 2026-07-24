@@ -47,6 +47,9 @@ public static class ServiceRegistration
         // Pipeline Behaviors
         services.AddScoped(
             typeof(IPipelineBehavior<,>),
+            typeof(LoggingBehavior<,>));
+        services.AddScoped(
+            typeof(IPipelineBehavior<,>),
             typeof(ValidationBehavior<,>));
 
         services.AddScoped<IEmailService, EmailService>();

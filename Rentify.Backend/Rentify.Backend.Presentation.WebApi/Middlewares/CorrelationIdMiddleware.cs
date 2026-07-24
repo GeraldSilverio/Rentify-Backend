@@ -24,6 +24,7 @@ public sealed class CorrelationIdMiddleware
     {
         string correlationId = ResolveCorrelationId(context.Request.Headers[HeaderName]);
         context.Items[CorrelationIdItemKey] = correlationId;
+        Activity.Current?.SetTag("CorrelationId", correlationId);
 
         context.Response.OnStarting(static state =>
         {

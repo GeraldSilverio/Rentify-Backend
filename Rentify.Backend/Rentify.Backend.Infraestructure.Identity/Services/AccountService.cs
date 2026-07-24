@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Rentify.Backend.Core.Application.Modules.Secutiry.Commands.Login;
 using Rentify.Backend.Core.Application.Modules.Secutiry.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Secutiry.Dtos.Response;
@@ -16,14 +17,18 @@ public sealed class AccountService : IAccountService
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IJwtServices _jwtProvider;
     private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly ILogger<AccountService> _logger;
 
     public AccountService(
         UserManager<ApplicationUser> userManager,
-        IJwtServices jwtProvider, RoleManager<IdentityRole> roleManager)
+        IJwtServices jwtProvider,
+        RoleManager<IdentityRole> roleManager,
+        ILogger<AccountService> logger)
     {
         _userManager = userManager;
         _jwtProvider = jwtProvider;
         _roleManager = roleManager;
+        _logger = logger;
     }
 
     public async Task<bool> ExistsByEmailAsync(
@@ -59,10 +64,20 @@ public sealed class AccountService : IAccountService
 
         if (!result.Succeeded)
         {
+            _logger.LogWarning(
+                "User registration failed in Tenant {TenantId} with result {AuthenticationResult}",
+                createUserCommand.TenantId,
+                "IdentityValidationFailed");
             throw new ApiException(string.Join(", ", result.Errors.Select(x => x.Description)), StatusCodes.Status400BadRequest);
         }
         
         await _userManager.AddToRoleAsync(user,createUserCommand.Role);
+
+        _logger.LogInformation(
+            "User {UserId} registered in Tenant {TenantId} with role {Role}",
+            user.Id,
+            user.TenantId,
+            createUserCommand.Role);
 
         return Guid.Parse(user.Id);
     }

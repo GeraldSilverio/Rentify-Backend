@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Shared.Response;
 
@@ -8,10 +9,14 @@ public sealed class CheckVehicleReservationAvailabilityQueryHandler
     : IRequestHandler<CheckVehicleReservationAvailabilityQuery, ResultReponse<ReservationAvailabilityResponse>>
 {
     private readonly IReservationRepository _reservationRepository;
+    private readonly ILogger<CheckVehicleReservationAvailabilityQueryHandler> _logger;
 
-    public CheckVehicleReservationAvailabilityQueryHandler(IReservationRepository reservationRepository)
+    public CheckVehicleReservationAvailabilityQueryHandler(
+        IReservationRepository reservationRepository,
+        ILogger<CheckVehicleReservationAvailabilityQueryHandler> logger)
     {
         _reservationRepository = reservationRepository;
+        _logger = logger;
     }
 
     public async Task<ResultReponse<ReservationAvailabilityResponse>> Handle(
@@ -26,6 +31,16 @@ public sealed class CheckVehicleReservationAvailabilityQueryHandler
                 request.ExpectedReturnDateTime,
                 request.ExcludeReservationId,
                 cancellationToken);
+
+        if (occupied)
+        {
+            _logger.LogWarning(
+                "Vehicle availability conflict detected for Vehicle {VehicleId} from {StartDateTime} to {EndDateTime} in Tenant {TenantId}",
+                request.VehicleId,
+                request.DeliveryDateTime,
+                request.ExpectedReturnDateTime,
+                request.TenantId);
+        }
 
         ReservationAvailabilityResponse response = new(
             !occupied,

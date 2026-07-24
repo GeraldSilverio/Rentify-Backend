@@ -6,6 +6,7 @@ using Rentify.Backend.Core.Application.Modules.Shared.Contracts;
 using Rentify.Backend.Core.Application.Modules.Shared.Helpers;
 using Rentify.Backend.Core.Application.Modules.Tenants.Events;
 using Rentify.Backend.Core.Domain.Enums;
+using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
 namespace Rentify.Backend.Infraestructure.Shared.Services.OutBox
@@ -13,6 +14,7 @@ namespace Rentify.Backend.Infraestructure.Shared.Services.OutBox
     public sealed class TenantRegisteredOutboxHandler : IOutboxMessageHandler
     {
         private readonly IEmailService _emailService;
+        private readonly ILogger<TenantRegisteredOutboxHandler> _logger;
 
         private static readonly JsonSerializerOptions JsonOptions = new()
         {
@@ -21,9 +23,12 @@ namespace Rentify.Backend.Infraestructure.Shared.Services.OutBox
 
         public string Type => OutboxMessageTypes.TenantRegistered;
 
-        public TenantRegisteredOutboxHandler(IEmailService emailService)
+        public TenantRegisteredOutboxHandler(
+            IEmailService emailService,
+            ILogger<TenantRegisteredOutboxHandler> logger)
         {
             _emailService = emailService;
+            _logger = logger;
         }
 
         public async Task HandleAsync(
@@ -35,6 +40,11 @@ namespace Rentify.Backend.Infraestructure.Shared.Services.OutBox
 
             if (data is null)
                 throw new InvalidOperationException("Invalid TenantRegistered payload.");
+
+            _logger.LogInformation(
+                "Processing email {EmailTemplateCode} for Tenant {TenantId}",
+                EmailTemplateCodes.OwnerWelcome,
+                data.TenantId);
 
             await _emailService.SendEmailAsync(new SendTemplateEmailCommand(
                 data.TenantId,
@@ -55,6 +65,11 @@ namespace Rentify.Backend.Infraestructure.Shared.Services.OutBox
                     ["SupportEmail"] = ReadFromConfiguration.GetValueFromConfig("SUPPORT_EMAIL")
                 }),
                 cancellationToken);
+
+            _logger.LogInformation(
+                "Processed email {EmailTemplateCode} for Tenant {TenantId}",
+                EmailTemplateCodes.OwnerWelcome,
+                data.TenantId);
         }
 
         private static string FormatPlanName(string subscriptionPlanCode)

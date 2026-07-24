@@ -45,6 +45,20 @@ namespace Rentify.Backend.Infraestructure.Shared.Services
             OutboxMessage message,
             CancellationToken cancellationToken)
         {
+            using IDisposable? logScope = _logger.BeginScope(new Dictionary<string, object?>
+            {
+                ["CorrelationId"] = message.CorrelationId,
+                ["TenantId"] = message.TenantId,
+                ["OutboxMessageId"] = message.Id,
+                ["OutboxMessageType"] = message.Type
+            });
+
+            _logger.LogDebug(
+                "Processing outbox message {OutboxMessageId} of type {OutboxMessageType} in Tenant {TenantId}",
+                message.Id,
+                message.Type,
+                message.TenantId);
+
             try
             {
                 if (!_handlers.TryGetValue(message.Type, out IOutboxMessageHandler? handler))
@@ -60,6 +74,12 @@ namespace Rentify.Backend.Infraestructure.Shared.Services
 
                 message.MarkAsProcessed(SystemUser);
                 await _context.SaveChangesAsync(cancellationToken);
+
+                _logger.LogInformation(
+                    "Processed outbox message {OutboxMessageId} of type {OutboxMessageType} in Tenant {TenantId}",
+                    message.Id,
+                    message.Type,
+                    message.TenantId);
             }
             catch (OperationCanceledException)
             {
@@ -69,9 +89,10 @@ namespace Rentify.Backend.Infraestructure.Shared.Services
             {
                 _logger.LogError(
                     ex,
-                    "Error processing outbox message {OutboxMessageId} of type {OutboxMessageType}",
+                    "Error processing outbox message {OutboxMessageId} of type {OutboxMessageType} in Tenant {TenantId}",
                     message.Id,
-                    message.Type);
+                    message.Type,
+                    message.TenantId);
 
                 message.MarkAsFailed(ex.Message, SystemUser);
                 await _context.SaveChangesAsync(cancellationToken);

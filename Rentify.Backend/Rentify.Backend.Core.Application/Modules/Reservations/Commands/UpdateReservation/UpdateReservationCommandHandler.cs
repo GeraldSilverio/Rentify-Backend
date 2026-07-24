@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Rentify.Backend.Core.Application.Modules.Customers.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Services;
@@ -11,6 +12,7 @@ using Rentify.Backend.Core.Application.Modules.Shared.UnitOfWork;
 using Rentify.Backend.Core.Domain.Entities.Customers;
 using Rentify.Backend.Core.Domain.Entities.Reservations;
 using Rentify.Backend.Core.Domain.Entities.Vehicles;
+using Rentify.Backend.Core.Domain.Enums;
 
 namespace Rentify.Backend.Core.Application.Modules.Reservations.Commands.UpdateReservation;
 
@@ -22,19 +24,22 @@ public sealed class UpdateReservationCommandHandler
     private readonly IReservationLocationResolver _locationResolver;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICustomerRepository _customerRepository;
+    private readonly ILogger<UpdateReservationCommandHandler> _logger;
 
     public UpdateReservationCommandHandler(
         IReservationRepository reservationRepository,
         IReservationVehicleResolver vehicleResolver,
         IReservationLocationResolver locationResolver,
         IUnitOfWork unitOfWork,
-        ICustomerRepository customerRepository)
+        ICustomerRepository customerRepository,
+        ILogger<UpdateReservationCommandHandler> logger)
     {
         _reservationRepository = reservationRepository;
         _vehicleResolver = vehicleResolver;
         _locationResolver = locationResolver;
         _unitOfWork = unitOfWork;
         _customerRepository = customerRepository;
+        _logger = logger;
     }
 
     public async Task<ResultReponse<ReservationResponse>> Handle(
@@ -89,6 +94,12 @@ public sealed class UpdateReservationCommandHandler
             request.ExpectedReturnDateTime,
             request.RentalType);
 
+        Guid previousVehicleId = reservation.VehicleId;
+        Guid previousCustomerId = reservation.CustomerId;
+        DateTime previousDeliveryDateTime = reservation.DeliveryDateTime;
+        DateTime previousExpectedReturnDateTime = reservation.ExpectedReturnDateTime;
+        ReservationStatus previousStatus = reservation.Status;
+
         reservation.UpdatePendingReservation(
             request.CustomerId,
             request.VehicleId,
@@ -113,6 +124,20 @@ public sealed class UpdateReservationCommandHandler
             request.ModifiedBy);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        _logger.LogInformation(
+            "Reservation {ReservationId} updated in Tenant {TenantId} from Vehicle {PreviousVehicleId} to {NewVehicleId}, Customer {PreviousCustomerId} to {NewCustomerId}, dates {PreviousDeliveryDateTime}-{PreviousExpectedReturnDateTime} to {DeliveryDateTime}-{ExpectedReturnDateTime}, with status {Status}",
+            reservation.Id,
+            reservation.TenantId,
+            previousVehicleId,
+            reservation.VehicleId,
+            previousCustomerId,
+            reservation.CustomerId,
+            previousDeliveryDateTime,
+            previousExpectedReturnDateTime,
+            reservation.DeliveryDateTime,
+            reservation.ExpectedReturnDateTime,
+            previousStatus);
 
         ReservationResponse response = reservation.ToResponse();
 

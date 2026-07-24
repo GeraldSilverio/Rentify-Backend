@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Rentify.Backend.Core.Application.Modules.Emails.Commands.SendTemplateEmail;
 using Rentify.Backend.Core.Application.Modules.Emails.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Emails.Contracts.Services;
@@ -7,6 +8,7 @@ using Rentify.Backend.Core.Application.Modules.Shared.Exceptions;
 using Rentify.Backend.Core.Application.Modules.Shared.Helpers;
 using Rentify.Backend.Core.Domain.Enums;
 using System.Text.Encodings.Web;
+using System.Diagnostics;
 
 namespace Rentify.Backend.Core.Application.Modules.Emails.Implementations.Services
 {
@@ -14,17 +16,27 @@ namespace Rentify.Backend.Core.Application.Modules.Emails.Implementations.Servic
     {
         private readonly ISystemEmailTemplateRepository _emailTemplateRepository;
         private readonly IEnumerable<IEmailProviderSender> _emailProviderSenders;
+        private readonly ILogger<EmailService> _logger;
 
         public EmailService(
             ISystemEmailTemplateRepository emailTemplateRepository,
-            IEnumerable<IEmailProviderSender> emailProviderSenders)
+            IEnumerable<IEmailProviderSender> emailProviderSenders,
+            ILogger<EmailService> logger)
         {
             _emailTemplateRepository = emailTemplateRepository;
             _emailProviderSenders = emailProviderSenders;
+            _logger = logger;
         }
 
         public async Task<SendTemplateEmailResponse> SendEmailAsync(SendTemplateEmailCommand command, CancellationToken cancellationToken = default)
         {
+            Stopwatch stopwatch = Stopwatch.StartNew();
+
+            _logger.LogInformation(
+                "Sending email using template {EmailTemplateCode} for Tenant {TenantId}",
+                command.TemplateCode,
+                command.TenantId);
+
             var emailTemplate = await _emailTemplateRepository.GetByCodeAsync(command.TenantId, command.TemplateCode, cancellationToken);
 
             if (emailTemplate == null)
@@ -54,6 +66,15 @@ namespace Rentify.Backend.Core.Application.Modules.Emails.Implementations.Servic
                     htmlBody,
                     textBody),
                 cancellationToken);
+
+            stopwatch.Stop();
+
+            _logger.LogInformation(
+                "Email sent using template {EmailTemplateCode} for Tenant {TenantId} with provider message {ProviderMessageId} in {ElapsedMilliseconds} ms",
+                command.TemplateCode,
+                command.TenantId,
+                messageId,
+                stopwatch.ElapsedMilliseconds);
 
             return new SendTemplateEmailResponse(EmailProviderType.Resend.ToString(), messageId);
         }

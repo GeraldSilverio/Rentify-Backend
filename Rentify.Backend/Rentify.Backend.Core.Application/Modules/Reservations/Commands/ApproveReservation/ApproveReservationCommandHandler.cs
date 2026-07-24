@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Rentify.Backend.Core.Application.Modules.Customers.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Services;
@@ -8,13 +9,17 @@ using Rentify.Backend.Core.Application.Modules.Reservations.Mappers;
 using Rentify.Backend.Core.Application.Modules.Shared.Exceptions;
 using Rentify.Backend.Core.Application.Modules.Shared.Response;
 using Rentify.Backend.Core.Application.Modules.Shared.UnitOfWork;
+using Rentify.Backend.Core.Application.Modules.Shared.Context;
+using Rentify.Backend.Core.Application.Modules.Shared.Logging;
 using Rentify.Backend.Core.Application.Modules.Shared.Contracts;
 using Rentify.Backend.Core.Application.Modules.Shared.Constants;
 using Rentify.Backend.Core.Application.Modules.Reservations.Events;
+using Rentify.Backend.Core.Application.Modules.Secutiry;
 using Rentify.Backend.Core.Application.Modules.Vehicles.Contracts.Repositories;
 using Rentify.Backend.Core.Domain.Entities.Reservations;
 using Rentify.Backend.Core.Domain.Entities.Vehicles;
 using Rentify.Backend.Core.Domain.Enums;
+using System.Diagnostics;
 
 namespace Rentify.Backend.Core.Application.Modules.Reservations.Commands.ApproveReservation;
 
@@ -27,6 +32,8 @@ public sealed class ApproveReservationCommandHandler
     private readonly IVehicleRepository _vehicleRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IOutboxService _outboxService;
+    private readonly ICurrentRequestContext _currentRequestContext;
+    private readonly ILogger<ApproveReservationCommandHandler> _logger;
 
     public ApproveReservationCommandHandler(
         IReservationRepository reservationRepository,
@@ -34,7 +41,9 @@ public sealed class ApproveReservationCommandHandler
         IReservationVehicleResolver vehicleResolver,
         IUnitOfWork unitOfWork,
         IVehicleRepository vehicleRepository,
-        IOutboxService outboxService)
+        IOutboxService outboxService,
+        ICurrentRequestContext currentRequestContext,
+        ILogger<ApproveReservationCommandHandler> logger)
     {
         _reservationRepository = reservationRepository;
         _customerRepository = customerRepository;
@@ -42,12 +51,19 @@ public sealed class ApproveReservationCommandHandler
         _unitOfWork = unitOfWork;
         _vehicleRepository = vehicleRepository;
         _outboxService = outboxService;
+        _currentRequestContext = currentRequestContext;
+        _logger = logger;
     }
 
     public async Task<ResultReponse<ReservationResponse>> Handle(
         ApproveReservationCommand request,
         CancellationToken cancellationToken)
     {
+        _logger.LogDebug(
+            "Attempting to approve Reservation {ReservationId} in Tenant {TenantId}",
+            request.ReservationId,
+            request.TenantId);
+
         Reservation reservation =
             await _reservationRepository.GetByIdAsync(
                 request.TenantId,
@@ -80,6 +96,14 @@ public sealed class ApproveReservationCommandHandler
 
         if (hasApprovedOverlap)
         {
+            _logger.LogWarning(
+                "Vehicle availability conflict detected for Vehicle {VehicleId} from {StartDateTime} to {EndDateTime} in Tenant {TenantId} while approving Reservation {ReservationId}",
+                reservation.VehicleId,
+                reservation.DeliveryDateTime,
+                reservation.ExpectedReturnDateTime,
+                reservation.TenantId,
+                reservation.Id);
+
             throw new ApiException(
                 "El vehículo ya tiene una reserva aprobada para el rango de fechas seleccionado.",
                 StatusCodes.Status400BadRequest);
@@ -95,7 +119,7 @@ public sealed class ApproveReservationCommandHandler
                 reservation.Id,
                 reservation.ApprovedAt!.Value),
             request.ApprovedBy,
-            correlationId: null,
+            correlationId: Activity.Current?.GetTagItem("CorrelationId")?.ToString(),
             cancellationToken);
 
         VehicleUnavailableDate vehicleUnavailableDate =
@@ -109,6 +133,23 @@ public sealed class ApproveReservationCommandHandler
         await _vehicleRepository.AddUnavailableDateAsync(vehicleUnavailableDate, cancellationToken);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        _logger.LogInformation(
+            "Reservation {ReservationId} approved for Vehicle {VehicleId} in Tenant {TenantId} by {ApprovedBy}; availability validated {AvailabilityValidated} with block {AvailabilityBlockId} and status {PreviousStatus} to {NewStatus}",
+            reservation.Id,
+            reservation.VehicleId,
+            reservation.TenantId,
+            RequestContextLogValues.GetUserId(_currentRequestContext),
+            true,
+            vehicleUnavailableDate.Id,
+            ReservationStatus.Pending,
+            reservation.Status);
+
+        _logger.LogInformation(
+            "Email {EmailTemplateCode} enqueued for Reservation {ReservationId} in Tenant {TenantId}",
+            EmailTemplateCodes.ReservationApproved,
+            reservation.Id,
+            reservation.TenantId);
 
         ReservationResponse response = reservation.ToResponse();
 

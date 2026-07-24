@@ -3,6 +3,7 @@ using System.Net;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Rentify.Backend.Core.Application.Modules.Emails.Commands.SendTemplateEmail;
 using Rentify.Backend.Core.Application.Modules.Emails.Contracts.Services;
@@ -32,6 +33,7 @@ namespace Rentify.Backend.Infraestructure.Identity.Services
         private readonly JwtSettings _jwtSettings;
         private readonly IEmailService _emailService;
         private readonly ITenantRepository _tenantRepository;
+        private readonly ILogger<AuthenticationService> _logger;
 
         public AuthenticationService(
             SignInManager<ApplicationUser> signInManager,
@@ -40,7 +42,8 @@ namespace Rentify.Backend.Infraestructure.Identity.Services
             IdentityContext identityContext,
             IOptions<JwtSettings> jwtSettings,
             IEmailService emailService,
-            ITenantRepository tenantRepository)
+            ITenantRepository tenantRepository,
+            ILogger<AuthenticationService> logger)
         {
             _signInManager = signInManager;
             _userManager = userManager;
@@ -49,6 +52,7 @@ namespace Rentify.Backend.Infraestructure.Identity.Services
             _jwtSettings = jwtSettings.Value;
             _emailService = emailService;
             _tenantRepository = tenantRepository;
+            _logger = logger;
         }
 
         public async Task<LoginResponse> LoginAsync(LoginCommand loginCommand)
@@ -57,11 +61,19 @@ namespace Rentify.Backend.Infraestructure.Identity.Services
 
             if (user == null)
             {
+                _logger.LogWarning(
+                    "Authentication login failed with result {AuthenticationResult}",
+                    "InvalidCredentials");
                 throw new ApiException("Crendenciales inválidas", StatusCodes.Status401Unauthorized);
             }
 
             if (!user.IsActive)
             {
+                _logger.LogWarning(
+                    "Authentication login denied for User {UserId} in Tenant {TenantId} with result {AuthenticationResult}",
+                    user.Id,
+                    user.TenantId,
+                    "InactiveUser");
                 throw new ApiException("Usuario desactivado, favor contactar al administrador.", StatusCodes.Status403Forbidden);
             }
 
@@ -69,17 +81,30 @@ namespace Rentify.Backend.Infraestructure.Identity.Services
 
             if (!signInResult.Succeeded)
             {
+                _logger.LogWarning(
+                    "Authentication login failed with result {AuthenticationResult}",
+                    signInResult.IsLockedOut ? "LockedOut" : "InvalidCredentials");
                 throw new ApiException("Crendenciales inválidas", StatusCodes.Status401Unauthorized);
             }
 
             if (!await _tenantRepository.IsTenantActiveAsync(user.TenantId))
             {
+                _logger.LogWarning(
+                    "Authentication login denied for User {UserId} in Tenant {TenantId} with result {AuthenticationResult}",
+                    user.Id,
+                    user.TenantId,
+                    "InactiveTenant");
                 throw new ApiException("La empresa no esta activa, favor contactar al administrador.", StatusCodes.Status403Forbidden);
             }
 
             var roles = await _userManager.GetRolesAsync(user);
 
             var tokenResponse = await GenerateTokenResponseAsync(user);
+
+            _logger.LogInformation(
+                "Authentication login succeeded for User {UserId} in Tenant {TenantId}",
+                user.Id,
+                user.TenantId);
 
             return new LoginResponse(
                 Guid.Parse(user.Id),
@@ -99,6 +124,7 @@ namespace Rentify.Backend.Infraestructure.Identity.Services
 
             if (user == null || !user.IsActive)
             {
+                _logger.LogInformation("Password reset request processed");
                 return new ForgotPasswordResponse(responseMessage);
             }
 
@@ -117,6 +143,11 @@ namespace Rentify.Backend.Infraestructure.Identity.Services
                     ["ResetUrl"] = resetUrl
                 }));
 
+            _logger.LogInformation(
+                "Password reset request processed for User {UserId} in Tenant {TenantId}",
+                user.Id,
+                user.TenantId);
+
             return new ForgotPasswordResponse(responseMessage);
         }
 
@@ -126,6 +157,9 @@ namespace Rentify.Backend.Infraestructure.Identity.Services
 
             if (user == null)
             {
+                _logger.LogWarning(
+                    "Password reset failed with result {AuthenticationResult}",
+                    "InvalidRequest");
                 throw new ApiException("Invalid reset password request", StatusCodes.Status400BadRequest);
             }
 
@@ -137,6 +171,11 @@ namespace Rentify.Backend.Infraestructure.Identity.Services
 
             if (!isValidToken)
             {
+                _logger.LogWarning(
+                    "Password reset failed for User {UserId} in Tenant {TenantId} with result {AuthenticationResult}",
+                    user.Id,
+                    user.TenantId,
+                    "InvalidOrExpiredToken");
                 throw new ApiException("Invalid reset password token", StatusCodes.Status400BadRequest);
             }
 
@@ -144,10 +183,20 @@ namespace Rentify.Backend.Infraestructure.Identity.Services
 
             if (!result.Succeeded)
             {
+                _logger.LogWarning(
+                    "Password reset failed for User {UserId} in Tenant {TenantId} with result {AuthenticationResult}",
+                    user.Id,
+                    user.TenantId,
+                    "IdentityValidationFailed");
                 throw new ApiException(string.Join(", ", result.Errors.Select(x => x.Description)), StatusCodes.Status400BadRequest);
             }
 
             await RevokeAllActiveRefreshTokensAsync(user.Id);
+
+            _logger.LogInformation(
+                "Password reset succeeded for User {UserId} in Tenant {TenantId}",
+                user.Id,
+                user.TenantId);
 
             return true;
         }
@@ -161,6 +210,9 @@ namespace Rentify.Backend.Infraestructure.Identity.Services
 
             if (refreshToken == null)
             {
+                _logger.LogWarning(
+                    "Refresh token operation failed with result {AuthenticationResult}",
+                    "InvalidToken");
                 throw new ApiException(
                     "El refresh token no es válido.",
                     StatusCodes.Status401Unauthorized,
@@ -169,6 +221,10 @@ namespace Rentify.Backend.Infraestructure.Identity.Services
 
             if (refreshToken.IsExpired)
             {
+                _logger.LogWarning(
+                    "Refresh token operation failed for User {UserId} with result {AuthenticationResult}",
+                    refreshToken.UserId,
+                    "ExpiredToken");
                 throw new ApiException(
                     "Tu refresh token ha vencido.",
                     StatusCodes.Status401Unauthorized,
@@ -182,6 +238,11 @@ namespace Rentify.Backend.Infraestructure.Identity.Services
                     await RevokeAllActiveRefreshTokensAsync(refreshToken.UserId);
                 }
 
+                _logger.LogWarning(
+                    "Refresh token operation failed for User {UserId} with result {AuthenticationResult}",
+                    refreshToken.UserId,
+                    "RevokedToken");
+
                 throw new ApiException(
                     "El refresh token no es válido.",
                     StatusCodes.Status401Unauthorized,
@@ -192,6 +253,9 @@ namespace Rentify.Backend.Infraestructure.Identity.Services
 
             if (user == null || !user.IsActive)
             {
+                _logger.LogWarning(
+                    "Refresh token operation failed with result {AuthenticationResult}",
+                    "InactiveUser");
                 throw new ApiException(
                     "El refresh token no es válido.",
                     StatusCodes.Status401Unauthorized,
@@ -200,6 +264,11 @@ namespace Rentify.Backend.Infraestructure.Identity.Services
 
             if (!await _tenantRepository.IsTenantActiveAsync(user.TenantId))
             {
+                _logger.LogWarning(
+                    "Refresh token operation failed for User {UserId} in Tenant {TenantId} with result {AuthenticationResult}",
+                    user.Id,
+                    user.TenantId,
+                    "InactiveTenant");
                 throw new ApiException(
                     "La empresa no está activa, favor contactar al administrador.",
                     StatusCodes.Status403Forbidden);
@@ -212,7 +281,14 @@ namespace Rentify.Backend.Infraestructure.Identity.Services
             await _identityContext.RefreshTokens.AddAsync(newRefreshToken.Entity);
             await _identityContext.SaveChangesAsync();
 
-            return await GenerateTokenResponseAsync(user, newRefreshToken);
+            TokenResponse response = await GenerateTokenResponseAsync(user, newRefreshToken);
+
+            _logger.LogInformation(
+                "Refresh token operation succeeded for User {UserId} in Tenant {TenantId}",
+                user.Id,
+                user.TenantId);
+
+            return response;
         }
 
         public async Task<bool> RevokeRefreshTokenAsync(RevokeRefreshTokenCommand revokeRefreshTokenCommand)
@@ -224,6 +300,9 @@ namespace Rentify.Backend.Infraestructure.Identity.Services
 
             if (refreshToken == null)
             {
+                _logger.LogWarning(
+                    "Refresh token revocation failed with result {AuthenticationResult}",
+                    "InvalidToken");
                 throw new ApiException(
                     "El refresh token no es válido.",
                     StatusCodes.Status401Unauthorized,
@@ -235,6 +314,10 @@ namespace Rentify.Backend.Infraestructure.Identity.Services
                 refreshToken.RevokedAt = DateTime.UtcNow;
                 await _identityContext.SaveChangesAsync();
             }
+
+            _logger.LogInformation(
+                "Refresh token revoked for User {UserId}",
+                refreshToken.UserId);
 
             return true;
         }

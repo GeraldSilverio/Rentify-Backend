@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Rentify.Backend.Core.Application.Modules.Customers.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Repositories;
 using Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Services;
@@ -23,6 +24,7 @@ public sealed class CreateReservationCommandHandler
     private readonly IReservationCodeGenerator _reservationCodeGenerator;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICustomerRepository _customerRepository;
+    private readonly ILogger<CreateReservationCommandHandler> _logger;
 
     public CreateReservationCommandHandler(
         IReservationRepository reservationRepository,
@@ -30,7 +32,8 @@ public sealed class CreateReservationCommandHandler
         IReservationLocationResolver locationResolver,
         IReservationCodeGenerator reservationCodeGenerator,
         IUnitOfWork unitOfWork,
-        ICustomerRepository customerRepository)
+        ICustomerRepository customerRepository,
+        ILogger<CreateReservationCommandHandler> logger)
     {
         _reservationRepository = reservationRepository;
         _vehicleResolver = vehicleResolver;
@@ -38,6 +41,7 @@ public sealed class CreateReservationCommandHandler
         _reservationCodeGenerator = reservationCodeGenerator;
         _unitOfWork = unitOfWork;
         _customerRepository = customerRepository;
+        _logger = logger;
     }
 
     public async Task<ResultReponse<ReservationResponse>> Handle(
@@ -112,6 +116,17 @@ public sealed class CreateReservationCommandHandler
 
         await _reservationRepository.AddAsync(reservation, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        _logger.LogInformation(
+            "Reservation {ReservationId} created for Customer {CustomerId} and Vehicle {VehicleId} in Tenant {TenantId} from {DeliveryDateTime} to {ExpectedReturnDateTime} with rental type {RentalType} and status {Status}",
+            reservation.Id,
+            reservation.CustomerId,
+            reservation.VehicleId,
+            reservation.TenantId,
+            reservation.DeliveryDateTime,
+            reservation.ExpectedReturnDateTime,
+            reservation.RentalType,
+            reservation.Status);
 
         ReservationResponse response = reservation.ToResponse();
 
