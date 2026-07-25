@@ -6,12 +6,17 @@ using Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Repositori
 using Rentify.Backend.Core.Application.Modules.Reservations.Contracts.Services;
 using Rentify.Backend.Core.Application.Modules.Reservations.Dtos;
 using Rentify.Backend.Core.Application.Modules.Reservations.Mappers;
+using Rentify.Backend.Core.Application.Modules.Reservations.Emails;
+using Rentify.Backend.Core.Application.Modules.Reservations.Events;
+using Rentify.Backend.Core.Application.Modules.Shared.Constants;
+using Rentify.Backend.Core.Application.Modules.Shared.Contracts;
 using Rentify.Backend.Core.Application.Modules.Shared.Exceptions;
 using Rentify.Backend.Core.Application.Modules.Shared.Response;
 using Rentify.Backend.Core.Application.Modules.Shared.UnitOfWork;
 using Rentify.Backend.Core.Domain.Entities.Reservations;
 using Rentify.Backend.Core.Domain.Entities.Vehicles;
 using System.Net;
+using System.Diagnostics;
 
 namespace Rentify.Backend.Core.Application.Modules.Reservations.Commands.CreateReservation;
 
@@ -24,6 +29,7 @@ public sealed class CreateReservationCommandHandler
     private readonly IReservationCodeGenerator _reservationCodeGenerator;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICustomerRepository _customerRepository;
+    private readonly IOutboxService _outboxService;
     private readonly ILogger<CreateReservationCommandHandler> _logger;
 
     public CreateReservationCommandHandler(
@@ -33,6 +39,7 @@ public sealed class CreateReservationCommandHandler
         IReservationCodeGenerator reservationCodeGenerator,
         IUnitOfWork unitOfWork,
         ICustomerRepository customerRepository,
+        IOutboxService outboxService,
         ILogger<CreateReservationCommandHandler> logger)
     {
         _reservationRepository = reservationRepository;
@@ -41,6 +48,7 @@ public sealed class CreateReservationCommandHandler
         _reservationCodeGenerator = reservationCodeGenerator;
         _unitOfWork = unitOfWork;
         _customerRepository = customerRepository;
+        _outboxService = outboxService;
         _logger = logger;
     }
 
@@ -115,18 +123,39 @@ public sealed class CreateReservationCommandHandler
             request.CreatedBy);
 
         await _reservationRepository.AddAsync(reservation, cancellationToken);
+
+        ReservationCreatedEvent reservationCreatedEvent = new(
+            reservation.TenantId,
+            reservation.Id,
+            reservation.Channel);
+
+        await _outboxService.AddAsync(
+            reservation.TenantId,
+            OutboxMessageTypes.ReservationCreated,
+            reservationCreatedEvent,
+            request.CreatedBy,
+            correlationId: Activity.Current?.GetTagItem("CorrelationId")?.ToString(),
+            cancellationToken);
+
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation(
-            "Reservation {ReservationId} created for Customer {CustomerId} and Vehicle {VehicleId} in Tenant {TenantId} from {DeliveryDateTime} to {ExpectedReturnDateTime} with rental type {RentalType} and status {Status}",
+            "Reservation {ReservationId} created through Channel {ReservationChannel} for Tenant {TenantId}",
             reservation.Id,
-            reservation.CustomerId,
-            reservation.VehicleId,
-            reservation.TenantId,
-            reservation.DeliveryDateTime,
-            reservation.ExpectedReturnDateTime,
-            reservation.RentalType,
-            reservation.Status);
+            reservation.Channel,
+            reservation.TenantId);
+
+        _logger.LogInformation(
+            "Reservation created event published for Reservation {ReservationId}",
+            reservation.Id);
+
+        string templateCode = ReservationCreatedEmailTemplateResolver.Resolve(
+            reservation.Channel);
+
+        _logger.LogInformation(
+            "Reservation created email job queued for Reservation {ReservationId} using Template {EmailTemplateCode}",
+            reservation.Id,
+            templateCode);
 
         ReservationResponse response = reservation.ToResponse();
 

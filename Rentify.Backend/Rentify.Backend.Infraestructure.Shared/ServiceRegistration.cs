@@ -61,6 +61,7 @@ public static class ServiceRegistration
         services.AddScoped<IOutboxProcessor, OutboxProcessor>();
         services.AddScoped<IOutboxMessageHandler, TenantRegisteredOutboxHandler>();
         services.AddScoped<IOutboxMessageHandler, ApproveReservationOutBoxHandler>();
+        services.AddScoped<IOutboxMessageHandler, ReservationCreatedOutboxHandler>();
         services.AddScoped<OutboxProcessingJob>();
 
         return services;

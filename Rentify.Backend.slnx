@@ -12,4 +12,7 @@
   <Folder Name="/Source/Presentation/">
     <Project Path="Rentify.Backend/Rentify.Backend.Presentation.WebApi/Rentify.Backend.Presentation.WebApi.csproj" />
   </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="Rentify.Backend/Rentify.Backend.Logging.Tests/Rentify.Backend.Logging.Tests.csproj" />
+  </Folder>
 </Solution>

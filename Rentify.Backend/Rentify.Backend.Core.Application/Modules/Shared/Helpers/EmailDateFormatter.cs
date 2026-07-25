@@ -28,7 +28,7 @@ namespace Rentify.Backend.Core.Application.Modules.Shared.Helpers
                 DominicanTimeZone);
 
             return dominicanDate.ToString(
-                "dd 'de' MMMM 'de' yyyy, h:mm tt",
+                "d 'de' MMMM 'de' yyyy, hh:mm tt",
                 DominicanCulture);
         }
 

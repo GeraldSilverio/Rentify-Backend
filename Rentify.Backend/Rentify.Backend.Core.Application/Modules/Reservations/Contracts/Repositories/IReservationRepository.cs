@@ -23,6 +23,11 @@ public interface IReservationRepository
         Guid reservationId,
         CancellationToken cancellationToken = default);
 
+    Task<ReservationCreatedEmailData?> GetCreatedEmailDataAsync(
+        Guid tenantId,
+        Guid reservationId,
+        CancellationToken cancellationToken = default);
+
     Task AddAsync(
         Reservation reservation,
         CancellationToken cancellationToken = default);

@@ -1,0 +1,38 @@
+using Rentify.Backend.Core.Domain.Enums;
+
+namespace Rentify.Backend.Core.Application.Modules.Reservations.Dtos;
+
+public sealed record ReservationCreatedEmailData(
+    Guid ReservationId,
+    string ReservationCode,
+    Guid TenantId,
+    ReservationChannel Channel,
+    ReservationStatus Status,
+    DateTime CreatedAtUtc,
+    Guid CustomerId,
+    string CustomerFirstName,
+    string CustomerEmail,
+    Guid VehicleId,
+    string VehicleBrandName,
+    string VehicleModelName,
+    int VehicleYear,
+    string VehiclePlateNumber,
+    string TenantName,
+    string TenantPhone,
+    string TenantWhatsApp,
+    string TenantEmail,
+    RentalType RentalType,
+    int Quantity,
+    DateTime DeliveryDateTime,
+    DateTime ExpectedReturnDateTime,
+    string DeliveryLocationName,
+    string? DeliveryAddressDetails,
+    string ReturnLocationName,
+    string? ReturnAddressDetails,
+    decimal UnitRate,
+    decimal RentalAmount,
+    decimal DeliveryFee,
+    decimal ReturnFee,
+    decimal SecurityDepositAmount,
+    decimal DiscountAmount,
+    decimal TotalAmount);

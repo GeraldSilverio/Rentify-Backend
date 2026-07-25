@@ -297,4 +297,58 @@ public sealed class ReservationRepository : IReservationRepository
                 reservation.TotalAmount))
             .FirstOrDefaultAsync(cancellationToken);
     }
+
+    public Task<ReservationCreatedEmailData?> GetCreatedEmailDataAsync(
+        Guid tenantId,
+        Guid reservationId,
+        CancellationToken cancellationToken = default)
+    {
+        return (
+            from reservation in _context.Reservations.AsNoTracking()
+            join tenant in _context.Tenants.AsNoTracking()
+                on reservation.TenantId equals tenant.Id
+            where reservation.TenantId == tenantId
+                && reservation.Id == reservationId
+                && reservation.Customer.TenantId == tenantId
+                && reservation.Vehicle.TenantId == tenantId
+                && !reservation.IsDeleted
+                && !reservation.Customer.IsDeleted
+                && !reservation.Vehicle.IsDeleted
+                && !tenant.IsDeleted
+            select new ReservationCreatedEmailData(
+                reservation.Id,
+                reservation.Code,
+                reservation.TenantId,
+                reservation.Channel,
+                reservation.Status,
+                reservation.CreatedDate,
+                reservation.CustomerId,
+                reservation.Customer.FirstName,
+                reservation.Customer.Email,
+                reservation.VehicleId,
+                reservation.Vehicle.VehicleBrand.Name,
+                reservation.Vehicle.VehicleModel.Name,
+                reservation.Vehicle.Year,
+                reservation.Vehicle.PlateNumber,
+                tenant.Name,
+                tenant.PhoneNumber.Value,
+                tenant.WhatsApp.Value,
+                tenant.Email.Value,
+                reservation.RentalType,
+                reservation.Quantity,
+                reservation.DeliveryDateTime,
+                reservation.ExpectedReturnDateTime,
+                reservation.DeliveryLocationName,
+                reservation.DeliveryAddressDetails,
+                reservation.ReturnLocationName,
+                reservation.ReturnAddressDetails,
+                reservation.UnitRate,
+                reservation.RentalAmount,
+                reservation.DeliveryFee,
+                reservation.ReturnFee,
+                reservation.SecurityDepositAmount,
+                reservation.DiscountAmount,
+                reservation.TotalAmount))
+            .FirstOrDefaultAsync(cancellationToken);
+    }
 }
