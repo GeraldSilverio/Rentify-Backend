@@ -65,19 +65,6 @@ namespace Rentify.Backend.Core.Application.Modules.Emails.Implementations.Servic
             var htmlBody = RenderHtmlTemplate(emailTemplate.HtmlBody, variables);
             var textBody = emailTemplate.TextBody == null ? null : RenderTemplate(emailTemplate.TextBody, variables);
 
-            if (HasUnresolvedPlaceholders(subject)
-                || HasUnresolvedPlaceholders(htmlBody)
-                || HasUnresolvedPlaceholders(textBody))
-            {
-                _logger.LogError(
-                    "Email template {EmailTemplateCode} contains unresolved placeholders for Tenant {TenantId}",
-                    command.TemplateCode,
-                    command.TenantId);
-
-                throw new InvalidOperationException(
-                    $"Email template {command.TemplateCode} contains unresolved placeholders.");
-            }
-
             var messageId = await emailProviderSender.SendAsync(
                 new EmailProviderSendRequest(
                     ReadFromConfiguration.GetValueFromConfig("RESEND_API_KEY"),
@@ -122,10 +109,5 @@ namespace Rentify.Backend.Core.Application.Modules.Emails.Implementations.Servic
             return RenderTemplate(template, encodedVariables);
         }
 
-        private static bool HasUnresolvedPlaceholders(string? value)
-        {
-            return value is not null
-                && UnresolvedPlaceholderPattern.IsMatch(value);
-        }
     }
 }
